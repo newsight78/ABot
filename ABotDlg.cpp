@@ -1930,7 +1930,7 @@ BOOL CABotDlg::IsInRoundTime()
 
 	m_cmbRoundCount.GetLBText(m_cmbRoundCount.GetCurSel(), strBuf);
 	int iRoundCount = atoi((LPSTR)(LPCSTR)strBuf);
-	if (m_cmbRoundCount.GetCurSel() != 0 && iRoundCount <= m_nRoundCount)
+	if (m_cmbRoundCount.GetCurSel() != 0 && iRoundCount < m_nRoundCount)
 	{
 		return FALSE;
 	}
