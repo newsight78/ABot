@@ -34,6 +34,13 @@
 #include <afxdisp.h>
 
 
+#define OP_ERR_NONE				0				//"정상처리"
+
+
+#define OP_ERR_LOGIN			-100			//"사용자정보교환에 실패하였습니다. 잠시후 다시 시작하여 주십시요."
+#define OP_ERR_CONNECT			-101			//"서버 접속 실패"
+#define OP_ERR_VERSION			-102			//"버전처리가 실패하였습니다."
+
 
 #define OP_ERR_SISE_OVERFLOW	-200			//"시세조회 과부하"
 #define OP_ERR_RQ_STRUCT_FAIL	-201			//"REQUEST_INPUT_st Failed"
@@ -81,8 +88,11 @@
 
 #include "Util.h"
 #include "CDKHOpenAPI.h"
+#include "ABotItem.h"
 #include "CsMsgDisp.h"
+#include "ALog.h"
 
-extern CsMsgDisp * g_pMsgDisp;
-
+extern CABotItem	g_ABotItem[100];
+extern CsMsgDisp *	g_pMsgDisp;
+extern CALog		g_logger;
 

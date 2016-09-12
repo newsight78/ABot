@@ -51,8 +51,8 @@ void CsMsgDisp::OnShowWindow(BOOL bShow, UINT nStatus)
 			GetParent()->GetWindowRect(&lRect);
 		}
 
-		MoveWindow(lRect.right, lRect.top, 500, 300);
-		SetWindowText("Puppet Message Dialog");  
+		MoveWindow(lRect.right, lRect.top, 500, 600);
+		SetWindowText("Message Dialog");  
 		m_bFistDisplay = FALSE;
 	}
 }
@@ -120,9 +120,12 @@ BOOL CsMsgDisp::AddMessage(char * i_cMsg, ...)
 	_vstprintf_s(arbytebuf, i_cMsg, arglist);
 	_stprintf_s(arbyteMsg, "[%s:%03u] %s\r\n", time.Format("%Y/%m/%d %H:%M:%S"), tstruct.millitm, arbytebuf);
 
+	//여기서 로그를 바로 쓴다.
+	g_logger.WriteLog(arbytebuf);
+
 	long nOldLines = m_cRichEdit.GetLineCount();
 
-	if (nOldLines > 100)
+	if (nOldLines > 200)
 	{  
 		m_cRichEdit.SetSel(0, -1);
 		m_cRichEdit.Clear();

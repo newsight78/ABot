@@ -103,6 +103,8 @@
   <ItemGroup>
     <ClInclude Include="ABot.h" />
     <ClInclude Include="ABotDlg.h" />
+    <ClInclude Include="ABotItem.h" />
+    <ClInclude Include="ALog.h" />
     <ClInclude Include="CDKHOpenAPI.h" />
     <ClInclude Include="CsMsgDisp.h" />
     <ClInclude Include="CsObject.h" />
@@ -122,6 +124,8 @@
   <ItemGroup>
     <ClCompile Include="ABot.cpp" />
     <ClCompile Include="ABotDlg.cpp" />
+    <ClCompile Include="ABotItem.cpp" />
+    <ClCompile Include="ALog.cpp" />
     <ClCompile Include="CDKHOpenAPI.cpp" />
     <ClCompile Include="CsMsgDisp.cpp" />
     <ClCompile Include="CsObject.cpp" />
