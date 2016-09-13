@@ -1294,7 +1294,10 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 	{
 		CABotItem &aItem = m_Item[nItemIndex];
 
-		aItem.m_lcurPrice = lCurPrice;
+		if (lCurPrice > 0)
+		{
+			aItem.m_lcurPrice = lCurPrice;
+		}
 
 		if (bREQDone)
 		{
