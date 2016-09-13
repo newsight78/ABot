@@ -125,6 +125,7 @@ void CABotDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_KHOPENAPICTRL1, theApp.m_khOpenApi);
 	DDX_Control(pDX, IDC_COMBO_FILTER, m_cmbCon);
 	DDX_Control(pDX, IDC_GRD_REALADD, m_grdRealAdd);
+	DDX_Control(pDX, IDC_GRD_BUY_ITEM, m_grdBuyItem);
 	DDX_Control(pDX, IDC_COMBO_ROUND, m_cmbRoundCount);
 	DDX_Control(pDX, IDC_COMBO_SHOUR, m_cmbStartHour);
 	DDX_Control(pDX, IDC_COMBO_SMIN, m_cmbStartMin);
@@ -306,7 +307,7 @@ BOOL CABotDlg::OnInitDialog()
 	if (m_strConfigFile.Find(":") < 0)
 	{
 		strBuf = m_strConfigFile;
-		char charBuf[256];
+		char charBuf[256] = { 0 };
 		GetCurrentDirectory(_countof(charBuf)-1, charBuf);
 		m_strConfigFile.Format("%s\\%s", charBuf, strBuf);
 	}
@@ -862,26 +863,20 @@ void CABotDlg::OnBnClickedButtonSaveconfig()
 
 void CABotDlg::InitRealAddGrid()
 {
-	m_grdRealAdd.SetEditable(false);				//cell을 에디트 못하게 함.
+	COLORREF clr = RGB(215, 227, 241);
+	int i = 0, nWidth[] = { 50, 80, 70, 30, 70, 45, 75 };
+	int nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
+	CString strHeader[] = { "코드", "종목명", "현재가", "기호", "전일대비", "등락율", "거래량" };
+
+	m_grdRealAdd.SetEditable(FALSE);				//cell을 에디트 못하게 함.
 //	m_grdRealAdd.EnableScrollBars(SB_BOTH, FALSE);
 	m_grdRealAdd.EnableScrollBars(SB_VERT, TRUE);
 
-	COLORREF clr = RGB(215, 227, 241);
-
-	// 고정 행/열 설정
-	m_grdRealAdd.SetFixedRowCount(1);
-
-	// 행/열 갯수 설정
-	m_grdRealAdd.SetRowCount(1);
+	m_grdRealAdd.SetFixedRowCount(1); // 고정 행/열 설정
+	m_grdRealAdd.SetRowCount(1); // 행/열 갯수 설정
 	SetGridHeight(0, 24); // grid 높이는 윈도우 별로 상이하므로 별도 함수로 호출한다.
+	m_grdRealAdd.SetColumnCount(nCnt); // 열의 개수 설정
 
-	m_grdRealAdd.SetColumnCount(7);
-
-	// 열의 넓이 설정
-	int i = 0, nWidth[] = { 50, 80, 70, 30, 70, 45, 75 };
-	CString strHeader[] = { "코드", "종목명", "현재가", "기호", "전일대비", "등락율", "거래량" };
-	int nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
-	m_grdRealAdd.SetColumnCount(nCnt);
 	for (i = 0; i < nCnt; i++)
 	{
 		SetGridWidth(i, nWidth[i]); // grid 폭은 윈도우 별로 상이하므로 별도 함수로 호출한다.
@@ -892,6 +887,28 @@ void CABotDlg::InitRealAddGrid()
 
 	m_grdRealAdd.SetRowCount(21);
 	m_grdRealAdd.Invalidate();
+}
+
+void CABotDlg::InitBuyItemGrid()
+{
+	COLORREF clr = RGB(215, 227, 241);
+	int i = 0, nWidth[] = { 60, 60, 60, 60, 60, 60, 60 };
+	int nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
+	CString strHeader[] = { "종목명", "매입가", "평가손익", "수익율", "가능수량", "보유수량", "수익률" };
+
+	m_grdBuyItem.SetEditable(FALSE);				//cell을 에디트 못하게 함.
+	m_grdBuyItem.EnableScrollBars(SB_VERT, TRUE);
+	m_grdBuyItem.SetColumnCount(nCnt);
+	
+	for (i = 0; i < nCnt; i++)
+	{
+		SetGridWidth(i, nWidth[i]); // grid 폭은 윈도우 별로 상이하므로 별도 함수로 호출한다.
+		m_grdBuyItem.SetItemFormat(0, i, DT_CENTER);
+		m_grdBuyItem.SetItemText(0, i, strHeader[i]);
+		m_grdBuyItem.SetItemBkColour(0, i, clr);	// 지정된 셀의 배경색 설정
+	}
+	m_grdBuyItem.SetRowCount(21);
+	m_grdBuyItem.Invalidate();
 }
 
 void CABotDlg::OnShowWindow(BOOL bShow, UINT nStatus)
@@ -993,7 +1010,7 @@ void CABotDlg::OnDestroy()
 	AddMessage("=========================================================");
 	AddMessage(" ");
 
-	delete g_pMsgDisp; g_pMsgDisp = NULL;	//메세지 디스플레이를 가장 나중에 소멸 시켜야 한다.
+	SafeDelete(g_pMsgDisp);	//메세지 디스플레이를 가장 나중에 소멸 시켜야 한다.
 }
 
 // 사용자가 최소화된 창을 끄는 동안에 커서가 표시되도록 시스템에서
@@ -1007,8 +1024,8 @@ BOOL CABotDlg::AddMessage(char * i_cMsg, ...)
 {
 	va_list arglist;
 
-	char arbytebuf[1024];
-	char arbyteMsg[1024];
+	char arbytebuf[1024] = { 0 };
+	char arbyteMsg[1024] = { 0 };
 
 	va_start(arglist, i_cMsg);
 	_vstprintf_s(arbytebuf, i_cMsg, arglist);
