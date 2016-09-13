@@ -6,6 +6,7 @@
 #include "afxwin.h"
 #include "ABotItem.h"
 #include "GridCtrl\GridCtrl.h"
+#include "AbotDefine.h"
 
 enum eProcessState
 {
@@ -67,6 +68,9 @@ public:
 	void InitFIDName();
 	void InitRealAddGrid();
 	void SetDataRealAddGrid(CStringArray &arrData, CString strRealType/* = ""*/);
+	void SetGridHeight(long row, long height);
+	void SetGridWidth(long col, long width);
+	eWinVersion GetWindowsVersion();
 	BOOL AddMessage(char * i_cMsg, ...);
 	BOOL AddMessage(CString i_strMsg);
 
