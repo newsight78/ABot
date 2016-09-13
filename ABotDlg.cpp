@@ -285,6 +285,15 @@ BOOL CABotDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
+	//////////////////////////////////////////////////////////////////////////
+	// 경고 메시지 추가
+	AfxMessageBox("[경고]!!!\n\
+				  \n본 프로그램을 이용하여 투자한 결과는 모두 사용자에게 귀속됩니다.\
+				  \n투자 손실이 있을 경우라도 본 프로그램 작성자 및 배포자에게는\
+				  \n절대 책임을 물을 수 없습니다!\
+				  \n따라서 원치 않으시면 프로그램 사용을 금하여 주시기 바랍니다.");
+	//////////////////////////////////////////////////////////////////////////
+
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	m_strConfigFile = _T("ABot.ini");
 	CString strArguments = AfxGetApp()->m_lpCmdLine;
@@ -864,26 +873,24 @@ void CABotDlg::InitRealAddGrid()
 
 	// 행/열 갯수 설정
 	m_grdRealAdd.SetRowCount(1);
+	SetGridHeight(0, 24); // grid 높이는 윈도우 별로 상이하므로 별도 함수로 호출한다.
+
 	m_grdRealAdd.SetColumnCount(7);
 
 	// 열의 넓이 설정
-	int i, nWidth[] = { 50, 80, 80, 20, 60, 45, 75 };
-	CString strHeader[] = { "코드", "종목명", "현재가", "", "전일대비", "등락율", "거래량" };
+	int i = 0, nWidth[] = { 50, 80, 70, 30, 70, 45, 75 };
+	CString strHeader[] = { "코드", "종목명", "현재가", "기호", "전일대비", "등락율", "거래량" };
 	int nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
 	m_grdRealAdd.SetColumnCount(nCnt);
 	for (i = 0; i < nCnt; i++)
 	{
-		m_grdRealAdd.SetColumnWidth(i, nWidth[i]);
+		SetGridWidth(i, nWidth[i]); // grid 폭은 윈도우 별로 상이하므로 별도 함수로 호출한다.
 		m_grdRealAdd.SetItemFormat(0, i, DT_CENTER);
 		m_grdRealAdd.SetItemText(0, i, strHeader[i]);
 		m_grdRealAdd.SetItemBkColour(0, i, clr);	// 지정된 셀의 배경색 설정
 	}
 
 	m_grdRealAdd.SetRowCount(21);
-
-	// 행의 높이 설정
-	m_grdRealAdd.SetRowHeight(0, 24);
-
 	m_grdRealAdd.Invalidate();
 }
 
@@ -1658,6 +1665,91 @@ void CABotDlg::SetDataRealAddGrid(CStringArray &arrData, CString strRealType/* =
 }
 
 //*******************************************************************/
+//! Function Name : SetGridHeight
+//! Function      : 그리드 폭을 조정한다.
+//! Param         : -
+//! Return        : void
+//! Create        : 2016/09/13
+//! Comment       : 윈도우마다 그리드 모습이 다양하므로 이를 별도 함수로 뺀다.
+//******************************************************************/
+void CABotDlg::SetGridHeight(long row, long height)
+{
+	if (GetWindowsVersion() > eWindows_7) {
+		height *= 2;
+	}
+	m_grdRealAdd.SetRowHeight(row, height);
+}
+
+//*******************************************************************/
+//! Function Name : SetGridWidth
+//! Function      : 그리드 폭을 조정한다.
+//! Param         : -
+//! Return        : void
+//! Create        : 2016/09/13
+//! Comment       : 윈도우마다 그리드 모습이 다양하므로 이를 별도 함수로 뺀다.
+//******************************************************************/
+void CABotDlg::SetGridWidth(long col, long width/*=0*/)
+{
+	if (GetWindowsVersion() > eWindows_7) {
+		width = (long)((double)width * 1.7);
+	}
+	m_grdRealAdd.SetColumnWidth(col, width);
+}
+
+//*******************************************************************/
+//! Function Name : GetWindowsVersion
+//! Function      : 윈도우 버전을 가져옴.
+//! Param         : -
+//! Return        : void
+//! Create        : , 2016/09/12
+//! Comment       : 본 함수는 그리드의 모습이 윈도우 버전마다 다른 
+//					경우를 처리하기 위해서 추가됨.
+//******************************************************************/
+eWinVersion CABotDlg::GetWindowsVersion()
+{
+	OSVERSIONINFO osVersionInfo;
+	eWinVersion ret = eNotSupportedVersion;
+
+	ZeroMemory(&osVersionInfo, sizeof(OSVERSIONINFO));
+	osVersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+	GetVersionEx(&osVersionInfo);
+
+	if (osVersionInfo.dwMajorVersion == 5 && osVersionInfo.dwMinorVersion == 1)
+	{
+		ret = eWindowsXP;
+	}
+	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 0)
+	{
+		ret = eWindows_Vista;
+	}
+	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 1)
+	{
+		ret = eWindows_7;
+	}
+	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 2)
+	{
+		ret = eWindows_8;
+	}
+	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 3)
+	{
+		ret = eWindows_8_1;
+	}
+	else if (osVersionInfo.dwMajorVersion == 10 && osVersionInfo.dwMinorVersion == 0)
+	{
+		ret = eWindows_10;
+	}
+
+	if (ret == eNotSupportedVersion) 
+	{
+		AddMessage("Can't not support this version.\n\nmajor version=%d\nminor version=%d",
+					osVersionInfo.dwMajorVersion,
+					osVersionInfo.dwMinorVersion);
+	}
+	return ret;
+}
+
+//*******************************************************************/
 //! Function Name : OnReceiveTrData
 //! Function      : 조회 응답 처리
 //! Param         : LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrcode, LPCTSTR sRecordName, LPCTSTR sPrevNext, long nDataLength, LPCTSTR sErrorCode, LPCTSTR sMessage, LPCTSTR sSplmMsg
@@ -1889,7 +1981,7 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 			{
 				if (strConditionCode != "")
 				{
-					m_grdRealAdd.SetRowHeight(nIndex, 20);		// 행의 높이 설정
+					SetGridHeight(nIndex, 24); // grid 높이는 윈도우 별로 상이하므로 별도 함수로 호출한다.
 					m_grdRealAdd.SetItemText(nIndex, 0, strConditionCode);
 
 					// 종목명

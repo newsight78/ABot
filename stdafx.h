@@ -74,7 +74,7 @@
 #define DT_ZERO_NUMBER	4		// 콤파 숫자(0표시) 형식
 #define DT_SIGN			5		// 대비기호 형식
 
-
+#pragma warning(disable : 4996)
 
 #ifdef _UNICODE
 #if defined _M_IX86

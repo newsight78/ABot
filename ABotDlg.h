@@ -6,13 +6,14 @@
 #include "afxwin.h"
 #include "ABotItem.h"
 #include "GridCtrl\GridCtrl.h"
+#include "AbotDefine.h"
 
 enum eProcessState
 {
 	ePST_IDLE,			//정지 상태.
 	ePST_ROUND_START,	//라운드 시작 상태.
 	ePST_WAIT_TIME,		//라운드 시작 시작 시간을 기다리는 상태.
-	ePST_DR_SEARCH,		//예수금 요청 상태.
+	ePST_DR_SEARCH,		//예수금 요청 상태. (DR=Deposite Received=예수금)
 	ePST_DR_WAIT,		//예수금 결과 대기 상태.
 	ePST_ITEM_SEARCH,	//종목 검색 요청 상태.
 	ePST_ITEM_WAIT,		//종목 검색 결과 대기 상태.
@@ -67,6 +68,9 @@ public:
 	void InitFIDName();
 	void InitRealAddGrid();
 	void SetDataRealAddGrid(CStringArray &arrData, CString strRealType/* = ""*/);
+	void SetGridHeight(long row, long height);
+	void SetGridWidth(long col, long width);
+	eWinVersion GetWindowsVersion();
 	BOOL AddMessage(char * i_cMsg, ...);
 	BOOL AddMessage(CString i_strMsg);
 
