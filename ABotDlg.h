@@ -73,12 +73,14 @@ public:
 	void ProcessSequence();	// 프로세스 구동 함수.
 	void ProcessTrade();	// 거래 구동 함수.
 	
+	BOOL IsInRound()	{ return (m_eProcessState != ePST_IDLE?TRUE:FALSE); };
 	BOOL IsInRoundTime();
 	BOOL REQ_DepositReceived();
 	BOOL REQ_ItemSearch();
 	BOOL REQ_ItemRealReg();
 	BOOL REQ_ItemBuyOrder(CABotItem &aItem);
-	BOOL REQ_ItemSellOrder(CABotItem &aItem);	
+	BOOL REQ_ItemBuyCancle(CABotItem &aItem);	
+	BOOL REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale);
 	BOOL IsEndTrade();
 
 	void SetEnableControls() { SetControls(TRUE); };
