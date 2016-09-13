@@ -1,4 +1,7 @@
 
+//
+//저장소 https://github.com/newsight78/ABot
+//
 // ABot.h : PROJECT_NAME 응용 프로그램에 대한 주 헤더 파일입니다.
 //
 
@@ -10,7 +13,6 @@
 #endif
 
 #include "resource.h"		// 주 기호입니다.
-
 
 // CABotApp:
 // 이 클래스의 구현에 대해서는 ABot.cpp을 참조하십시오.
