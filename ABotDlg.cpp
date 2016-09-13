@@ -1900,6 +1900,7 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 					}
 				}
 			}
+			m_ItemCount = 1;	//디버그용.
 		}
 		else
 		{
@@ -2013,9 +2014,12 @@ BOOL CABotDlg::IsInRoundTime()
 
 	m_cmbRoundCount.GetLBText(m_cmbRoundCount.GetCurSel(), strBuf);
 	int iRoundCount = atoi((LPSTR)(LPCSTR)strBuf);
+	if (m_cmbRoundCount.GetCurSel() != 0 && iRoundCount < m_nRoundCount)
+	{
+		return FALSE;
+	}
 
-	if (iRoundCount <= m_nRoundCount &&
-		iSHour <= iHour && iSMin <= iMin)
+	if ( iSHour <= iHour && iSMin <= iMin)
 	{
 		if ( (iHour < iEHour) || (iHour == iEHour && iMin < iEMin) )
 		{
@@ -2090,7 +2094,7 @@ void CABotDlg::ProcessSequence()
 		}
 		break;
 
-	case  ePST_DR_SEARCH:	//예수금 요청 상태.
+	case ePST_DR_SEARCH:	//예수금 요청 상태.
 		m_nProcessRetryCount++;
 		if (!IsInRoundTime()) {	m_eProcessState = ePST_ROUND_END; break; }	//라운드 가능 시간 확인
 
@@ -2404,6 +2408,12 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 			aItem.m_eitemState = eST_TRADEDONE;
 			return FALSE;
 		}
+	}
+
+	aItem.m_lQuantity = 1;	//디버그용.
+	if (aItem.m_lbuyPrice > 10000) //디버그용.
+	{
+		aItem.m_lbuyPrice = 10000; //디버그용.
 	}
 
 	long lRet = theApp.m_khOpenApi.SendOrder(strRQName, m_strScrNo, m_strAccNo,
