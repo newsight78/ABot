@@ -36,6 +36,7 @@ public:
 	BOOL IsError(long lErrCode, CString &strMsg);
 	void LoadSystemFile();
 	void SaveSystemFile();
+	BOOL InitLogData();
 	void InitComboBox();
 	void InitFIDName();
 	void InitRealAddGrid();

@@ -288,11 +288,15 @@ BOOL CABotDlg::OnInitDialog()
 
 	//////////////////////////////////////////////////////////////////////////
 	// 경고 메시지 추가
-	AfxMessageBox("[경고]!!!\n\
-				  \n본 프로그램을 이용하여 투자한 결과는 모두 사용자에게 귀속됩니다.\
-				  \n투자 손실이 있을 경우라도 본 프로그램 작성자 및 배포자에게는\
-				  \n절대 책임을 물을 수 없습니다!\
-				  \n따라서 원치 않으시면 프로그램 사용을 금하여 주시기 바랍니다.");
+	int ret = AfxMessageBox(  "[경고]!!!\
+							  \n본 프로그램을 이용하여 투자한 결과는 모두 사용자에게 귀속됩니다.\
+							  \n투자 손실이 있을 경우라도 본 프로그램 작성자 및 배포자에게는\
+							  \n절대 책임을 물을 수 없습니다!\
+							  \n따라서 원치 않으시면 프로그램 사용을 금하여 주시기 바랍니다.\
+							  \n사용을 중지하려면 ''아니오''를 눌러주세요.", MB_YESNO);
+	if (ret == IDNO) { // NO를 누를 경우 종료한다.
+		EndDialog(IDNO);
+	}
 	//////////////////////////////////////////////////////////////////////////
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
@@ -312,19 +316,9 @@ BOOL CABotDlg::OnInitDialog()
 		m_strConfigFile.Format("%s\\%s", charBuf, strBuf);
 	}
 
-	// 로그 파일 경로 얻기.
-	ReadFromIniFile_String(m_strConfigFile, "SYSTEM", "logfoldername", ".\\", strBuf);
-	strBuf += _T("\\"); strBuf.Replace(_T("\\\\"), _T("\\"));
-	m_strLogFolderName = strBuf;
-	g_logger.Initial(m_strLogFolderName + _T("ABotLog_"));
-	int n = 0;
-	ReadFromIniFile_Int(m_strConfigFile, "SYSTEM", "dowritelog", 1, n);
-	g_logger.SetEnable(n > 0 ? TRUE : FALSE);
-
-	//메세지 디스플레이를 가장 먼저 만들고,
-	g_pMsgDisp = new CsMsgDisp(this);		
-	if (!g_pMsgDisp) { return FALSE; }
-	g_pMsgDisp->Create(IDD_MSG_DISP, this);
+	if (InitLogData() == FALSE) {
+		return FALSE;
+	}
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	theApp.m_khOpenApi.CommConnect();
@@ -350,6 +344,36 @@ BOOL CABotDlg::OnInitDialog()
 
 	SetTimer(START_TIMER, 1000, NULL);
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
+}
+
+BOOL CABotDlg::InitLogData()
+{
+	CRect rect(0, 0, 0, 0);
+	CString strBuf;
+	int n = 0;
+
+	// 로그 파일 경로 얻기.
+	ReadFromIniFile_String(m_strConfigFile, "SYSTEM", "logfoldername", ".\\", strBuf);
+	strBuf += _T("\\"); strBuf.Replace(_T("\\\\"), _T("\\"));
+	m_strLogFolderName = strBuf;
+	g_logger.Initial(m_strLogFolderName + _T("ABotLog_"));
+	ReadFromIniFile_Int(m_strConfigFile, "SYSTEM", "dowritelog", 1, n);
+	g_logger.SetEnable(n > 0 ? TRUE : FALSE);
+
+	//메세지 디스플레이를 가장 먼저 만들고,
+	g_pMsgDisp = new CsMsgDisp(this);
+	if (!g_pMsgDisp) { 
+		return FALSE; 
+	}
+	if (g_pMsgDisp->Create(IDD_MSG_DISP, this) == FALSE) {
+		return FALSE;
+	}
+	
+	GetDlgItem(IDC_STATIC_LOG_VIEW)->GetWindowRect(&rect);
+	ScreenToClient(&rect);
+	g_pMsgDisp->MoveWindow(rect);
+
+	return TRUE;
 }
 
 void CABotDlg::InitComboBox()

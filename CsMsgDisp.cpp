@@ -45,14 +45,14 @@ void CsMsgDisp::OnShowWindow(BOOL bShow, UINT nStatus)
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	if(bShow && m_bFistDisplay && m_cRichEdit)
 	{
-		CRect lRect(0,0,0,0);
+/*		CRect lRect(0,0,0,0);
 		if(GetParent())
 		{
 			GetParent()->GetWindowRect(&lRect);
 		}
 
 		MoveWindow(lRect.right, lRect.top, 500, 600);
-		SetWindowText("Message Dialog");  
+		SetWindowText("Message Dialog");  */
 		m_bFistDisplay = FALSE;
 	}
 }
