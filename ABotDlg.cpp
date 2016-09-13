@@ -1308,7 +1308,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 				aItem.m_strSellOrder = strOrderCode;
 				AddMessage(_T("라운드[%d], 종목[%s][%s],단가[%d],수량[%d],잔량[%d], 매도 주문이 완료 되었습니다."),
-					m_nRoundCount, aItem.m_strCode, aItem.m_strName, lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
+					m_nRoundCount, aItem.m_strCode, aItem.m_strName, lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
 			}
 			else if (aItem.m_eitemState == eST_WAITBUYCANCLE || aItem.m_eitemState == eST_BUYCANCLE)
 			{
