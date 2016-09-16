@@ -1,3 +1,5 @@
+#include "ABotDefine.h"
+
 // 프로그램 버젼 읽는다.
 CString GetSystemVersion();
 // 정수값을 읽는다.
@@ -40,3 +42,8 @@ BOOL ResourceToFile(long lResourceID ,CString strResourceType , CString strFullP
 void DeleteOldFiles(CString strPathName, CString strFileName, int nLeaveDaysAgo, BOOL bDeleteSubFolder = FALSE, BOOL bDeleteEmptyFolder = FALSE, CTime tmToday = CTime(CTime::GetCurrentTime().GetYear(), CTime::GetCurrentTime().GetMonth(), CTime::GetCurrentTime().GetDay(),0,0,0) );
 
 long GetCpuUsagePercent();
+
+eWinVersion GetWindowsVersion();
+
+CString getCurrencyString(CString currencyWithoutComma);
+CString getCurrencyString(long currency);

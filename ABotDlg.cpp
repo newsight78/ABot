@@ -163,6 +163,7 @@ BEGIN_MESSAGE_MAP(CABotDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_STOP_ROUND, &CABotDlg::OnBnClickedButtonStopRound)
 	ON_BN_CLICKED(IDC_BUTTON_SELL_ALL_CUR_COST, &CABotDlg::OnBnClickedButtonSellAllCurCost)
 	ON_BN_CLICKED(IDC_BUTTON_REGTARGET, &CABotDlg::OnBnClickedButtonRegtarget)
+	ON_BN_CLICKED(IDC_BUTTON_DEBUG_TEST, &CABotDlg::OnBnClickedButtonDebugTest)
 END_MESSAGE_MAP()
 
 
@@ -315,6 +316,7 @@ BOOL CABotDlg::OnInitDialog()
 	m_mapNameList.RemoveAll();
 	InitFIDName();
 	InitRealAddGrid();
+	InitBuyItemGrid();
 	InitComboBox();
 
 	AddMessage(" ");
@@ -875,7 +877,7 @@ void CABotDlg::OnBnClickedButtonSaveconfig()
 void CABotDlg::InitRealAddGrid()
 {
 	COLORREF clr = RGB(215, 227, 241);
-	int i = 0, nWidth[] = { 50, 80, 70, 30, 70, 45, 75 };
+	int i = 0, nWidth[] = { 50, 110, 70, 30, 70, 45, 75 };
 	int nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
 	CString strHeader[] = { "코드", "종목명", "현재가", "기호", "전일대비", "등락율", "거래량" };
 
@@ -885,12 +887,12 @@ void CABotDlg::InitRealAddGrid()
 
 	m_grdRealAdd.SetFixedRowCount(1); // 고정 행/열 설정
 	m_grdRealAdd.SetRowCount(1); // 행/열 갯수 설정
-	SetGridHeight(0, 24); // grid 높이는 윈도우 별로 상이하므로 별도 함수로 호출한다.
+	SetGridHeight(m_grdRealAdd, 0, 24); // grid 높이는 윈도우 별로 상이하므로 별도 함수로 호출한다.
 	m_grdRealAdd.SetColumnCount(nCnt); // 열의 개수 설정
 
 	for (i = 0; i < nCnt; i++)
 	{
-		SetGridWidth(i, nWidth[i]); // grid 폭은 윈도우 별로 상이하므로 별도 함수로 호출한다.
+		SetGridWidth(m_grdRealAdd, i, nWidth[i]); // grid 폭은 윈도우 별로 상이하므로 별도 함수로 호출한다.
 		m_grdRealAdd.SetItemFormat(0, i, DT_CENTER);
 		m_grdRealAdd.SetItemText(0, i, strHeader[i]);
 		m_grdRealAdd.SetItemBkColour(0, i, clr);	// 지정된 셀의 배경색 설정
@@ -909,11 +911,13 @@ void CABotDlg::InitBuyItemGrid()
 
 	m_grdBuyItem.SetEditable(FALSE);				//cell을 에디트 못하게 함.
 	m_grdBuyItem.EnableScrollBars(SB_VERT, TRUE);
+	m_grdBuyItem.SetFixedRowCount(1); // 고정 행/열 설정
+	m_grdBuyItem.SetRowCount(1); // 행/열 갯수 설정
 	m_grdBuyItem.SetColumnCount(nCnt);
 	
 	for (i = 0; i < nCnt; i++)
 	{
-		SetGridWidth(i, nWidth[i]); // grid 폭은 윈도우 별로 상이하므로 별도 함수로 호출한다.
+		SetGridWidth(m_grdBuyItem, i, nWidth[i]); // grid 폭은 윈도우 별로 상이하므로 별도 함수로 호출한다.
 		m_grdBuyItem.SetItemFormat(0, i, DT_CENTER);
 		m_grdBuyItem.SetItemText(0, i, strHeader[i]);
 		m_grdBuyItem.SetItemBkColour(0, i, clr);	// 지정된 셀의 배경색 설정
@@ -1158,23 +1162,15 @@ void CABotDlg::OnBnClickedBalanceQuery()
 
 BOOL CABotDlg::REQ_DepositReceived()
 {
-	m_strAccNo = "";
-	CString strAccNo;
-	((CEdit*)GetDlgItem(IDC_EDIT_ACCNO))->GetWindowText(strAccNo);
-	strAccNo.Remove('-');
-	if (strAccNo.GetLength() != 10)
-	{
-		AfxMessageBox("계좌번호 10자를 입력 해 주세요~!");
-		((CEdit*)GetDlgItem(IDC_EDIT_ACCNO))->SetFocus();
+	if (getAccountData() == FALSE) {
 		return FALSE;
 	}
-	m_strAccNo = strAccNo;
 	theApp.m_khOpenApi.SetInputValue("계좌번호", m_strAccNo);
 	//	theApp.m_khOpenApi.SetInputValue("비밀번호", _T("0000"));
 	theApp.m_khOpenApi.SetInputValue("비밀번호입력매체구분", _T("00"));
 	theApp.m_khOpenApi.SetInputValue("조회구분", _T("1"));
 
-	long lRet = theApp.m_khOpenApi.CommRqData(_T("예수곰"), _T("OPW00001"), 0, m_strScrNo);
+	long lRet = theApp.m_khOpenApi.CommRqData(_T("예수금"), _T("OPW00001"), 0, m_strScrNo);
 	AddMessage("예수금 조회 요청 %s. [%d]", (lRet >= 0 ? "성공" : "실패"), lRet);
 	return (lRet >= 0 ? TRUE : FALSE);
 }
@@ -1703,12 +1699,12 @@ void CABotDlg::SetDataRealAddGrid(CStringArray &arrData, CString strRealType/* =
 //! Create        : 2016/09/13
 //! Comment       : 윈도우마다 그리드 모습이 다양하므로 이를 별도 함수로 뺀다.
 //******************************************************************/
-void CABotDlg::SetGridHeight(long row, long height)
+void CABotDlg::SetGridHeight(CGridCtrl& gridCtrl, long row, long height)
 {
 	if (GetWindowsVersion() > eWindows_7) {
 		height *= 2;
 	}
-	m_grdRealAdd.SetRowHeight(row, height);
+	gridCtrl.SetRowHeight(row, height);
 }
 
 //*******************************************************************/
@@ -1719,65 +1715,12 @@ void CABotDlg::SetGridHeight(long row, long height)
 //! Create        : 2016/09/13
 //! Comment       : 윈도우마다 그리드 모습이 다양하므로 이를 별도 함수로 뺀다.
 //******************************************************************/
-void CABotDlg::SetGridWidth(long col, long width/*=0*/)
+void CABotDlg::SetGridWidth(CGridCtrl& gridCtrl, long col, long width/*=0*/)
 {
 	if (GetWindowsVersion() > eWindows_7) {
 		width = (long)((double)width * 1.7);
 	}
-	m_grdRealAdd.SetColumnWidth(col, width);
-}
-
-//*******************************************************************/
-//! Function Name : GetWindowsVersion
-//! Function      : 윈도우 버전을 가져옴.
-//! Param         : -
-//! Return        : void
-//! Create        : , 2016/09/12
-//! Comment       : 본 함수는 그리드의 모습이 윈도우 버전마다 다른 
-//					경우를 처리하기 위해서 추가됨.
-//******************************************************************/
-eWinVersion CABotDlg::GetWindowsVersion()
-{
-	OSVERSIONINFO osVersionInfo;
-	eWinVersion ret = eNotSupportedVersion;
-
-	ZeroMemory(&osVersionInfo, sizeof(OSVERSIONINFO));
-	osVersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-
-	GetVersionEx(&osVersionInfo);
-
-	if (osVersionInfo.dwMajorVersion == 5 && osVersionInfo.dwMinorVersion == 1)
-	{
-		ret = eWindowsXP;
-	}
-	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 0)
-	{
-		ret = eWindows_Vista;
-	}
-	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 1)
-	{
-		ret = eWindows_7;
-	}
-	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 2)
-	{
-		ret = eWindows_8;
-	}
-	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 3)
-	{
-		ret = eWindows_8_1;
-	}
-	else if (osVersionInfo.dwMajorVersion == 10 && osVersionInfo.dwMinorVersion == 0)
-	{
-		ret = eWindows_10;
-	}
-
-	if (ret == eNotSupportedVersion) 
-	{
-		AddMessage("Can't not support this version.\n\nmajor version=%d\nminor version=%d",
-					osVersionInfo.dwMajorVersion,
-					osVersionInfo.dwMinorVersion);
-	}
-	return ret;
+	gridCtrl.SetColumnWidth(col, width);
 }
 
 //*******************************************************************/
@@ -1794,20 +1737,59 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 	AddMessage(_T("OnReceiveTrData::"));
 
 	CString strRQName = sRQName;
-	if (strRQName == _T("예수곰"))		// 주식기본정보 설정
+	if (strRQName == _T("예수금"))		// 주식기본정보 설정
 	{
+		CString strBuff;
 		// 예수금
-	//	CString strData = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("예수금"));	strData.Trim();
-	//	CString strData = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("d+1추정예수금"));	strData.Trim();
-		CString strData = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("d+2추정예수금"));	strData.Trim();
-		m_lDepositReceived = atol((LPSTR)(LPCSTR)strData);
-		CString strBuf;
-		strBuf.Format("%d", m_lDepositReceived);
-		((CEdit*)GetDlgItem(IDC_EDIT_DEPOSITRECEIVED))->SetWindowText(strBuf);
-		strBuf = strBuf + " KRW";
-		AddMessage(strBuf);
+	//	strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("예수금"));	strBuff.Trim();
+	//	strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("d+1추정예수금"));	strBuff.Trim();
+		strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("d+2추정예수금"));	strBuff.Trim();
+		
+		m_lDepositReceived = atol((LPSTR)(LPCSTR)strBuff);
+		
+		strBuff = getCurrencyString(m_lDepositReceived);
+		
+		((CEdit*)GetDlgItem(IDC_EDIT_DEPOSITRECEIVED))->SetWindowText(strBuff);
+
+		AddMessage(strBuff + " KRW");
 	}
-	else if (strRQName == _T("주식쥬문"))		// 주식기본정보 설정
+	else if (strRQName == _T("잔고"))
+	{
+		double temp = 0.0;
+		CString strBuff;
+		
+		strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("총매입금액"));	
+		strBuff = getCurrencyString(strBuff);
+		((CEdit*)GetDlgItem(IDC_EDIT_GROSS_PURCHASE))->SetWindowText(strBuff);
+		AddMessage("총매입" + strBuff + " KRW");
+
+		strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("총평가금액"));
+		strBuff = getCurrencyString(strBuff);
+		((CEdit*)GetDlgItem(IDC_EDIT_ASSESSMENT_TOTAL))->SetWindowText(strBuff);
+		AddMessage("총평가" + strBuff + " KRW");
+
+		strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("총평가손익금액"));
+		strBuff = getCurrencyString(strBuff);
+		((CEdit*)GetDlgItem(IDC_EDIT_PROFIT_LOSS_TOTAL))->SetWindowText(strBuff);
+		AddMessage("총손익" + strBuff + " KRW");
+
+		strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("총수익률(%)"));
+		temp = atof(strBuff);
+		temp = temp / (double)100;
+		strBuff.Format("%.2f", temp);
+		((CEdit*)GetDlgItem(IDC_EDIT_EARNING_RATIO_TOTAL))->SetWindowText(strBuff);
+		AddMessage(CString("총수익률" + strBuff + " 퍼센트")); // %나 %%의 경우 동작하지 않고 도중에 에러 발생.
+	}
+	else if (strRQName == _T("일자별실현손익요청"))
+	{
+		CString strBuff;
+
+		strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("실현손익"));
+		strBuff = getCurrencyString(strBuff);
+		((CEdit*)GetDlgItem(IDC_EDIT_REALIZATION_PROFIT_LOSS))->SetWindowText(strBuff);
+		AddMessage("실현손익" + strBuff + " KRW");
+	}
+	else if (strRQName == _T("주식주문"))		// 주식기본정보 설정
 	{
 		CString strData = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("주문번호"));	strData.Trim();
 		AddMessage(strData);
@@ -1950,6 +1932,15 @@ void CABotDlg::OnBnClickedButtonRegtarget()
 	REQ_ItemRealReg();
 }
 
+void CABotDlg::OnBnClickedButtonDebugTest()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+//	InitRealAddGrid();
+	InitBuyItemGrid();
+
+	REQ_BalanceInfo();
+}
+
 BOOL CABotDlg::REQ_ItemRealReg()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
@@ -2012,7 +2003,7 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 			{
 				if (strConditionCode != "")
 				{
-					SetGridHeight(nIndex, 24); // grid 높이는 윈도우 별로 상이하므로 별도 함수로 호출한다.
+					SetGridHeight(m_grdRealAdd, nIndex, 24); // grid 높이는 윈도우 별로 상이하므로 별도 함수로 호출한다.
 					m_grdRealAdd.SetItemText(nIndex, 0, strConditionCode);
 
 					// 종목명
@@ -2173,7 +2164,7 @@ void CABotDlg::LoadProcessCondition()
 	long lMaxTotalAmount = atoi((LPSTR)(LPCSTR)strBuf) * 10000;
 
 	m_lProcessDR = min(long(m_lDepositReceived*(nUseRate / 100.0)), lMaxTotalAmount);
-	AddMessage(_T("라운드[%d], 운용 금액 총합은 %d[원] 입니다."), m_nRoundCount, m_lProcessDR);
+	AddMessage(_T("라운드[%d], 운용 금액 총합은 %d[원] 입니다."), m_nRoundCount, getCurrencyString(m_lProcessDR));
 
 	m_cmbBuyTimeOut.GetLBText(m_cmbBuyTimeOut.GetCurSel(), strBuf);
 	m_lItemBuyTimeout = atoi((LPSTR)(LPCSTR)strBuf) * 1000;
@@ -2203,6 +2194,24 @@ void CABotDlg::LoadProcessCondition()
 	m_dSellUnderThis2 = atof((LPSTR)(LPCSTR)strBuf);
 	AddMessage(_T("라운드[%d], 종목당 매도 Sell'UNDER'This2는 %f[퍼센트] 입니다."), m_nRoundCount, m_dSellUnderThis2);
 
+}
+
+BOOL CABotDlg::getAccountData()
+{
+	m_strAccNo = "";
+	CString strAccNo;
+	((CEdit*)GetDlgItem(IDC_EDIT_ACCNO))->GetWindowText(strAccNo);
+	strAccNo.Remove('-');
+	if (strAccNo.GetLength() != 10)
+	{
+		AfxMessageBox("계좌번호 10자를 입력 해 주세요~!");
+		((CEdit*)GetDlgItem(IDC_EDIT_ACCNO))->SetFocus();
+		return FALSE;
+	}
+	
+	m_strAccNo = strAccNo;
+
+	return TRUE;
 }
 
 void CABotDlg::ProcessSequence()
@@ -2331,7 +2340,7 @@ void CABotDlg::ProcessSequence()
 
 				long lItemProcessAmount = m_lProcessDR / m_ItemCount;
 				m_lProcessItemDR = min(lItemMaxAmount, lItemProcessAmount);
-				AddMessage(_T("라운드[%d], 종목당 운용 허용 금액은 %d[원] 입니다."), m_nRoundCount, m_lProcessItemDR);
+				AddMessage(_T("라운드[%d], 종목당 운용 허용 금액은 %d[원] 입니다."), m_nRoundCount, getCurrencyString(m_lProcessItemDR));
 
 				m_nProcessRetryCount = 0;
 				AddMessage(_T("라운드[%d], 종목 거래를 시작 합니다."), m_nRoundCount);
@@ -2528,7 +2537,7 @@ void CABotDlg::ProcessTrade()
 
 BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 {
-	CString strRQName = "주식쥬문";
+	CString strRQName = "주식주문";
 
 	// 매매구분 취득(1:신규매수, 2:신규매도 3:매수취소, 4:매도취소, 5:매수정정, 6:매도정정)
 	long lOrderType = 1;
@@ -2581,7 +2590,7 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 
 BOOL CABotDlg::REQ_ItemBuyCancle(CABotItem &aItem)
 {
-	CString strRQName = "주식쥬문";
+	CString strRQName = "주식주문";
 
 	// 매매구분 취득(1:신규매수, 2:신규매도 3:매수취소, 4:매도취소, 5:매수정정, 6:매도정정)
 	long lOrderType = 3;
@@ -2601,7 +2610,7 @@ BOOL CABotDlg::REQ_ItemBuyCancle(CABotItem &aItem)
 
 BOOL CABotDlg::REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale)
 {
-	CString strRQName = "주식쥬문";
+	CString strRQName = "주식주문";
 
 	// 매매구분 취득(1:신규매수, 2:신규매도 3:매수취소, 4:매도취소, 5:매수정정, 6:매도정정)
 	long lOrderType = 2;
@@ -2629,6 +2638,39 @@ BOOL CABotDlg::REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale)
 		aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_lcurPrice, strHogaGb, aItem.m_strSellOrder);
 
 	return (lRet >= 0 ? TRUE : FALSE);
+}
+
+BOOL CABotDlg::REQ_BalanceInfo()
+{
+	long lRet = 0;
+	CString strBuff;
+	CTime startDay = CTime::GetCurrentTime(); //CTime(2016, 9, 1, 0, 0, 0); 
+	CTime endDay = CTime::GetCurrentTime(); //CTime(2016, 9, 17, 23, 59, 59);
+
+	if (getAccountData() == FALSE) {
+		return FALSE;
+	}
+
+	theApp.m_khOpenApi.SetInputValue("계좌번호", m_strAccNo);
+	theApp.m_khOpenApi.SetInputValue("비밀번호입력매체구분", _T("00"));
+	theApp.m_khOpenApi.SetInputValue("조회구분", _T("1")); // 1:합산, 2:개별
+	
+	lRet = theApp.m_khOpenApi.CommRqData(_T("잔고"), _T("OPW00018"), 0, m_strScrNo);
+	AddMessage("잔고 조회 요청 %s. [%d]", (lRet >= 0 ? "성공" : "실패"), lRet);
+	if (lRet < 0) {
+		return FALSE;
+	}
+
+	theApp.m_khOpenApi.SetInputValue("계좌번호", m_strAccNo);
+	strBuff = startDay.Format("%Y%m%d");	theApp.m_khOpenApi.SetInputValue("시작일자", strBuff);
+	strBuff = endDay.Format("%Y%m%d");		theApp.m_khOpenApi.SetInputValue("종료일자", strBuff);
+
+	lRet = theApp.m_khOpenApi.CommRqData(_T("일자별실현손익요청"), _T("opt10074"), 0, m_strScrNo);
+	AddMessage("일자별실현손익요청 %s. [%d]", (lRet >= 0 ? "성공" : "실패"), lRet);
+	if (lRet < 0) {
+		return FALSE;
+	}
+	return TRUE;
 }
 
 BOOL CABotDlg::IsEndTrade()

@@ -42,9 +42,8 @@ public:
 	void InitRealAddGrid();
 	void InitBuyItemGrid();
 	void SetDataRealAddGrid(CStringArray &arrData, CString strRealType/* = ""*/);
-	void SetGridHeight(long row, long height);
-	void SetGridWidth(long col, long width);
-	eWinVersion GetWindowsVersion();
+	void SetGridHeight(CGridCtrl& gridCtrl, long row, long height);
+	void SetGridWidth(CGridCtrl& gridCtrl, long col, long width);
 	BOOL AddMessage(char * i_cMsg, ...);
 	BOOL AddMessage(CString i_strMsg);
 
@@ -59,12 +58,15 @@ public:
 	BOOL REQ_ItemBuyOrder(CABotItem &aItem);
 	BOOL REQ_ItemBuyCancle(CABotItem &aItem);	
 	BOOL REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale);
+	BOOL REQ_BalanceInfo();
 	BOOL IsEndTrade();
 
 	void SetEnableControls() { SetControls(TRUE); };
 	void SetDisableControls() { SetControls(FALSE); };
 	void SetControls(BOOL bEnable);
 	void LoadProcessCondition();
+
+	BOOL getAccountData();
 
 public:
 	eProcessState		m_eProcessState;		//프로세스 상태.
@@ -143,4 +145,5 @@ public:
 	afx_msg void OnBnClickedButtonSellAllCurCost();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnBnClickedButtonRegtarget();
+	afx_msg void OnBnClickedButtonDebugTest();
 };

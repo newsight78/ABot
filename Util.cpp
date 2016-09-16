@@ -644,3 +644,85 @@ long GetCpuUsagePercent()
 	}
 	return 100;
 }
+
+//*******************************************************************/
+//! Function Name : GetWindowsVersion
+//! Function      : 윈도우 버전을 가져옴.
+//! Param         : -
+//! Return        : void
+//! Create        : , 2016/09/12
+//! Comment       : 본 함수는 그리드의 모습이 윈도우 버전마다 다른 
+//					경우를 처리하기 위해서 추가됨.
+//******************************************************************/
+eWinVersion GetWindowsVersion()
+{
+	OSVERSIONINFO osVersionInfo;
+	eWinVersion ret = eNotSupportedVersion;
+
+	ZeroMemory(&osVersionInfo, sizeof(OSVERSIONINFO));
+	osVersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+	GetVersionEx(&osVersionInfo);
+
+	if (osVersionInfo.dwMajorVersion == 5 && osVersionInfo.dwMinorVersion == 1)
+	{
+		ret = eWindowsXP;
+	}
+	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 0)
+	{
+		ret = eWindows_Vista;
+	}
+	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 1)
+	{
+		ret = eWindows_7;
+	}
+	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 2)
+	{
+		ret = eWindows_8;
+	}
+	else if (osVersionInfo.dwMajorVersion == 6 && osVersionInfo.dwMinorVersion == 3)
+	{
+		ret = eWindows_8_1;
+	}
+	else if (osVersionInfo.dwMajorVersion == 10 && osVersionInfo.dwMinorVersion == 0)
+	{
+		ret = eWindows_10;
+	}
+
+	if (ret == eNotSupportedVersion)
+	{
+		CString strBuff;
+		strBuff.Format("본 버전은 지원하지 않습니다.\nmajor version=%d\nminor version=%d",
+						osVersionInfo.dwMajorVersion,
+						osVersionInfo.dwMinorVersion);
+		AfxMessageBox(strBuff);
+	}
+	return ret;
+}
+
+CString getCurrencyString(CString currencyWithoutComma)
+{
+	return getCurrencyString(atol((LPSTR)(LPCSTR)currencyWithoutComma));
+}
+
+CString getCurrencyString(long currency)
+{
+	char parm_buffer[100] = { 0 }; // 0이 100개 이상 붙을 경우가 있는가?
+	CString strBuff;
+	CString currencyString;
+	NUMBERFMT fmt = { 0, 0, 3, ".", ",", 1 };
+
+	strBuff.Format("%f", (double)currency);
+
+	// GetNumberFormat의 인자는 LOCALE_SYSTEM_DEFAULT, 플래그, 문자열 숫자, 문자열 포맷,
+	// 변환된 문자열 숫자, 버퍼 사이즈이다.
+	if (::GetNumberFormat(NULL, NULL, strBuff, &fmt, parm_buffer, strlen(strBuff)) == 0) 
+	{
+		currencyString = "N/A";
+		AfxMessageBox("GetNumberFormat 호출에 실패했습니다.");
+	}
+	else {
+		currencyString.Format("%s", parm_buffer);
+	}
+	return currencyString;
+}
