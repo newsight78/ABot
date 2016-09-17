@@ -45,5 +45,7 @@ long GetCpuUsagePercent();
 
 eWinVersion GetWindowsVersion();
 
-CString getCurrencyString(CString currencyWithoutComma);
-CString getCurrencyString(long currency);
+CString GetCurrencyString(CString currencyWithoutComma);
+CString GetCurrencyString(long currency);
+
+COLORREF GetFGColor(CString strData);

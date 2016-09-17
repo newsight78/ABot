@@ -700,12 +700,12 @@ eWinVersion GetWindowsVersion()
 	return ret;
 }
 
-CString getCurrencyString(CString currencyWithoutComma)
+CString GetCurrencyString(CString currencyWithoutComma)
 {
-	return getCurrencyString(atol((LPSTR)(LPCSTR)currencyWithoutComma));
+	return GetCurrencyString(atol((LPSTR)(LPCSTR)currencyWithoutComma));
 }
 
-CString getCurrencyString(long currency)
+CString GetCurrencyString(long currency)
 {
 	char parm_buffer[100] = { 0 }; // 0이 100개 이상 붙을 경우가 있는가?
 	CString strBuff;
@@ -725,4 +725,17 @@ CString getCurrencyString(long currency)
 		currencyString.Format("%s", parm_buffer);
 	}
 	return currencyString;
+}
+
+COLORREF GetFGColor(CString strData)
+{
+	if (strData.Find('-') >= 0) {
+		return RGB(0, 0, 255); // 마이너스 값은 파란색
+	}
+	else if (strData.Find('+') >= 0) {
+		return RGB(255, 0, 0); // 플러스 값은 붉은색
+	}
+	else {
+		return RGB(0, 0, 0); // 변화 없는 경우는 검은색
+	}
 }

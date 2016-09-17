@@ -905,12 +905,12 @@ void CABotDlg::InitRealAddGrid()
 void CABotDlg::InitBuyItemGrid()
 {
 	COLORREF clr = RGB(215, 227, 241);
-	int i = 0, nWidth[] = { 60, 60, 60, 60, 60, 60, 60 };
+	int i = 0, nWidth[] = { 101, 56, 80, 56, 56, 60, 60 };
 	int nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
-	CString strHeader[] = { "종목명", "매입가", "평가손익", "수익율", "가능수량", "보유수량", "수익률" };
+	CString strHeader[] = { "종목명", "매입가", "평가손익", "수익율", "현재가", "가능수량", "보유수량" };
 
 	m_grdBuyItem.SetEditable(FALSE);				//cell을 에디트 못하게 함.
-	m_grdBuyItem.EnableScrollBars(SB_VERT, TRUE);
+	m_grdBuyItem.EnableScrollBars(SB_VERT, FALSE);
 	m_grdBuyItem.SetFixedRowCount(1); // 고정 행/열 설정
 	m_grdBuyItem.SetRowCount(1); // 행/열 갯수 설정
 	m_grdBuyItem.SetColumnCount(nCnt);
@@ -1747,7 +1747,7 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 		
 		m_lDepositReceived = atol((LPSTR)(LPCSTR)strBuff);
 		
-		strBuff = getCurrencyString(m_lDepositReceived);
+		strBuff = GetCurrencyString(m_lDepositReceived);
 		
 		((CEdit*)GetDlgItem(IDC_EDIT_DEPOSITRECEIVED))->SetWindowText(strBuff);
 
@@ -1759,17 +1759,17 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 		CString strBuff;
 		
 		strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("총매입금액"));	
-		strBuff = getCurrencyString(strBuff);
+		strBuff = GetCurrencyString(strBuff);
 		((CEdit*)GetDlgItem(IDC_EDIT_GROSS_PURCHASE))->SetWindowText(strBuff);
 		AddMessage("총매입" + strBuff + " KRW");
 
 		strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("총평가금액"));
-		strBuff = getCurrencyString(strBuff);
+		strBuff = GetCurrencyString(strBuff);
 		((CEdit*)GetDlgItem(IDC_EDIT_ASSESSMENT_TOTAL))->SetWindowText(strBuff);
 		AddMessage("총평가" + strBuff + " KRW");
 
 		strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("총평가손익금액"));
-		strBuff = getCurrencyString(strBuff);
+		strBuff = GetCurrencyString(strBuff);
 		((CEdit*)GetDlgItem(IDC_EDIT_PROFIT_LOSS_TOTAL))->SetWindowText(strBuff);
 		AddMessage("총손익" + strBuff + " KRW");
 
@@ -1779,13 +1779,74 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 		strBuff.Format("%.2f", temp);
 		((CEdit*)GetDlgItem(IDC_EDIT_EARNING_RATIO_TOTAL))->SetWindowText(strBuff);
 		AddMessage(CString("총수익률" + strBuff + " 퍼센트")); // %나 %%의 경우 동작하지 않고 도중에 에러 발생.
+
+		CString	strTRCode(sTrCode);
+		int	rowCount = theApp.m_khOpenApi.GetRepeatCnt(strTRCode, _T(""));
+
+		m_grdBuyItem.SetRowCount(rowCount + 1);
+
+		if (rowCount >= 1)
+		{
+			CString strData;
+			COLORREF color = RGB(0, 0, 0);
+			for (int row = 0; row < rowCount; row++)
+			{
+				strBuff.Empty();
+				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("종목명")); strData.Trim();
+				strBuff += CString("종목명" + strData + ", ");
+				m_grdBuyItem.SetItemFormat(row + 1, 0, DT_CENTER);
+				m_grdBuyItem.SetItemText(row + 1, 0, strData);
+
+				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("매입가")); strData.Trim();
+				strData = GetCurrencyString(strData);
+				strBuff += CString("매입가" + strData + ", ");
+				m_grdBuyItem.SetItemFormat(row + 1, 1, DT_RIGHT);
+				m_grdBuyItem.SetItemText(row + 1, 1, strData);
+
+				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("평가손익")); strData.Trim();
+				strData = GetCurrencyString(strData);
+				m_grdBuyItem.SetItemFgColour(row + 1, 2, GetFGColor(strData));
+				m_grdBuyItem.SetItemFormat(row + 1, 2, DT_RIGHT);
+				m_grdBuyItem.SetItemText(row + 1, 2, strData);
+
+				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("수익률(%)")); strData.Trim();
+				temp = atof(strData);
+				temp = temp / (double)100;
+				strData.Format("%.2f", temp);
+				strBuff += CString("수익률" + strData + ", ");
+				m_grdBuyItem.SetItemFgColour(row + 1, 3, GetFGColor(strData));
+				m_grdBuyItem.SetItemFormat(row + 1, 3, DT_RIGHT);
+				m_grdBuyItem.SetItemText(row + 1, 3, strData);
+
+				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("현재가")); strData.Trim();
+				strData = GetCurrencyString(strData);
+				strBuff += CString("현재가" + strData + ", ");
+				m_grdBuyItem.SetItemFormat(row + 1, 4, DT_RIGHT);
+				m_grdBuyItem.SetItemText(row + 1, 4, strData);
+
+				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("매매가능수량")); strData.Trim();
+				strData.Format("%d", atol(strData));
+				strBuff += CString("가능수량" + strData + ", ");
+				m_grdBuyItem.SetItemFormat(row + 1, 5, DT_RIGHT);
+				m_grdBuyItem.SetItemText(row + 1, 5, strData);
+
+				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("보유수량")); strData.Trim();
+				strData.Format("%d", atol(strData));
+				strBuff += CString("보유수량" + strData + ", ");
+				m_grdBuyItem.SetItemFormat(row + 1, 6, DT_RIGHT);
+				m_grdBuyItem.SetItemText(row + 1, 6, strData);
+				
+				AddMessage(strBuff);
+			}
+			m_grdBuyItem.Invalidate();
+		}
 	}
 	else if (strRQName == _T("일자별실현손익요청"))
 	{
 		CString strBuff;
 
 		strBuff = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("실현손익"));
-		strBuff = getCurrencyString(strBuff);
+		strBuff = GetCurrencyString(strBuff);
 		((CEdit*)GetDlgItem(IDC_EDIT_REALIZATION_PROFIT_LOSS))->SetWindowText(strBuff);
 		AddMessage("실현손익" + strBuff + " KRW");
 	}
@@ -2164,7 +2225,7 @@ void CABotDlg::LoadProcessCondition()
 	long lMaxTotalAmount = atoi((LPSTR)(LPCSTR)strBuf) * 10000;
 
 	m_lProcessDR = min(long(m_lDepositReceived*(nUseRate / 100.0)), lMaxTotalAmount);
-	AddMessage(_T("라운드[%d], 운용 금액 총합은 %d[원] 입니다."), m_nRoundCount, getCurrencyString(m_lProcessDR));
+	AddMessage(_T("라운드[%d], 운용 금액 총합은 %d[원] 입니다."), m_nRoundCount, GetCurrencyString(m_lProcessDR));
 
 	m_cmbBuyTimeOut.GetLBText(m_cmbBuyTimeOut.GetCurSel(), strBuf);
 	m_lItemBuyTimeout = atoi((LPSTR)(LPCSTR)strBuf) * 1000;
@@ -2340,7 +2401,7 @@ void CABotDlg::ProcessSequence()
 
 				long lItemProcessAmount = m_lProcessDR / m_ItemCount;
 				m_lProcessItemDR = min(lItemMaxAmount, lItemProcessAmount);
-				AddMessage(_T("라운드[%d], 종목당 운용 허용 금액은 %d[원] 입니다."), m_nRoundCount, getCurrencyString(m_lProcessItemDR));
+				AddMessage(_T("라운드[%d], 종목당 운용 허용 금액은 %d[원] 입니다."), m_nRoundCount, GetCurrencyString(m_lProcessItemDR));
 
 				m_nProcessRetryCount = 0;
 				AddMessage(_T("라운드[%d], 종목 거래를 시작 합니다."), m_nRoundCount);
