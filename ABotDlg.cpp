@@ -163,6 +163,7 @@ BEGIN_MESSAGE_MAP(CABotDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_STOP_ROUND, &CABotDlg::OnBnClickedButtonStopRound)
 	ON_BN_CLICKED(IDC_BUTTON_SELL_ALL_CUR_COST, &CABotDlg::OnBnClickedButtonSellAllCurCost)
 	ON_BN_CLICKED(IDC_BUTTON_REGTARGET, &CABotDlg::OnBnClickedButtonRegtarget)
+	ON_BN_CLICKED(IDC_BUTTON_GET_BALANCE, &CABotDlg::OnBnClickedButtonGetBalance)
 	ON_BN_CLICKED(IDC_BUTTON_DEBUG_TEST, &CABotDlg::OnBnClickedButtonDebugTest)
 END_MESSAGE_MAP()
 
@@ -339,7 +340,7 @@ BOOL CABotDlg::InitLogData()
 {
 	CRect rect(0, 0, 0, 0);
 	CString strBuf;
-	int n = 0;
+	long n = 0;
 
 	// 로그 파일 경로 얻기.
 	ReadFromIniFile_String(m_strConfigFile, "SYSTEM", "logfoldername", ".\\", strBuf);
@@ -380,7 +381,7 @@ void CABotDlg::InitComboBox()
 	m_cmbRoundCount.SetCurSel(1);
 
 	CString strBuf;
-	int i = 0;
+	long i = 0;
 	for (i = 0; i < 24; i++)
 	{
 		strBuf.Format("%d", i);
@@ -500,7 +501,7 @@ void CABotDlg::InitComboBox()
 
 void CABotDlg::LoadSystemFile()
 {
-	int i = 0, n = 0;
+	long i = 0, n = 0;
 	double d = 0.;
 	CString strBuf, strCombo;
 
@@ -517,7 +518,7 @@ void CABotDlg::LoadSystemFile()
 	}
 	else
 	{
-		n = atoi((LPSTR)(LPCSTR)strBuf);
+		n = atol((LPSTR)(LPCSTR)strBuf);
 		strBuf.Format("%d", n);
 		for (i = 1; i<m_cmbRoundCount.GetCount(); i++)
 		{
@@ -538,32 +539,32 @@ void CABotDlg::LoadSystemFile()
 	CString strBuf2 = "시작 ";
 	// 시작 시각의 시
 	ReadFromIniFile_String(m_strConfigFile, "ROUND", "start_hour", "9", strBuf);
-	n = atoi((LPSTR)(LPCSTR)strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
 	m_cmbStartHour.SetCurSel(n);
 	strBuf2 += strBuf + "시 ";
 
 	// 시작 시각의 분
 	ReadFromIniFile_String(m_strConfigFile, "ROUND", "start_min", "0", strBuf);
-	n = atoi((LPSTR)(LPCSTR)strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
 	m_cmbStartMin.SetCurSel(n);
 	strBuf2 += strBuf + "분,  종료 ";
 
 	// 종료 시각의 시
 	ReadFromIniFile_String(m_strConfigFile, "ROUND", "end_hour", "15", strBuf);
-	n = atoi((LPSTR)(LPCSTR)strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
 	m_cmbEndHour.SetCurSel(n);
 	strBuf2 += strBuf + "시 ";
 
 	// 종료 시각의 분
 	ReadFromIniFile_String(m_strConfigFile, "ROUND", "end_min", "0", strBuf);
-	n = atoi((LPSTR)(LPCSTR)strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
 	m_cmbEndMin.SetCurSel(n);
 	strBuf2 += strBuf + "분";
 	AddMessage("     동작 시간[%s].", strBuf2);
 
 	// 매수시 예수금의 최대 사용 퍼센트. [%]
 	ReadFromIniFile_String(m_strConfigFile, "BUY", "use_rate", "50", strBuf);
-	n = atoi((LPSTR)(LPCSTR)strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
 	if (n > 95) {n = 95;}
 	strBuf.Format("%d", n);
 	for (i = 0; i<m_cmbDpUseRate.GetCount(); i++)
@@ -583,7 +584,7 @@ void CABotDlg::LoadSystemFile()
 
 	// 매수시 예수금의 최대 사용 금액. [만원]
 	ReadFromIniFile_String(m_strConfigFile, "BUY", "max_total_amount", "100", strBuf);
-	n = atoi((LPSTR)(LPCSTR)strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
 	strBuf.Format("%d", n);
 	for (i = 0; i<m_cmbMaxTotalAmount.GetCount(); i++)
 	{
@@ -602,7 +603,7 @@ void CABotDlg::LoadSystemFile()
 
 	// 종목당 최대 투자 허용 금액
 	ReadFromIniFile_String(m_strConfigFile, "BUY", "max_amount", "100", strBuf);
-	n = atoi((LPSTR)(LPCSTR)strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
 	strBuf.Format("%d", n);
 	for (i = 0; i<m_cmbMaxAmount.GetCount(); i++)
 	{
@@ -639,7 +640,7 @@ void CABotDlg::LoadSystemFile()
 
 	// 매수 체결 대기 타임 아웃.
 	ReadFromIniFile_String(m_strConfigFile, "BUY", "timeout", "30", strBuf);
-	n = atoi((LPSTR)(LPCSTR)strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
 	if (n > 60) { n = 60; }
 	strBuf.Format("%d", n);
 	for (i = 0; i<m_cmbBuyTimeOut.GetCount(); i++)
@@ -659,7 +660,7 @@ void CABotDlg::LoadSystemFile()
 
 	// 매수 실패시 재시도 회수
 	ReadFromIniFile_String(m_strConfigFile, "BUY", "retry", "1", strBuf);
-	n = atoi((LPSTR)(LPCSTR)strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
 	if (n > 5) { n = 5; }
 	strBuf.Format("%d", n);
 	for (i = 0; i<m_cmbBuyRetry.GetCount(); i++)
@@ -679,7 +680,7 @@ void CABotDlg::LoadSystemFile()
 
 	// 주식 보유 타임 아웃.
 	ReadFromIniFile_String(m_strConfigFile, "HOLD", "timeout", "0", strBuf);
-	n = atoi((LPSTR)(LPCSTR)strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
 	if (n > 60) { n = 60; }
 	strBuf.Format("%d", n);
 	for (i = 0; i<m_cmbHoldTimeOut.GetCount(); i++)
@@ -788,7 +789,7 @@ void CABotDlg::LoadSystemFile()
 
 void CABotDlg::SaveSystemFile()
 {
-	int i = 0, n = 0;
+	long i = 0, n = 0;
 	double d = 0.;
 	CString strBuf, strCombo;
 
@@ -877,8 +878,8 @@ void CABotDlg::OnBnClickedButtonSaveconfig()
 void CABotDlg::InitRealAddGrid()
 {
 	COLORREF clr = RGB(215, 227, 241);
-	int i = 0, nWidth[] = { 50, 110, 70, 30, 70, 45, 75 };
-	int nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
+	long i = 0, nWidth[] = { 50, 101, 56, 30, 56, 56, 80 };
+	long nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
 	CString strHeader[] = { "코드", "종목명", "현재가", "기호", "전일대비", "등락율", "거래량" };
 
 	m_grdRealAdd.SetEditable(FALSE);				//cell을 에디트 못하게 함.
@@ -905,9 +906,9 @@ void CABotDlg::InitRealAddGrid()
 void CABotDlg::InitBuyItemGrid()
 {
 	COLORREF clr = RGB(215, 227, 241);
-	int i = 0, nWidth[] = { 101, 56, 80, 56, 56, 60, 60 };
-	int nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
-	CString strHeader[] = { "종목명", "매입가", "평가손익", "수익율", "현재가", "가능수량", "보유수량" };
+	long i = 0, nWidth[] = { 101, 56, 80, 80, 56, 56, 56 };
+	long nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
+	CString strHeader[] = { "종목명", "매입가", "평가손익", "매입금액", "수익율", "가능수량", "보유수량" };
 
 	m_grdBuyItem.SetEditable(FALSE);				//cell을 에디트 못하게 함.
 	m_grdBuyItem.EnableScrollBars(SB_VERT, FALSE);
@@ -939,7 +940,7 @@ void CABotDlg::OnTimer(UINT_PTR nIDEvent)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	if (START_TIMER == nIDEvent)
 	{
-		if (g_pMsgDisp && g_pMsgDisp->GetSafeHwnd() )
+		if (IsSafeWindow(g_pMsgDisp) == TRUE)
 		{
 			g_pMsgDisp->ShowWindow(SW_SHOW);
 			KillTimer(nIDEvent);
@@ -984,12 +985,12 @@ void CABotDlg::OnPaint()
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
 		// 클라이언트 사각형에서 아이콘을 가운데에 맞춥니다.
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
+		long cxIcon = GetSystemMetrics(SM_CXICON);
+		long cyIcon = GetSystemMetrics(SM_CYICON);
 		CRect rect;
 		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
+		long x = (rect.Width() - cxIcon + 1) / 2;
+		long y = (rect.Height() - cyIcon + 1) / 2;
 
 		// 아이콘을 그립니다.
 		dc.DrawIcon(x, y, m_hIcon);
@@ -1135,7 +1136,7 @@ void CABotDlg::OnEventConnect(long nErrCode)
 	AddMessage("서버 접속 %s. [%d]", (nErrCode== 0?"성공":"실패"), nErrCode);
 	if (nErrCode == 0)
 	{
-		int nGetConditionRet = theApp.m_khOpenApi.GetConditionLoad();
+		long nGetConditionRet = theApp.m_khOpenApi.GetConditionLoad();
 		AddMessage("검색 조건 조회 %s. [%d]", (nGetConditionRet>=0?"성공":"실패"), nGetConditionRet);
 	}
 }
@@ -1178,7 +1179,7 @@ BOOL CABotDlg::REQ_DepositReceived()
 /*
 void CABotDlg::RealData()
 {
-	static bool btoggle = true;
+	static BOOL btoggle = TRUE;
 	CString strScrNo = "7777";
 	CString strCode = "039490";
 	CString strIndex;
@@ -1204,7 +1205,7 @@ void CABotDlg::RealData()
 			m_mapJongCode.RemoveKey(strCode);
 		}
 	}
-	btoggle = btoggle?false:true;
+	btoggle = btoggle?FALSE:TRUE;
 }
 */
 
@@ -1223,14 +1224,14 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 	CString strGubun(sGubun), strFidList(sFIdList), strText;
 	CString	strAccNo, strOrdNo, strOrdPrice, strOrdCnt;
 
-	int			nItemIndex = -1;
+	long		nItemIndex = -1;
 	BOOL		bTRADEDone = FALSE, bREQDone = FALSE;
 	BOOL		bBUYDone = FALSE, bSELLDone = FALSE;
 	CString		strItemCode, strOrderCode;
 	long		lTradeQuantity = 0, lTradePrice = 0, lCurPrice = 0;
 
-	int			nIndex(0);
-	LONG		lFid = 0;
+	long		nIndex(0);
+	long		lFid = 0;
 	CString		strFID, strOneData, strFIDName;
 	while (AfxExtractSubString(strFID, strFidList, nIndex++, _T(';')))
 	{
@@ -1239,7 +1240,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 		if (strFIDName.IsEmpty())	strFIDName = strFID;
 
-		strOneData = theApp.m_khOpenApi.GetChejanData(atoi(strFID)).Trim();
+		strOneData = theApp.m_khOpenApi.GetChejanData(atol(strFID)).Trim();
 
 		strText.Format(_T("구분[%s] FID[%4s:%s] = [%s]"), strGubun, strFID, strFIDName, strOneData);
 		if (!IsInRound()) AddMessage(strText);
@@ -1290,26 +1291,26 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 				}
 				else
 				{
-					int k = 0;//이게 취소인가?
+					long k = 0;//이게 취소인가?
 				}
 			}
 			else if (strFID == "911")	//체결량
 			{
-				lTradeQuantity = atoi(strOneData);
+				lTradeQuantity = atol(strOneData);
 			}
 			else if (strFID == "910")	//체결가
 			{
-				lTradePrice = atoi(strOneData);
+				lTradePrice = atol(strOneData);
 			}
 			else if (strFID == "10")	//현재가
 			{
-				lCurPrice = atoi(strOneData);
+				lCurPrice = atol(strOneData);
 			}
 		}
 	}
 
-	int aIndex = 0;
-	if (m_ItemCodeMap.Lookup(strItemCode, aIndex))
+	long aIndex = 0;
+	if (m_mapItemCode.Lookup(strItemCode, aIndex))
 	{
 		nItemIndex = aIndex;
 	}
@@ -1377,7 +1378,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 				if (aItem.m_lBuyQuantity >= aItem.m_lQuantity)
 				{
-					//	m_OrderCodeMap.RemoveKey(strOrderCode);
+					//	m_mapOrderCode.RemoveKey(strOrderCode);
 					aItem.m_lholdTime = GetTickCount();
 					aItem.m_lholdTimeout = (m_lItemHoldTimeout > 0 ? aItem.m_lholdTime + m_lItemHoldTimeout : 0);
 					aItem.m_eitemState = eST_HOLDING;
@@ -1398,7 +1399,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 				if (aItem.m_lSellQuantity >= aItem.m_lQuantity)
 				{
-					//	m_OrderCodeMap.RemoveKey(strOrderCode);
+					//	m_mapOrderCode.RemoveKey(strOrderCode);
 					aItem.m_eitemState = eST_TRADEDONE;
 					AddMessage(_T("라운드[%d], 종목[%s][%s],평균단가[%d],수량[%d],재시도[%d], 거래 완료 되었습니다."),
 						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.SellPrice(), aItem.m_lQuantity, aItem.m_ltryBuyCount);
@@ -1409,7 +1410,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 	}
 	else
 	{
-		strOneData = theApp.m_khOpenApi.GetChejanData(atoi(strFID)).Trim();
+		strOneData = theApp.m_khOpenApi.GetChejanData(atol(strFID)).Trim();
 
 		strText.Format(_T("구분[%s] FID[%4s:%s] = [%s]"), strGubun, strFID, strFIDName, strOneData);
 		AddMessage(strText);
@@ -1435,8 +1436,8 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 		return;
 	}
 
-	int nItemIndex = -1;
-	if (!m_ItemCodeMap.Lookup(sJongmokCode, nItemIndex))
+	long nItemIndex = -1;
+	if (!m_mapItemCode.Lookup(sJongmokCode, nItemIndex))
 	{
 		nItemIndex = -1;
 	}
@@ -1447,15 +1448,15 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 	CStringArray arrData;
 
 	arrData.Add(sJongmokCode);
-	int i, nFieldCnt = sizeof(lstOPTSBFID) / sizeof(*lstOPTSBFID);		// 전체크기 / 원소크기 = 원소개수
+	long i=0, nFieldCnt = sizeof(lstOPTSBFID) / sizeof(*lstOPTSBFID);		// 전체크기 / 원소크기 = 원소개수
 	for (i = 1; i < nFieldCnt; i++)
 	{
-		if (atoi(lstOPTSBFID[i].strRealKey) < 0)
+		if (atol(lstOPTSBFID[i].strRealKey) < 0)
 		{
 			arrData.Add("");
 			continue;
 		}
-		strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, atoi(lstOPTSBFID[i].strRealKey));
+		strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, atol(lstOPTSBFID[i].strRealKey));
 		strData.Trim();
 		arrData.Add(strData);
 		strReceivedData += lstOPTSBFID[i].strKey;
@@ -1476,12 +1477,12 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 //*******************************************************************/
 //! Function Name : ConvDataFormat
 //! Function      : 문자열 포멧 설정
-//! Param         : int nType, LPCTSTR szData, LPCTSTR szBeforeData/* = ""*/, LPCTSTR szAfterData/* = ""*/
+//! Param         : long nType, LPCTSTR szData, LPCTSTR szBeforeData/* = ""*/, LPCTSTR szAfterData/* = ""*/
 //! Return        : CString
 //! Create        : , 2014/06/02
 //! Comment       : 
 //******************************************************************/
-CString ConvDataFormat(int nType, LPCTSTR szData, LPCTSTR szBeforeData/* = ""*/, LPCTSTR szAfterData/* = ""*/)
+CString ConvDataFormat(long nType, LPCTSTR szData, LPCTSTR szBeforeData/* = ""*/, LPCTSTR szAfterData/* = ""*/)
 {
 	CString strReturn, strData, strTemp = strData = szData;
 	switch (nType)
@@ -1520,7 +1521,7 @@ CString ConvDataFormat(int nType, LPCTSTR szData, LPCTSTR szBeforeData/* = ""*/,
 				break;
 			}
 
-			int nFind = strTemp.Find(".");
+			long nFind = strTemp.Find(".");
 			if (nFind < 0)
 			{
 				strData = strTemp;
@@ -1555,15 +1556,15 @@ CString ConvDataFormat(int nType, LPCTSTR szData, LPCTSTR szBeforeData/* = ""*/,
 //*******************************************************************/
 //! Function Name : SetSignData
 //! Function      : 그리드 셀 문자색 변경 및 기호 데이터 설정
-//! Param         : CGridCtrl *pGrid, int nRow, int nCol, LPCTSTR szData
+//! Param         : CGridCtrl *pGrid, long nRow, long nCol, LPCTSTR szData
 //! Return        : void
 //! Create        : , 2014/06/02
 //! Comment       : 
 //******************************************************************/
-void SetSignData(CGridCtrl *pGrid, int nRow, int nCol, LPCTSTR szData)
+void SetSignData(CGridCtrl *pGrid, long nRow, long nCol, LPCTSTR szData)
 {
 	CString strData = szData;
-	switch (atoi(strData))
+	switch (atol(strData))
 	{
 	case 1:
 		strData = "↑";
@@ -1589,12 +1590,12 @@ void SetSignData(CGridCtrl *pGrid, int nRow, int nCol, LPCTSTR szData)
 //*******************************************************************/
 //! Function Name : SetDataFgColour
 //! Function      : 그리드 셀 문자색 변경
-//! Param         : CGridCtrl *pGrid, int nRow, int nCol, LPCTSTR szData
+//! Param         : CGridCtrl *pGrid, long nRow, long nCol, LPCTSTR szData
 //! Return        : void
 //! Create        : , 2014/06/02
 //! Comment       : 
 //******************************************************************/
-void SetDataFgColour(CGridCtrl *pGrid, int nRow, int nCol, LPCTSTR szData)
+void SetDataFgColour(CGridCtrl *pGrid, long nRow, long nCol, LPCTSTR szData)
 {
 	CString strData = szData;
 	if (atof(strData) > 0)
@@ -1626,7 +1627,7 @@ void CABotDlg::SetDataRealAddGrid(CStringArray &arrData, CString strRealType/* =
 		return;
 	}
 
-	int i, nRow = atol(strTemp), nCnt = arrData.GetSize();
+	long i=0, nRow = atol(strTemp), nCnt = arrData.GetSize();
 
 	// 데이타 설정
 	CString strTempData;
@@ -1684,7 +1685,7 @@ void CABotDlg::SetDataRealAddGrid(CStringArray &arrData, CString strRealType/* =
 			{
 				continue;
 			}
-			int nCol = lstOPTSBFID[i].nCol;
+			long nCol = lstOPTSBFID[i].nCol;
 			m_grdRealAdd.SetItemText(nRow, lstOPTSBFID[i].nCol, ConvDataFormat(lstOPTSBFID[i].nDataType, strData, lstOPTSBFID[i].strBeforeData, lstOPTSBFID[i].strAfterData));
 		}
 	}
@@ -1781,7 +1782,7 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 		AddMessage(CString("총수익률" + strBuff + " 퍼센트")); // %나 %%의 경우 동작하지 않고 도중에 에러 발생.
 
 		CString	strTRCode(sTrCode);
-		int	rowCount = theApp.m_khOpenApi.GetRepeatCnt(strTRCode, _T(""));
+		long rowCount = theApp.m_khOpenApi.GetRepeatCnt(strTRCode, _T(""));
 
 		m_grdBuyItem.SetRowCount(rowCount + 1);
 
@@ -1789,7 +1790,7 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 		{
 			CString strData;
 			COLORREF color = RGB(0, 0, 0);
-			for (int row = 0; row < rowCount; row++)
+			for (long row = 0; row < rowCount; row++)
 			{
 				strBuff.Empty();
 				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("종목명")); strData.Trim();
@@ -1809,18 +1810,18 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 				m_grdBuyItem.SetItemFormat(row + 1, 2, DT_RIGHT);
 				m_grdBuyItem.SetItemText(row + 1, 2, strData);
 
+				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("매입금액")); strData.Trim();
+				strData = GetCurrencyString(strData);
+				strBuff += CString("매입금액" + strData + ", ");
+				m_grdBuyItem.SetItemFormat(row + 1, 3, DT_RIGHT);
+				m_grdBuyItem.SetItemText(row + 1, 3, strData);
+
 				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("수익률(%)")); strData.Trim();
 				temp = atof(strData);
 				temp = temp / (double)100;
 				strData.Format("%.2f", temp);
 				strBuff += CString("수익률" + strData + ", ");
-				m_grdBuyItem.SetItemFgColour(row + 1, 3, GetFGColor(strData));
-				m_grdBuyItem.SetItemFormat(row + 1, 3, DT_RIGHT);
-				m_grdBuyItem.SetItemText(row + 1, 3, strData);
-
-				strData = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), row, _T("현재가")); strData.Trim();
-				strData = GetCurrencyString(strData);
-				strBuff += CString("현재가" + strData + ", ");
+				m_grdBuyItem.SetItemFgColour(row + 1, 4, GetFGColor(strData));
 				m_grdBuyItem.SetItemFormat(row + 1, 4, DT_RIGHT);
 				m_grdBuyItem.SetItemText(row + 1, 4, strData);
 
@@ -1858,7 +1859,7 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 	else if (strRQName == _T("대출일조회"))
 	{/// 
 		CString		strTRCode(sTrCode);
-		int		nCnt = theApp.m_khOpenApi.GetRepeatCnt(strTRCode, _T(""));
+		long nCnt = theApp.m_khOpenApi.GetRepeatCnt(strTRCode, _T(""));
 
 		if (nCnt < 1)
 		{
@@ -1867,7 +1868,7 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 		}
 
 		CString		strSymbol, strSymbolName, strLoanDate, strText;
-		for (int nIdx = 0; nIdx < nCnt; nIdx++)
+		for (long nIdx = 0; nIdx < nCnt; nIdx++)
 		{
 			strSymbol = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), nIdx, _T("종목번호"));
 			strSymbolName = theApp.m_khOpenApi.CommGetData(strTRCode, _T(""), _T(""), nIdx, _T("종목명"));
@@ -1896,7 +1897,7 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 
 void CABotDlg::OnBnClickedButtonGetfilter()
 {
-	int nGetConditionRet = theApp.m_khOpenApi.GetConditionLoad();
+	long nGetConditionRet = theApp.m_khOpenApi.GetConditionLoad();
 	if (nGetConditionRet <= 0)
 	{
 		AddMessage("검색 조건 조회 실패. ret[%d]", nGetConditionRet);
@@ -1912,15 +1913,15 @@ void CABotDlg::OnBnClickedButtonGetfilter()
 	//받아온 조건검색명을 콤보에 넣는다.
 	m_cmbCon.ResetContent();
 
-	int i(0);
+	long i(0);
 
 	while (AfxExtractSubString(strCondition, strConditionNameList, i++, _T(';')))
 	{
 		if (strCondition != _T(""))
 		{
 			strCondition.Trim();
-			int nPos = strCondition.Find("^");
-			int nConditionNo = atoi(strCondition.Left(nPos));
+			long nPos = strCondition.Find("^");
+			long nConditionNo = atol(strCondition.Left(nPos));
 			strConditionName = strCondition.Mid(nPos + 1, strCondition.GetLength());
 			strIndex.Format(_T("%d"), nConditionNo);
 			m_mapNameList.SetAt(strConditionName, strIndex);
@@ -1928,7 +1929,7 @@ void CABotDlg::OnBnClickedButtonGetfilter()
 		}
 	}
 
-	static bool bConfigApplied = false;
+	static BOOL bConfigApplied = FALSE;
 
 	if (m_cmbCon.GetCount() > 0)
 	{
@@ -1947,7 +1948,7 @@ void CABotDlg::OnBnClickedButtonGetfilter()
 					m_cmbCon.SetCurSel(i);
 				}
 			}
-			bConfigApplied = true;
+			bConfigApplied = TRUE;
 		}
 	}
 }
@@ -1993,21 +1994,24 @@ void CABotDlg::OnBnClickedButtonRegtarget()
 	REQ_ItemRealReg();
 }
 
+void CABotDlg::OnBnClickedButtonGetBalance()
+{
+	REQ_BalanceInfo();
+}
+
 void CABotDlg::OnBnClickedButtonDebugTest()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 //	InitRealAddGrid();
-	InitBuyItemGrid();
-
-	REQ_BalanceInfo();
+//	InitBuyItemGrid();
 }
 
 BOOL CABotDlg::REQ_ItemRealReg()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	CString strTargetCodeList;
-	int nIndex = 0;
-	int nMaxIndex = min(m_ItemCount, _countof(m_Item));
+	long nIndex = 0;
+	long nMaxIndex = min(m_ItemCount, _countof(m_Item));
 	for (nIndex = 0; nIndex < nMaxIndex; nIndex++)
 	{
 		strTargetCodeList += m_Item[nIndex].m_strCode + ";";
@@ -2024,8 +2028,8 @@ BOOL CABotDlg::REQ_ItemRealReg()
 //! Param				: LPCTSTR sScrNo					- 화면번호
 //!						: PCTSTR strCodeList				- 종목리스트
 //!						: LPCTSTR strConditionName			- 조건명
-//!						: int nConditionIndex				- 조건명 인덱스번호
-//!						: int nNext							- 연속조회(2:연속조회, 0:연속조회없음)
+//!						: long nConditionIndex				- 조건명 인덱스번호
+//!						: long nNext							- 연속조회(2:연속조회, 0:연속조회없음)
 //! Return        : void
 //! Create        : , 2015/04/01
 //! Comment       : 
@@ -2044,7 +2048,7 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 
 		if (strlen(strCodeList)>0)
 		{
-			int nIndex(0);
+			long nIndex(0);
 			CString strConditionCode;
 			m_mapJongCode.RemoveAll();		// 종목코드 초기화
 			m_grdRealAdd.SetRowCount(1);
@@ -2056,7 +2060,7 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 			m_grdRealAdd.SetRowCount(nIndex - 1);
 
 			m_ItemCount = 0;
-			m_ItemCodeMap.RemoveAll();
+			m_mapItemCode.RemoveAll();
 
 			nIndex = 0;
 			CString strIndex;
@@ -2081,7 +2085,7 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 						m_Item[m_ItemCount].m_eitemState = eST_ADDED;
 						m_Item[m_ItemCount].m_strName = strCodeName;
 						m_Item[m_ItemCount].m_strCode = strConditionCode;
-						m_ItemCodeMap[m_Item[m_ItemCount].m_strCode] = m_ItemCount;
+						m_mapItemCode[m_Item[m_ItemCount].m_strCode] = m_ItemCount;
 						m_ItemCount++;
 					}
 				}
@@ -2156,7 +2160,7 @@ void CABotDlg::OnBnClickedButtonFinishRound()
 void CABotDlg::OnBnClickedButtonStopRound()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	if (true)//m_eProcessState <= ePST_ITEM_WAIT)
+	if (TRUE)//m_eProcessState <= ePST_ITEM_WAIT)
 	{
 		SetEnableControls();
 		KillTimer(ROUND_TIMER);
@@ -2183,24 +2187,25 @@ BOOL CABotDlg::IsInRoundTime()
 	SYSTEMTIME  systmCurTime;
 	GetLocalTime(&systmCurTime);
 
-	int	iHour = systmCurTime.wHour;
-	int	iMin = systmCurTime.wMinute;
+	long	iHour = systmCurTime.wHour;
+	long	iMin = systmCurTime.wMinute;
 
 	CString strBuf;
 	m_cmbStartHour.GetLBText(m_cmbStartHour.GetCurSel(), strBuf);
-	int iSHour = atoi((LPSTR)(LPCSTR)strBuf);
+	long iSHour = atol((LPSTR)(LPCSTR)strBuf);
 	
 	m_cmbStartMin.GetLBText(m_cmbStartMin.GetCurSel(), strBuf);
-	int iSMin = atoi((LPSTR)(LPCSTR)strBuf);
+	long iSMin = atol((LPSTR)(LPCSTR)strBuf);
 
 	m_cmbEndHour.GetLBText(m_cmbEndHour.GetCurSel(), strBuf);
-	int iEHour = atoi((LPSTR)(LPCSTR)strBuf);
+	long iEHour = atol((LPSTR)(LPCSTR)strBuf);
 
 	m_cmbEndMin.GetLBText(m_cmbEndMin.GetCurSel(), strBuf);
-	int iEMin = atoi((LPSTR)(LPCSTR)strBuf);
+	long iEMin = atol((LPSTR)(LPCSTR)strBuf);
 
 	m_cmbRoundCount.GetLBText(m_cmbRoundCount.GetCurSel(), strBuf);
-	int iRoundCount = atoi((LPSTR)(LPCSTR)strBuf);
+	long iRoundCount = atol
+		((LPSTR)(LPCSTR)strBuf);
 	if (m_cmbRoundCount.GetCurSel() != 0 && iRoundCount < m_nRoundCount)
 	{
 		return FALSE;
@@ -2219,24 +2224,24 @@ void CABotDlg::LoadProcessCondition()
 {
 	CString strBuf;
 	m_cmbDpUseRate.GetLBText(m_cmbDpUseRate.GetCurSel(), strBuf);
-	int nUseRate = atoi((LPSTR)(LPCSTR)strBuf);
+	long nUseRate = atol((LPSTR)(LPCSTR)strBuf);
 
 	m_cmbMaxTotalAmount.GetLBText(m_cmbMaxTotalAmount.GetCurSel(), strBuf);
-	long lMaxTotalAmount = atoi((LPSTR)(LPCSTR)strBuf) * 10000;
+	long lMaxTotalAmount = atol((LPSTR)(LPCSTR)strBuf) * 10000;
 
 	m_lProcessDR = min(long(m_lDepositReceived*(nUseRate / 100.0)), lMaxTotalAmount);
 	AddMessage(_T("라운드[%d], 운용 금액 총합은 %d[원] 입니다."), m_nRoundCount, GetCurrencyString(m_lProcessDR));
 
 	m_cmbBuyTimeOut.GetLBText(m_cmbBuyTimeOut.GetCurSel(), strBuf);
-	m_lItemBuyTimeout = atoi((LPSTR)(LPCSTR)strBuf) * 1000;
+	m_lItemBuyTimeout = atol((LPSTR)(LPCSTR)strBuf) * 1000;
 	AddMessage(_T("라운드[%d], 종목당 매수 timeout은 %d[clock] 입니다."), m_nRoundCount, m_lItemBuyTimeout);
 
 	m_cmbBuyRetry.GetLBText(m_cmbBuyRetry.GetCurSel(), strBuf);
-	m_lItemBuyTryCount = atoi((LPSTR)(LPCSTR)strBuf);
+	m_lItemBuyTryCount = atol((LPSTR)(LPCSTR)strBuf);
 	AddMessage(_T("라운드[%d], 종목당 매수 재시도 회수는 %d[회] 입니다."), m_nRoundCount, m_lItemBuyTryCount);
 
 	m_cmbHoldTimeOut.GetLBText(m_cmbHoldTimeOut.GetCurSel(), strBuf);
-	m_lItemHoldTimeout = atoi((LPSTR)(LPCSTR)strBuf) * 1000;
+	m_lItemHoldTimeout = atol((LPSTR)(LPCSTR)strBuf) * 1000;
 	AddMessage(_T("라운드[%d], 종목당 보유 timeout은 %d[clock] 입니다."), m_nRoundCount, m_lItemHoldTimeout);
 
 	m_cmbSellOverThis.GetLBText(m_cmbSellOverThis.GetCurSel(), strBuf);
@@ -2280,8 +2285,8 @@ void CABotDlg::ProcessSequence()
 	switch (m_eProcessState)
 	{
 	case ePST_ROUND_START:	//라운드 시작 상태.
-		m_OrderCodeMap.RemoveAll();
-		m_ItemCodeMap.RemoveAll();
+		m_mapOrderCode.RemoveAll();
+		m_mapItemCode.RemoveAll();
 		m_nProcessRetryCount = 0;
 		LoadProcessCondition();
 		AddMessage(_T("라운드[%d], 시작 합니다."), m_nRoundCount);
@@ -2334,7 +2339,7 @@ void CABotDlg::ProcessSequence()
 		else if (m_lDepositReceived > 0)
 		{
 			m_ItemCount = -1;
-			int i = 0;
+			long i = 0;
 			for (i = 0; i<_countof(m_Item); i++)
 			{
 				m_Item[i].m_index = i;
@@ -2397,7 +2402,7 @@ void CABotDlg::ProcessSequence()
 			{
 				CString strBuf;
 				m_cmbMaxAmount.GetLBText(m_cmbMaxAmount.GetCurSel(), strBuf);
-				long lItemMaxAmount = atoi((LPSTR)(LPCSTR)strBuf) * 10000;
+				long lItemMaxAmount = atol((LPSTR)(LPCSTR)strBuf) * 10000;
 
 				long lItemProcessAmount = m_lProcessDR / m_ItemCount;
 				m_lProcessItemDR = min(lItemMaxAmount, lItemProcessAmount);
@@ -2456,7 +2461,7 @@ void CABotDlg::ProcessSequence()
 
 void CABotDlg::ProcessTrade()
 {
-	int i = 0;
+	long i = 0;
 	for (i = 0; i < m_ItemCount; i++)
 	{
 		CABotItem &aItem = m_Item[i];
@@ -2736,7 +2741,7 @@ BOOL CABotDlg::REQ_BalanceInfo()
 
 BOOL CABotDlg::IsEndTrade()
 {
-	int i = 0;
+	long i = 0;
 	for (i = 0; i < m_ItemCount; i++)
 	{
 		if (eST_ADDED <= m_Item[i].m_eitemState &&

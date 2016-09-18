@@ -19,7 +19,7 @@ public:
 	void WriteSystemClockLog(CString strLog);
 	CString GetSystemClock();
 	virtual void WriteLog(LPCTSTR i_cpLog,...);
-	void Initial(CString FileName, BOOL flgEveryOneDay=FALSE, int nDuration=30, int nMaxLine=5000);
+	void Initial(CString FileName, BOOL flgEveryOneDay=FALSE, long nDuration=30, long nMaxLine=5000);
 	void SetEnable(BOOL bEnableLog) {m_bEnableLog = bEnableLog;}
 	CALog();
 	virtual ~CALog();
@@ -32,14 +32,14 @@ private:
 	CString m_strFoldName;
 	CString m_strFileName;
 	CString m_strDate;
-	void AutoDeleteFile(CString Target, int nDaysAgo);
+	void AutoDeleteFile(CString Target, long nDaysAgo);
 	BOOL CreateDirectories(CString strDir);
 
-	int m_nItemCount;
-	int m_nFileCount;
+	long m_nItemCount;
+	long m_nFileCount;
 
-	int m_nMaxLine;
-	int m_nDuration;
+	long m_nMaxLine;
+	long m_nDuration;
 	BOOL m_flgEveryOneDay;
 	BOOL m_bEnableLog;
 

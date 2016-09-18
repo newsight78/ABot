@@ -5,6 +5,7 @@
 #include "CsObject.h"
 //#include "CsPuppet.h"
 #include "CsMsgDisp.h"
+#include "ABotDefine.h"
 
 
 // CsMsgDisp 대화 상자입니다.
@@ -106,15 +107,17 @@ void CsMsgDisp::ClearMessages(void)
 
 BOOL CsMsgDisp::AddMessage(char * i_cMsg, ...)
 {
-	if(!m_cRichEdit || !m_cRichEdit.GetSafeHwnd()) {return FALSE;}
+	if (IsSafeWindow(&m_cRichEdit) == FALSE) {
+		return FALSE;
+	}
 
 	CTime time = CTime::GetCurrentTime();
 	struct _timeb tstruct;
 	_ftime64_s( &tstruct );
 
 	va_list arglist;
-	char arbytebuf[1024];
-	char arbyteMsg[1024];
+	char arbytebuf[1024] = { 0 };
+	char arbyteMsg[1024] = { 0 };
 
 	va_start(arglist, i_cMsg);
 	_vstprintf_s(arbytebuf, i_cMsg, arglist);

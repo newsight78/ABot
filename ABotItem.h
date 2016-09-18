@@ -22,7 +22,7 @@ public:
 	void Init();
 
 public:
-	int				m_index;			//순번.
+	long			m_index;			//순번.
 	eItemState		m_eitemState;		//프로세스 상태.
 	CString			m_strCode;			//코드
 	CString			m_strName;			//이름

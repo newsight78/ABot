@@ -22,7 +22,7 @@ CString GetSystemVersion()
 	if(!::GetFileVersionInfo((LPTSTR)(LPCTSTR)strMyName, dwHandle, dwDataSize, 
 		(void**)m_lpVersionData) )
 	{
-		delete [] m_lpVersionData;
+		SafeDeleteArray(m_lpVersionData);
 		return strFileVersion;
 	}
 
@@ -31,7 +31,7 @@ CString GetSystemVersion()
 	if(! ::VerQueryValue((void**)m_lpVersionData, _T("\\"),
 		(void**)&vpsffi, &nQuerySize) )
 	{
-		delete [] m_lpVersionData;
+		SafeDeleteArray(m_lpVersionData);
 		return strFileVersion;
 	}
 
@@ -41,8 +41,7 @@ CString GetSystemVersion()
 		HIWORD(vpsffi->dwFileVersionLS),
 		LOWORD(vpsffi->dwFileVersionLS));
 
-	delete [] m_lpVersionData;
-
+	SafeDeleteArray(m_lpVersionData);
 
 	return strFileVersion;
 }
@@ -122,7 +121,7 @@ BOOL WriteToReg_String(HKEY hKey, LPCTSTR lpKey, LPCTSTR lpValue, LPCTSTR lpData
 	return TRUE;
 }
 
-void WriteToIniFile_Int(LPCTSTR szPathName, LPCTSTR szSection, LPCTSTR szKeyName, int nValue)
+void WriteToIniFile_Int(LPCTSTR szPathName, LPCTSTR szSection, LPCTSTR szKeyName, long nValue)
 {
 	CString str;
 
@@ -143,7 +142,7 @@ void WriteToIniFile_String(LPCTSTR szPathName, LPCTSTR szSection, LPCTSTR szKeyN
 	::WritePrivateProfileString(szSection, szKeyName, strValue, szPathName);
 }
 
-void ReadFromIniFile_Int(LPCTSTR szPathName, LPCTSTR szSection, LPCTSTR szKeyName, int nDefault, int &nReturn)
+void ReadFromIniFile_Int(LPCTSTR szPathName, LPCTSTR szSection, LPCTSTR szKeyName, long nDefault, long &nReturn)
 {
 	TCHAR szGet[256];
 	CString strDefault;
@@ -239,7 +238,7 @@ BOOL IsFileExist(LPCTSTR lpPathName, BOOL bMsg)
 BOOL MakeDirectory(CString strPathName)
 {
 	strPathName+=_T('\\');
-	int nMakeTree = 0;
+	long nMakeTree = 0;
 	nMakeTree = strPathName.Find(_T('\\'),nMakeTree);
 	CString strBuf;
 	
@@ -265,7 +264,7 @@ BOOL MakeFolder(CString strPathName)
 BOOL CreateDirectories(CString jstr)
 {
 
-	int cnt = 0;
+	long cnt = 0;
 
 	while(jstr.Find(TEXT("\\"),cnt)>0)
 	{
@@ -423,7 +422,7 @@ void GetFilePathListIncludingSubFolder(CString strPathName, CString strFileName,
 	{
 		CArray<CString> arPaths;
 		GetDirPathList(strPathName, _T("*.*"), arPaths);
-		int i(0);
+		long i(0);
 		for(i=0; i<arPaths.GetCount(); i++)
 		{
 			GetFilePathListIncludingSubFolder(arPaths.GetAt(i), strFileName, arFilePaths);
@@ -453,7 +452,7 @@ void GetFilePathListIncludingSubFolder(CString strPathName, CString strFileName,
 //c:\myhtml\myfile.txt returns the file name "myfile.txt". 
 CString GetFileName(CString strPathName)
 {
-	int nPos(strPathName.ReverseFind(_T('\\')));
+	long nPos(strPathName.ReverseFind(_T('\\')));
 	if(nPos>=0)
 		return strPathName.Right(strPathName.GetLength()-nPos-1);
 	return strPathName;
@@ -463,18 +462,18 @@ CString GetFileName(CString strPathName)
 //c:\myhtml\myfile.txt returns the folder name "c:\myhtml\". 
 CString GetFolderName(CString strPathName)
 {
-	int nPos(strPathName.ReverseFind(_T('\\')));
+	long nPos(strPathName.ReverseFind(_T('\\')));
 	if(nPos>=0)
 		return strPathName.Left(nPos);
 	return strPathName;
 }
 
-BOOL ExtractSubString(CString& rString, LPCTSTR lpszFullString, int iSubString, TCHAR chSep)
+BOOL ExtractSubString(CString& rString, LPCTSTR lpszFullString, long iSubString, TCHAR chSep)
 {
 	return AfxExtractSubString(rString, lpszFullString, iSubString, chSep);
 }
 
-BOOL ExtractSublong(long& lValue, LPCTSTR lpszFullString, int iSubString, TCHAR chSep)
+BOOL ExtractSublong(long& lValue, LPCTSTR lpszFullString, long iSubString, TCHAR chSep)
 {
 	CString strSub;
 	if(AfxExtractSubString(strSub, lpszFullString, iSubString, chSep))
@@ -520,7 +519,7 @@ BOOL ResourceToFile(long lResourceID ,CString strResourceType , CString strFullP
 }
 
 //서브 폴더에 있는 파일까지 지움..
-void DeleteOldFiles(CString strPathName, CString strFileName, int nLeaveDaysAgo, BOOL bDeleteSubFolder, BOOL bDeleteEmptyFolder, CTime tmToday)
+void DeleteOldFiles(CString strPathName, CString strFileName, long nLeaveDaysAgo, BOOL bDeleteSubFolder, BOOL bDeleteEmptyFolder, CTime tmToday)
 {
 	if(strPathName.GetLength() <= 0) { return; }
 	strPathName += _T("\\");

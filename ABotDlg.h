@@ -71,13 +71,12 @@ public:
 public:
 	eProcessState		m_eProcessState;		//프로세스 상태.
 	BOOL				m_bDoFinishProcess;		//프로세스 종료 요청.
-	int					m_nRoundCount;			//라운드 수.
-	int					m_nProcessRetryCount;	//프로세스 재시도 회수.
+	long				m_nRoundCount;			//라운드 수.
+	long				m_nProcessRetryCount;	//프로세스 재시도 회수.
 	long				m_lProcessDR;			//프로세스에서 사용할 예수금 [원]
 	long				m_lProcessItemDR;		//종목당 사용할수 있는 예수금 [원]
 	long				m_lItemBuyTimeout;		//종목 구매 타임 아웃 [clock]
 	long				m_lItemBuyTryCount;		//종목 구매 시도 회수.
-
 	long				m_lItemHoldTimeout;		//종목 보유 타임 아웃 [clock]
 
 	double				m_dSellOverThis;		// 구매후 종목 현재가가, 이 퍼센트 보다 높아지면 판다. [%]
@@ -86,16 +85,16 @@ public:
 	double				m_dSellUnderThis2;		// 구매후 m_cmbSellUnderThis 조건을 트리거후, 이 퍼센트 보다 낮아!!!!!!지면 시장가로 판다. [%]
 
 	CABotItem			m_Item[100];			//종목.
-	int					m_ItemCount;			//종목수.
-	CMap<CString, LPCSTR, int, int>		m_ItemCodeMap;			// CodeString => m_Item's index;
-	CMap<CString, LPCSTR, int, int>		m_OrderCodeMap;			// CodeString => m_Item's index;
+	long				m_ItemCount;			//종목수.
+	CMap<CString, LPCSTR, long, long>	m_mapItemCode;			// CodeString => m_Item's index;
+	CMap<CString, LPCSTR, long, long>	m_mapOrderCode;			// CodeString => m_Item's index;
 
 	CString				m_strConfigFile;		//환경 파일 이름.
 	CString				m_strLogFolderName;		//로그 파일 경로.
 	CString				m_strScrNo;				//스크린 번호
 	CString				m_strAccNo;				//계좌 번호
 	CString				m_strConditionName;		//현재 조건명
-	int					m_nConditionIndex;		//현재 조건명 인덱스
+	long				m_nConditionIndex;		//현재 조건명 인덱스
 	CMapStringToString	m_mapFIDName;
 	CMapStringToString	m_mapJongCode;			// 리얼 등록 종목
 	CMapStringToString	m_mapNameList;			// 조건검색명리스트
@@ -145,5 +144,6 @@ public:
 	afx_msg void OnBnClickedButtonSellAllCurCost();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnBnClickedButtonRegtarget();
+	afx_msg void OnBnClickedButtonGetBalance();
 	afx_msg void OnBnClickedButtonDebugTest();
 };

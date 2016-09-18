@@ -25,7 +25,7 @@ TRUE  : 하루에 하나씩 Log 파일 생성
 __________________________________________________________________*/
 
 //CRITICAL_SECTION g_LogCritic;			// 여러 스레드에서 동시에 file open / close하는 경우에 대비		
-int g_iLogInstanceCount =0 ;
+long g_iLogInstanceCount = 0;
 
 CALog::CALog()
 {
@@ -35,7 +35,7 @@ CALog::CALog()
 	g_iLogInstanceCount++;
 }
 
-void CALog::Initial(CString FileName, BOOL flgEveryOneDay/*=FALSE*/, int nDuration/*=30*/, int nMaxLine/*=5000*/)
+void CALog::Initial(CString FileName, BOOL flgEveryOneDay/*=FALSE*/, long nDuration/*=30*/, long nMaxLine/*=5000*/)
 {
 	CString strTime;
 
@@ -197,10 +197,10 @@ CString CALog::GetTimeData()
 
 	GetLocalTime(&systmCurTime);
 
-	int	iHour	= systmCurTime.wHour;
-	int	iMin	= systmCurTime.wMinute;
-	int	iSec	= systmCurTime.wSecond; 
-	int	iMili	= systmCurTime.wMilliseconds;
+	long	iHour = systmCurTime.wHour;
+	long	iMin = systmCurTime.wMinute;
+	long	iSec = systmCurTime.wSecond;
+	long	iMili = systmCurTime.wMilliseconds;
 	CString sLogContent; 
 
 	sLogContent.Format(TEXT("[%02d:%02d:%02d:%03d]"), iHour, iMin, iSec, iMili);
@@ -251,7 +251,7 @@ CString CALog::MakeFileName(CString Date, CString Time)
 // Delete Auto Log Files
 // Description	: 이 함수는 Target Folder안의 파일중에 현재 날짜로부터 일정 일자 이전의
 //				  파일을 삭제하는 함수이다. <Target - 해당Folder, Duration - 일자(day)>
-void CALog::AutoDeleteFile(CString Target, int nDaysAgo)
+void CALog::AutoDeleteFile(CString Target, long nDaysAgo)
 {
 	BOOL	bWorking;
 	CFileFind	finder;
@@ -279,7 +279,7 @@ void CALog::AutoDeleteFile(CString Target, int nDaysAgo)
 BOOL CALog::CreateDirectories(CString jstr)
 {
 
-	int cnt = 0;
+	long cnt = 0;
 
 	while(jstr.Find(TEXT("\\"),cnt)>0)
 	{
