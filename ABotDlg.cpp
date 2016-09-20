@@ -448,6 +448,17 @@ void CABotDlg::InitComboBox()
 	m_cmbSellOverThis.InsertString(7, "4.0");
 	m_cmbSellOverThis.InsertString(8, "4.5");
 	m_cmbSellOverThis.InsertString(9, "5.0");
+	m_cmbSellOverThis.InsertString(10, "5.5");
+	m_cmbSellOverThis.InsertString(11, "6.0");
+	m_cmbSellOverThis.InsertString(12, "6.5");
+	m_cmbSellOverThis.InsertString(13, "7.0");
+	m_cmbSellOverThis.InsertString(14, "7.5");
+	m_cmbSellOverThis.InsertString(15, "8.0");
+	m_cmbSellOverThis.InsertString(16, "8.5");
+	m_cmbSellOverThis.InsertString(17, "9.0");
+	m_cmbSellOverThis.InsertString(18, "9.5");
+	m_cmbSellOverThis.InsertString(19, "10.0");
+	m_cmbSellOverThis.InsertString(20, "10.5");
 	m_cmbSellOverThis.SetCurSel(1);
 
 	m_cmbSellOverThis2.InsertString(0, "0.5");
@@ -460,8 +471,18 @@ void CABotDlg::InitComboBox()
 	m_cmbSellOverThis2.InsertString(7, "4.0");
 	m_cmbSellOverThis2.InsertString(8, "4.5");
 	m_cmbSellOverThis2.InsertString(9, "5.0");
+	m_cmbSellOverThis2.InsertString(10,"5.5");
+	m_cmbSellOverThis2.InsertString(11, "6.0");
+	m_cmbSellOverThis2.InsertString(12, "6.5");
+	m_cmbSellOverThis2.InsertString(13, "7.0");
+	m_cmbSellOverThis2.InsertString(14, "7.5");
+	m_cmbSellOverThis2.InsertString(15, "8.0");
+	m_cmbSellOverThis2.InsertString(16, "8.5");
+	m_cmbSellOverThis2.InsertString(17, "9.0");
+	m_cmbSellOverThis2.InsertString(18, "9.5");
+	m_cmbSellOverThis2.InsertString(19, "10.0");
+	m_cmbSellOverThis2.InsertString(20, "10.5");
 	m_cmbSellOverThis2.SetCurSel(0);
-
 
 	m_cmbSellUnderThis.InsertString(0, "0.5");
 	m_cmbSellUnderThis.InsertString(1, "1.0");
@@ -473,6 +494,17 @@ void CABotDlg::InitComboBox()
 	m_cmbSellUnderThis.InsertString(7, "4.0");
 	m_cmbSellUnderThis.InsertString(8, "4.5");
 	m_cmbSellUnderThis.InsertString(9, "5.0");
+	m_cmbSellUnderThis.InsertString(10, "5.5");
+	m_cmbSellUnderThis.InsertString(11, "6.0");
+	m_cmbSellUnderThis.InsertString(12, "6.5");
+	m_cmbSellUnderThis.InsertString(13, "7.0");
+	m_cmbSellUnderThis.InsertString(14, "7.5");
+	m_cmbSellUnderThis.InsertString(15, "8.0");
+	m_cmbSellUnderThis.InsertString(16, "8.5");
+	m_cmbSellUnderThis.InsertString(17, "9.0");
+	m_cmbSellUnderThis.InsertString(18, "9.5");
+	m_cmbSellUnderThis.InsertString(19, "10.0");
+	m_cmbSellUnderThis.InsertString(20, "10.5");
 	m_cmbSellUnderThis.SetCurSel(1);
 
 	m_cmbSellUnderThis2.InsertString(0, "0.5");
@@ -485,6 +517,17 @@ void CABotDlg::InitComboBox()
 	m_cmbSellUnderThis2.InsertString(7, "4.0");
 	m_cmbSellUnderThis2.InsertString(8, "4.5");
 	m_cmbSellUnderThis2.InsertString(9, "5.0");
+	m_cmbSellUnderThis2.InsertString(10, "5.5");
+	m_cmbSellUnderThis2.InsertString(11, "6.0");
+	m_cmbSellUnderThis2.InsertString(12, "6.5");
+	m_cmbSellUnderThis2.InsertString(13, "7.0");
+	m_cmbSellUnderThis2.InsertString(14, "7.5");
+	m_cmbSellUnderThis2.InsertString(15, "8.0");
+	m_cmbSellUnderThis2.InsertString(16, "8.5");
+	m_cmbSellUnderThis2.InsertString(17, "9.0");
+	m_cmbSellUnderThis2.InsertString(18, "9.5");
+	m_cmbSellUnderThis2.InsertString(19, "10.0");
+	m_cmbSellUnderThis2.InsertString(20, "10.5");
 	m_cmbSellUnderThis2.SetCurSel(3);
 
 
@@ -1120,6 +1163,7 @@ BEGIN_EVENTSINK_MAP(CABotDlg, CDialogEx)
 	ON_EVENT(CABotDlg, IDC_KHOPENAPICTRL1, 2, CABotDlg::OnReceiveRealData, VTS_BSTR VTS_BSTR VTS_BSTR)
 	ON_EVENT(CABotDlg, IDC_KHOPENAPICTRL1, 1, CABotDlg::OnReceiveTrData, VTS_BSTR VTS_BSTR VTS_BSTR VTS_BSTR VTS_BSTR VTS_I4 VTS_BSTR VTS_BSTR VTS_BSTR)
 	ON_EVENT(CABotDlg, IDC_KHOPENAPICTRL1, 8, CABotDlg::OnReceiveTrCondition, VTS_BSTR VTS_BSTR VTS_BSTR VTS_I4 VTS_I4)
+	ON_EVENT(CABotDlg, IDC_KHOPENAPICTRL1, 7, CABotDlg::OnReceiveRealCondition, VTS_BSTR VTS_BSTR VTS_BSTR VTS_BSTR)
 END_EVENTSINK_MAP()
 
 //*******************************************************************/
@@ -1345,7 +1389,8 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 				AddMessage(_T("라운드[%d], 종목[%s][%s],단가[%d],수량[%d],잔량[%d], 매도 주문이 완료 되었습니다."),
 					m_nRoundCount, aItem.m_strCode, aItem.m_strName, lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
 			}
-			else if (aItem.m_eitemState == eST_WAITBUYCANCLE || aItem.m_eitemState == eST_BUYCANCLE)
+			else if (	aItem.m_eitemState == eST_WAITBUYCANCLE || 
+						aItem.m_eitemState == eST_BUYCANCLE)
 			{
 				if (aItem.m_lBuyQuantity > 0)
 				{
@@ -1362,11 +1407,30 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 					return;
 				}
 			}
+			else if (	aItem.m_eitemState == eST_WAITSELLCANCLE || 
+						aItem.m_eitemState == eST_SELLCANCLE)
+			{
+				if (aItem.m_lSellQuantity > 0)
+				{
+					AddMessage(_T("라운드[%d], 종목[%s][%s],단가[%d],수량[%d],잔량[%d], 매도 취소가 완료 되었습니다."),
+						m_nRoundCount, aItem.m_strCode, aItem.m_strName, lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
+					aItem.m_eitemState = eST_HOLDING;
+					return;
+				}
+				else
+				{
+					AddMessage(_T("라운드[%d], 종목[%s][%s] 매도 취소가 완료 되었습니다."),
+						m_nRoundCount, aItem.m_strCode, aItem.m_strName);
+					aItem.m_eitemState = eST_HOLDING;
+					return;
+				}
+			}
 		}
 
 		if (bTRADEDone)
 		{
-			if (aItem.m_eitemState == eST_WAITBUY || aItem.m_eitemState == eST_TRYBUY)
+			if (aItem.m_eitemState == eST_WAITBUY || 
+				aItem.m_eitemState == eST_TRYBUY)
 			{
 				ASSERT(bBUYDone);
 
@@ -1387,7 +1451,11 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 				}
 				return;
 			}
-			else if (aItem.m_eitemState == eST_WAITSELL || aItem.m_eitemState == eST_TRYSELL || aItem.m_eitemState == eST_WAITSELLMARKETVALUE)
+			else if (	aItem.m_eitemState == eST_WAITSELL || 
+						aItem.m_eitemState == eST_TRYSELL || 
+						aItem.m_eitemState == eST_WAITSELLMARKETVALUE ||
+						aItem.m_eitemState == eST_SELLCANCLE ||
+						aItem.m_eitemState == eST_WAITSELLCANCLE)
 			{
 				ASSERT(bSELLDone);
 
@@ -1752,7 +1820,7 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 		
 		((CEdit*)GetDlgItem(IDC_EDIT_DEPOSITRECEIVED))->SetWindowText(strBuff);
 
-		AddMessage(strBuff + " KRW");
+		AddMessage(strBuff + " [원]");
 	}
 	else if (strRQName == _T("잔고"))
 	{
@@ -1982,9 +2050,9 @@ BOOL CABotDlg::REQ_ItemSearch()
 	//조검검색 실시간 조회
 	//종목리스트는 OnReceiveTrCondition()을 통하여 들어온다.
 	//실시간 조건 검색을 하고 싶으면 마지막 파라메터에 1로 준다.
-	//	BOOL bRet = theApp.m_khOpenApi.SendCondition(m_strScrNo, m_strConditionName, m_nConditionIndex, 1);
-	BOOL bRet = theApp.m_khOpenApi.SendCondition(m_strScrNo, m_strConditionName, m_nConditionIndex, 0);
-	AddMessage("조건식[%d][%s], 종목 검색 요청 %s.", m_nConditionIndex, m_strConditionName, (bRet ? "성공" : "실패"));
+	BOOL bRet = theApp.m_khOpenApi.SendCondition(m_strScrNo, m_strConditionName, m_nConditionIndex, 1);
+//	BOOL bRet = theApp.m_khOpenApi.SendCondition(m_strScrNo, m_strConditionName, m_nConditionIndex, 0);
+	AddMessage("조건식[%d][%s], 실시간 종목 검색 요청 %s.", m_nConditionIndex, m_strConditionName, (bRet ? "성공" : "실패"));
 	return bRet;
 }
 
@@ -2061,6 +2129,7 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 
 			m_ItemCount = 0;
 			m_mapItemCode.RemoveAll();
+			m_mapUsedItemCode.RemoveAll();
 
 			nIndex = 0;
 			CString strIndex;
@@ -2080,12 +2149,15 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 					m_mapJongCode.SetAt(strConditionCode, strIndex);
 					AddMessage(_T("[%s][%s][%s] 검색됨."), strIndex, strConditionCode, strCodeName);
 
-					if (m_ItemCount < _countof(m_Item))
+					if ((!IsInRound() || IsInRoundTime())
+						&& m_ItemCount < min(long(_countof(m_Item)), m_nProcessItemCount))
 					{
+						AddMessage("[%3d][%s][%s] 운용 종목들에 추가", m_ItemCount, strConditionCode, strCodeName);
 						m_Item[m_ItemCount].m_eitemState = eST_ADDED;
 						m_Item[m_ItemCount].m_strName = strCodeName;
 						m_Item[m_ItemCount].m_strCode = strConditionCode;
 						m_mapItemCode[m_Item[m_ItemCount].m_strCode] = m_ItemCount;
+						m_mapUsedItemCode[m_Item[m_ItemCount].m_strCode] = m_ItemCount;
 						m_ItemCount++;
 					}
 				}
@@ -2097,7 +2169,121 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 			m_mapJongCode.RemoveAll();		// 종목코드 초기화
 			m_grdRealAdd.SetRowCount(1);
 
+			m_ItemCount = 0;
+			m_mapItemCode.RemoveAll();
+			m_mapUsedItemCode.RemoveAll();
+
 			AddMessage(_T("검색된 종목이 없습니다."));
+		}
+	}
+}
+
+//*******************************************************************/
+//! Function Name : OnReceiveRealCondition
+//! Function      : 조건검색 실시간 종목 삽입/삭제
+//! Param         : LPCTSTR strCode, LPCTSTR strType, LPCTSTR strConditionName, LPCTSTR strConditionIndex
+//! Return        : void
+//! Create        : , 2015/04/20
+//! Comment       : 
+//******************************************************************/
+
+void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR strConditionName, LPCTSTR strConditionIndex)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+	AddMessage(_T("OnReceiveRealCondition::"));
+
+	CString strName, strMsg, strIndex, sType, sCode;
+	sType = strType;	//종목 편입, 이탈 구분
+	sCode = sTrCode;	//종목코드
+	m_cmbCon.GetLBText(m_cmbCon.GetCurSel(), strName);	//현재 선택된 조건명
+
+	if (strName == strConditionName)	//현재 선택된 조건명과 실시간으로 들어온 조건명이 같은지 비교.
+	{
+		if (sType == "I")	//종목 편입
+		{
+			m_grdRealAdd.InsertRow(sCode, 1);
+
+			// 종목명/
+			CString strCodeName;
+			strCodeName = theApp.m_khOpenApi.GetMasterCodeName(sCode);
+			m_grdRealAdd.SetItemText(1, 1, strCodeName);
+
+			strMsg.Format(_T("[%s][%s] 종목이 편입되었습니다."), sCode, strCodeName);
+			AddMessage(strMsg);
+
+			//기존조회된 종목의 시세가 들어오고 있는 상황에서 추가로 편입된 종목의 시세를 보여줄때 
+			// 마지막 파라메터에 "1"을 넣어주어야 기존 종목과 함께 편입된 종목의 시세가 들어온다.
+			// 만약 "1" 이외의 "0"을 넣어주면 기존에 등록한 종목들에 대한 시세가 끊어진다.
+			//실시간등록 함수 호출
+			long lRet = theApp.m_khOpenApi.SetRealReg(m_strScrNo, sCode, FIDLIST, "1");
+			AddMessage("편입된 종목들에 대한 실시간 조회 요청 %s. ret[%d]", (lRet >= 0 ? "성공" : "실패"), lRet);
+			if (lRet >= 0)
+			{
+				long aIndex = 0;
+				if (!m_mapUsedItemCode.Lookup(sCode, aIndex))
+				{
+					if ((!IsInRound() || IsInRoundTime())
+						&& m_ItemCount < min(long(_countof(m_Item)), m_nProcessItemCount))
+					{
+						AddMessage("[%3d][%s][%s] 운용 종목들에 추가", m_ItemCount, sCode, strCodeName);
+						m_Item[m_ItemCount].m_eitemState = eST_ADDED;
+						m_Item[m_ItemCount].m_strName = strCodeName;
+						m_Item[m_ItemCount].m_strCode = sCode;
+						m_mapItemCode[m_Item[m_ItemCount].m_strCode] = m_ItemCount;
+						m_mapUsedItemCode[m_Item[m_ItemCount].m_strCode] = m_ItemCount;
+						m_ItemCount++;
+					}
+				}
+			}
+		}
+		else if (sType == "D")	//종목 이탈
+		{
+			//기존에 있던 종목인지 확인.
+			if (!m_mapJongCode.Lookup(sCode, strIndex))
+			{
+				return;
+			}
+
+		//	long aIndex = 0;
+		//	if (m_mapItemCode.Lookup(sCode, aIndex))
+		//	{
+		//		nItemIndex = aIndex;
+		//
+		//		if (aIndex < _countof(m_Item))
+		//		{
+		//			m_Item[aIndex].m_eitemState = eST_ADDED;
+		//			m_Item[aIndex].m_strName = strCodeName;
+		//			m_Item[aIndex].m_strCode = sCode;
+		//			m_mapItemCode.RemoveKey(sCode);
+		//			m_ItemCount--;
+		//			//인덱스 정렬을 해야 하는구나.
+		//		}
+		//	}
+
+			// 종목명/
+			CString strCodeName;
+			strCodeName = theApp.m_khOpenApi.GetMasterCodeName(sCode);
+
+			//이탈 종목 삭제.
+			m_grdRealAdd.DeleteRow(_ttoi(strIndex));
+
+			//이탈된 종목의 시세를 받지 않을려면 사용한다.
+			theApp.m_khOpenApi.SetRealRemove(m_strScrNo, sCode);
+
+			strMsg.Format(_T("[%s][%s] 종목이 이탈되었습니다."), sCode, strCodeName);
+			AddMessage(strMsg);
+		}
+
+		m_grdRealAdd.Invalidate();
+
+		m_mapJongCode.RemoveAll();
+
+		int nCount = m_grdRealAdd.GetRowCount();
+		for (int i = 1; i < nCount; i++)
+		{
+			sCode = m_grdRealAdd.GetItemText(i, 0);
+			strIndex.Format("%d", i);
+			m_mapJongCode.SetAt(sCode, strIndex);
 		}
 	}
 }
@@ -2129,12 +2315,15 @@ void CABotDlg::OnBnClickedButtonStartRound()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	if (!IsInRound())
 	{
-		SetDisableControls();
-		m_nRoundCount = 1;
-		m_bDoFinishProcess = FALSE;
-		m_eProcessState = ePST_ROUND_START;
-		SetTimer(ROUND_TIMER, 1, NULL);
-		AddMessage(_T("라운드 시작 요청."));
+		if (REQ_DepositReceived())
+		{
+			SetDisableControls();
+			m_nRoundCount = 1;
+			m_bDoFinishProcess = FALSE;
+			m_eProcessState = ePST_ROUND_START;
+			SetTimer(ROUND_TIMER, 1, NULL);
+			AddMessage(_T("라운드 시작 요청."));
+		}
 	}
 }
 
@@ -2203,14 +2392,6 @@ BOOL CABotDlg::IsInRoundTime()
 	m_cmbEndMin.GetLBText(m_cmbEndMin.GetCurSel(), strBuf);
 	long iEMin = atol((LPSTR)(LPCSTR)strBuf);
 
-	m_cmbRoundCount.GetLBText(m_cmbRoundCount.GetCurSel(), strBuf);
-	long iRoundCount = atol
-		((LPSTR)(LPCSTR)strBuf);
-	if (m_cmbRoundCount.GetCurSel() != 0 && iRoundCount < m_nRoundCount)
-	{
-		return FALSE;
-	}
-
 	if ( iSHour <= iHour && iSMin <= iMin)
 	{
 		if ( (iHour < iEHour) || (iHour == iEHour && iMin < iEMin) )
@@ -2223,6 +2404,11 @@ BOOL CABotDlg::IsInRoundTime()
 void CABotDlg::LoadProcessCondition()
 {
 	CString strBuf;
+
+	m_cmbRoundCount.GetLBText(m_cmbRoundCount.GetCurSel(), strBuf);
+	m_nProcessItemCount = atol((LPSTR)(LPCSTR)strBuf);
+	AddMessage(_T("라운드[%d], 운용 종목수는 %d[개] 입니다."), m_nRoundCount, m_nProcessItemCount);
+
 	m_cmbDpUseRate.GetLBText(m_cmbDpUseRate.GetCurSel(), strBuf);
 	long nUseRate = atol((LPSTR)(LPCSTR)strBuf);
 
@@ -2282,11 +2468,14 @@ BOOL CABotDlg::getAccountData()
 
 void CABotDlg::ProcessSequence()
 {
+	BOOL bGoTrade = FALSE;
+
 	switch (m_eProcessState)
 	{
 	case ePST_ROUND_START:	//라운드 시작 상태.
 		m_mapOrderCode.RemoveAll();
 		m_mapItemCode.RemoveAll();
+		m_mapUsedItemCode.RemoveAll();
 		m_nProcessRetryCount = 0;
 		LoadProcessCondition();
 		AddMessage(_T("라운드[%d], 시작 합니다."), m_nRoundCount);
@@ -2369,12 +2558,12 @@ void CABotDlg::ProcessSequence()
 			m_eProcessState = ePST_ITEM_WAIT;
 			break;
 		}
-		else
-		{
-			//검색 요청 실패시. 화면 번호도 바꿔보고,. 그래도 소용 없군.
-			m_strScrNo.Format("%04d", rand() % 10000);
-			Sleep(min(2000, m_nProcessRetryCount*10));
-		}
+	//	else
+	//	{
+	//		//검색 요청 실패시. 화면 번호도 바꿔보고,. 그래도 소용 없군.
+	//		m_strScrNo.Format("%04d", rand() % 10000);
+	//		Sleep(min(2000, m_nProcessRetryCount*10));
+	//	}
 		break;
 
 	case ePST_ITEM_WAIT:	//종목 검색 결과 대기 상태.
@@ -2386,40 +2575,41 @@ void CABotDlg::ProcessSequence()
 			break;
 		}
 		AddMessage(_T("라운드[%d], [%d]개의 종목이 검색되었습니다."), m_nRoundCount, m_ItemCount);
-
+		bGoTrade = FALSE;
 		if (m_ItemCount == 0)
 		{
-			m_ItemCount = -1;
-			m_nProcessRetryCount = 0;
-			AddMessage(_T("라운드[%d], 종목 검색을 다시 시작 합니다."), m_nRoundCount);
-			m_eProcessState = ePST_ITEM_SEARCH;
-			break;
+			AddMessage(_T("라운드[%d], 종목이 검색될때 거래를 시작합니다."), m_nRoundCount);
+			bGoTrade = TRUE;
 		}
 		
 		if (m_ItemCount > 0)
 		{
 			if (REQ_ItemRealReg())
 			{
-				CString strBuf;
-				m_cmbMaxAmount.GetLBText(m_cmbMaxAmount.GetCurSel(), strBuf);
-				long lItemMaxAmount = atol((LPSTR)(LPCSTR)strBuf) * 10000;
-
-				long lItemProcessAmount = m_lProcessDR / m_ItemCount;
-				m_lProcessItemDR = min(lItemMaxAmount, lItemProcessAmount);
-				AddMessage(_T("라운드[%d], 종목당 운용 허용 금액은 %d[원] 입니다."), m_nRoundCount, GetCurrencyString(m_lProcessItemDR));
-
-				m_nProcessRetryCount = 0;
-				AddMessage(_T("라운드[%d], 종목 거래를 시작 합니다."), m_nRoundCount);
-				m_eProcessState = ePST_ITEM_TRADE;
-				break;
+				bGoTrade = TRUE;
 			}
+		}
+		
+		if (bGoTrade)
+		{
+			CString strBuf;
+			m_cmbMaxAmount.GetLBText(m_cmbMaxAmount.GetCurSel(), strBuf);
+			long lItemMaxAmount = atol((LPSTR)(LPCSTR)strBuf) * 10000;
+
+			long lItemProcessAmount = m_lProcessDR / m_nProcessItemCount;
+			m_lProcessItemDR = min(lItemMaxAmount, lItemProcessAmount);
+			AddMessage(_T("라운드[%d], 종목당 운용 허용 금액은 %s[원] 입니다."), m_nRoundCount, GetCurrencyString(m_lProcessItemDR));
+
+			m_nProcessRetryCount = 0;
+			AddMessage(_T("라운드[%d], 종목 거래를 시작 합니다."), m_nRoundCount);
+			m_eProcessState = ePST_ITEM_TRADE;
+			break;
 		}
 		break;
 
 	case ePST_ITEM_TRADE:	//종목 거래 상태.
 		m_nProcessRetryCount++;
 		ProcessTrade();
-
 		if (IsEndTrade())
 		{
 			m_nProcessRetryCount = 0;
@@ -2427,13 +2617,15 @@ void CABotDlg::ProcessSequence()
 			m_eProcessState = ePST_ROUND_END;
 			break;
 		}
+		m_nProcessRetryCount--;
 		break;
 
 	case ePST_ROUND_END:	//라운드 1회 종료 상태.
 		m_nProcessRetryCount++;
 		AddMessage(_T("라운드[%d], 종료 합니다."), m_nRoundCount);
-		m_nRoundCount++;
-		if ( !IsInRoundTime() )
+	//	m_nRoundCount++;
+		
+		if (!IsInRoundTime() || m_nProcessItemCount <= m_ItemCount)
 		{
 			m_nProcessRetryCount = 0;
 			m_eProcessState = ePST_KILL_PROC;
@@ -2470,6 +2662,7 @@ void CABotDlg::ProcessTrade()
 		default:
 		case eST_NONE:		//아무것도 아닌 상태.
 			break;
+
 		case eST_ADDED:		//관심 종목에 추가 되었을때.
 			if (aItem.m_lcurPrice>0)
 			{
@@ -2523,7 +2716,7 @@ void CABotDlg::ProcessTrade()
 		case eST_BUYCANCLE:
 			if (REQ_ItemBuyCancle(aItem))
 			{
-				aItem.m_eitemState = eST_BUYCANCLE;
+				aItem.m_eitemState = eST_WAITBUYCANCLE;
 				break;
 			}
 			break;
@@ -2582,6 +2775,14 @@ void CABotDlg::ProcessTrade()
 			}
 			if (aItem.m_ltrySellTime > 0 && aItem.m_ltrySellTime + long(GetTickCount()) > aItem.m_ltrySellTimeout)
 			{
+				if (true)
+				{
+					AddMessage(_T("라운드[%d], 종목[%s][%s],단가[%d],수량[%d], 매도 타임 아웃으로 매도를 취소 합니다."),
+						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.m_lcurPrice, aItem.m_lQuantity - aItem.m_lSellQuantity);
+					aItem.m_eitemState = eST_SELLCANCLE;
+					break;
+				}
+
 				if (REQ_ItemSellOrder(aItem, TRUE))
 				{
 					AddMessage(_T("라운드[%d], 종목[%s][%s],단가[%d],수량[%d], 매도가 시장가로 재시도 되었습니다."),
@@ -2590,6 +2791,17 @@ void CABotDlg::ProcessTrade()
 					break;
 				}
 			}
+			break;
+
+		case eST_SELLCANCLE:
+			if (REQ_ItemSellCancle(aItem))
+			{
+				aItem.m_eitemState = eST_WAITSELLCANCLE;
+				break;
+			}
+			break;
+
+		case eST_WAITSELLCANCLE:
 			break;
 
 		case eST_WAITSELLMARKETVALUE:
@@ -2629,9 +2841,9 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 	}
 
 	aItem.m_lbuyPrice = aItem.m_lcurPrice;
-	aItem.m_lQuantity = (m_lProcessItemDR - aItem.m_lBuyCost) / aItem.m_lbuyPrice;
+	long nextQuantity = (m_lProcessItemDR - aItem.m_lBuyCost) / aItem.m_lbuyPrice;
 
-	if (aItem.m_lQuantity <= 0)	//구매 가능 수량이 0일 경우 예외 처리.
+	if (nextQuantity <= 0)	//구매 가능 수량이 0일 경우 예외 처리.
 	{
 		AddMessage(_T("라운드[%d], 종목[%s][%s],단가[%d],수량[%d], 거래를 포기 합니다."),
 			m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.m_lbuyPrice, aItem.m_lQuantity - aItem.m_lBuyQuantity);
@@ -2645,6 +2857,7 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 //		aItem.m_lbuyPrice = 20000; //디버그용.
 //	}
 
+	aItem.m_lQuantity = nextQuantity + aItem.m_lBuyQuantity;
 	aItem.m_ltryBuyTime = 0;
 
 	long lRet = theApp.m_khOpenApi.SendOrder(strRQName, m_strScrNo, m_strAccNo,
@@ -2706,6 +2919,26 @@ BOOL CABotDlg::REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale)
 	return (lRet >= 0 ? TRUE : FALSE);
 }
 
+BOOL CABotDlg::REQ_ItemSellCancle(CABotItem &aItem)
+{
+	CString strRQName = "주식주문";
+
+	// 매매구분 취득(1:신규매수, 2:신규매도 3:매수취소, 4:매도취소, 5:매수정정, 6:매도정정)
+	long lOrderType = 4;
+
+	// 거래구분 취득
+	// 00:지정가, 03:시장가, 05:조건부지정가, 06:최유리지정가, 07:최우선지정가, 
+	// 10:지정가IOC, 13:시장가IOC, 16:최유리IOC, 20:지정가FOK, 23:시장가FOK, 
+	// 26:최유리FOK, 61:장개시전시간외, 62:시간외단일가매매, 81:장후시간외종가
+	CString strHogaGb = "00";
+
+	long lRet = theApp.m_khOpenApi.SendOrder(strRQName, m_strScrNo, m_strAccNo,
+		lOrderType, aItem.m_strCode,
+		aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_lcurPrice, strHogaGb, aItem.m_strSellOrder);
+
+	return (lRet >= 0 ? TRUE : FALSE);
+}
+
 BOOL CABotDlg::REQ_BalanceInfo()
 {
 	long lRet = 0;
@@ -2741,6 +2974,11 @@ BOOL CABotDlg::REQ_BalanceInfo()
 
 BOOL CABotDlg::IsEndTrade()
 {
+	if (m_ItemCount <= 0)
+	{
+		return FALSE;
+	}
+
 	long i = 0;
 	for (i = 0; i < m_ItemCount; i++)
 	{
@@ -2762,3 +3000,4 @@ BOOL CABotDlg::IsEndTrade()
 
 	return TRUE;
 }
+

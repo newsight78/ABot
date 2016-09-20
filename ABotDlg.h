@@ -56,8 +56,9 @@ public:
 	BOOL REQ_ItemSearch();
 	BOOL REQ_ItemRealReg();
 	BOOL REQ_ItemBuyOrder(CABotItem &aItem);
-	BOOL REQ_ItemBuyCancle(CABotItem &aItem);	
+	BOOL REQ_ItemBuyCancle(CABotItem &aItem);
 	BOOL REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale);
+	BOOL REQ_ItemSellCancle(CABotItem &aItem);
 	BOOL REQ_BalanceInfo();
 	BOOL IsEndTrade();
 
@@ -72,6 +73,7 @@ public:
 	eProcessState		m_eProcessState;		//프로세스 상태.
 	BOOL				m_bDoFinishProcess;		//프로세스 종료 요청.
 	long				m_nRoundCount;			//라운드 수.
+	long				m_nProcessItemCount;	//라운드 시 사용할 최대 Item 수.	//당분간 최대 라운드 수를 사용한다.
 	long				m_nProcessRetryCount;	//프로세스 재시도 회수.
 	long				m_lProcessDR;			//프로세스에서 사용할 예수금 [원]
 	long				m_lProcessItemDR;		//종목당 사용할수 있는 예수금 [원]
@@ -88,7 +90,8 @@ public:
 	long				m_ItemCount;			//종목수.
 	CMap<CString, LPCSTR, long, long>	m_mapItemCode;			// CodeString => m_Item's index;
 	CMap<CString, LPCSTR, long, long>	m_mapOrderCode;			// CodeString => m_Item's index;
-
+	CMap<CString, LPCSTR, long, long>	m_mapUsedItemCode;		// CodeString => m_Item's index;
+	
 	CString				m_strConfigFile;		//환경 파일 이름.
 	CString				m_strLogFolderName;		//로그 파일 경로.
 	CString				m_strScrNo;				//스크린 번호
@@ -146,4 +149,5 @@ public:
 	afx_msg void OnBnClickedButtonRegtarget();
 	afx_msg void OnBnClickedButtonGetBalance();
 	afx_msg void OnBnClickedButtonDebugTest();
+	void OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR strConditionName, LPCTSTR strConditionIndex);
 };

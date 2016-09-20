@@ -10,6 +10,8 @@ enum eItemState
 	eST_HOLDING,	//보유 상태.
 	eST_TRYSELL,	//매도 시도 상태.
 	eST_WAITSELL,	//매도 체결 대기 상태.
+	eST_SELLCANCLE,	//매도 중단 상태.
+	eST_WAITSELLCANCLE,	//매도 중단 대기 상태.
 	eST_WAITSELLMARKETVALUE,	//시장가로 매도 요청후 대기
 	eST_TRADEDONE,	//거래 완료 상태.
 };
