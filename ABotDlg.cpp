@@ -1498,9 +1498,13 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	CString strIndex;
+	// 종목명/
+	CString strCodeName;
+	strCodeName = theApp.m_khOpenApi.GetMasterCodeName(sJongmokCode);
 
 	if (!m_mapJongCode.Lookup(sJongmokCode, strIndex))
 	{
+		AddMessage(_T("OnReceiveRealData:: [%s][%s], grid index[%s]"), sJongmokCode, strCodeName, strIndex);
 		return;
 	}
 
@@ -1509,6 +1513,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 	{
 		nItemIndex = -1;
 	}
+	AddMessage(_T("OnReceiveRealData:: [%s][%s], grid index[%s], item index[%d]"), sJongmokCode, strCodeName, strIndex, nItemIndex);
 
 //	AddMessage(_T("OnReceiveRealData::"));
 	CString strReceivedData;
@@ -2190,23 +2195,30 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR strConditionName, LPCTSTR strConditionIndex)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-	AddMessage(_T("OnReceiveRealCondition::"));
+//	AddMessage(_T("OnReceiveRealCondition::"));
 
 	CString strName, strMsg, strIndex, sType, sCode;
 	sType = strType;	//종목 편입, 이탈 구분
 	sCode = sTrCode;	//종목코드
 	m_cmbCon.GetLBText(m_cmbCon.GetCurSel(), strName);	//현재 선택된 조건명
+	if (IsInRound()) { strName = m_strConditionName; }
+
+	// 종목명/
+	CString strCodeName;
+	strCodeName = theApp.m_khOpenApi.GetMasterCodeName(sCode);
+
+	AddMessage(_T("OnReceiveRealCondition::조건식[%s], [%s][%s]종목이 [%s]되었습니다."), strConditionName, sCode, strCodeName, sType);
 
 	if (strName == strConditionName)	//현재 선택된 조건명과 실시간으로 들어온 조건명이 같은지 비교.
 	{
 		if (sType == "I")	//종목 편입
 		{
-			m_grdRealAdd.InsertRow(sCode, 1);
+			m_grdRealAdd.InsertRow(sCode, m_ItemCount);
 
-			// 종목명/
-			CString strCodeName;
-			strCodeName = theApp.m_khOpenApi.GetMasterCodeName(sCode);
-			m_grdRealAdd.SetItemText(1, 1, strCodeName);
+			SetGridHeight(m_grdRealAdd, m_ItemCount, 24); // grid 높이는 윈도우 별로 상이하므로 별도 함수로 호출한다.
+			m_grdRealAdd.SetItemText(m_ItemCount, 0, sCode);
+
+			m_grdRealAdd.SetItemText(m_ItemCount, 1, strCodeName);
 
 			strMsg.Format(_T("[%s][%s] 종목이 편입되었습니다."), sCode, strCodeName);
 			AddMessage(strMsg);
@@ -2260,12 +2272,8 @@ void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR 
 		//		}
 		//	}
 
-			// 종목명/
-			CString strCodeName;
-			strCodeName = theApp.m_khOpenApi.GetMasterCodeName(sCode);
-
 			//이탈 종목 삭제.
-			m_grdRealAdd.DeleteRow(_ttoi(strIndex));
+		//	m_grdRealAdd.DeleteRow(_ttoi(strIndex));
 
 			//이탈된 종목의 시세를 받지 않을려면 사용한다.
 			theApp.m_khOpenApi.SetRealRemove(m_strScrNo, sCode);
