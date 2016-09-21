@@ -2424,7 +2424,7 @@ void CABotDlg::LoadProcessCondition()
 	long lMaxTotalAmount = atol((LPSTR)(LPCSTR)strBuf) * 10000;
 
 	m_lProcessDR = min(long(m_lDepositReceived*(nUseRate / 100.0)), lMaxTotalAmount);
-	AddMessage(_T("라운드[%d], 운용 금액 총합은 %d[원] 입니다."), m_nRoundCount, GetCurrencyString(m_lProcessDR));
+	AddMessage(_T("라운드[%d], 운용 금액 총합은 %s[원] 입니다."), m_nRoundCount, GetCurrencyString(m_lProcessDR));
 
 	m_cmbBuyTimeOut.GetLBText(m_cmbBuyTimeOut.GetCurSel(), strBuf);
 	m_lItemBuyTimeout = atol((LPSTR)(LPCSTR)strBuf) * 1000;
