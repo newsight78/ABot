@@ -108,6 +108,7 @@ CABotDlg::CABotDlg(CWnd* pParent /*=NULL*/)
 	m_lDepositReceived = 0;
 	m_ItemCount = 0;
 	m_nConditionIndex = 0;
+	m_nProcessItemCount = 0;
 
 	m_lItemBuyTimeout = 0;
 	m_lItemBuyTryCount = 0;
@@ -2075,6 +2076,7 @@ void CABotDlg::OnBnClickedButtonGetBalance()
 void CABotDlg::OnBnClickedButtonDebugTest()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	OnReceiveRealCondition("101670", "I", "단기매매일봉", "2");
 //	InitRealAddGrid();
 //	InitBuyItemGrid();
 }
@@ -2154,8 +2156,8 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 					m_mapJongCode.SetAt(strConditionCode, strIndex);
 					AddMessage(_T("[%s][%s][%s] 검색됨."), strIndex, strConditionCode, strCodeName);
 
-					if ((!IsInRound() || IsInRoundTime())
-						&& m_ItemCount < min(long(_countof(m_Item)), m_nProcessItemCount))
+					if ((IsInRound() && IsInRoundTime() && m_ItemCount < min(long(_countof(m_Item)), m_nProcessItemCount)) ||
+						(!IsInRound() && m_ItemCount < long(_countof(m_Item))))
 					{
 						AddMessage("[%3d][%s][%s] 운용 종목들에 추가", m_ItemCount, strConditionCode, strCodeName);
 						m_Item[m_ItemCount].m_eitemState = eST_ADDED;
@@ -2213,12 +2215,18 @@ void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR 
 	{
 		if (sType == "I")	//종목 편입
 		{
-			m_grdRealAdd.InsertRow(sCode, m_ItemCount);
+			long aIndex = 0;
+			if (m_mapItemCode.Lookup(sCode, aIndex))
+			{
+				return;
+			}
 
-			SetGridHeight(m_grdRealAdd, m_ItemCount, 24); // grid 높이는 윈도우 별로 상이하므로 별도 함수로 호출한다.
-			m_grdRealAdd.SetItemText(m_ItemCount, 0, sCode);
+			m_grdRealAdd.InsertRow(sCode, -1);
 
-			m_grdRealAdd.SetItemText(m_ItemCount, 1, strCodeName);
+			SetGridHeight(m_grdRealAdd, m_ItemCount + 1, 24); // grid 높이는 윈도우 별로 상이하므로 별도 함수로 호출한다.
+			m_grdRealAdd.SetItemText(m_ItemCount + 1, 0, sCode);
+
+			m_grdRealAdd.SetItemText(m_ItemCount + 1, 1, strCodeName);
 
 			strMsg.Format(_T("[%s][%s] 종목이 편입되었습니다."), sCode, strCodeName);
 			AddMessage(strMsg);
@@ -2229,13 +2237,14 @@ void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR 
 			//실시간등록 함수 호출
 			long lRet = theApp.m_khOpenApi.SetRealReg(m_strScrNo, sCode, FIDLIST, "1");
 			AddMessage("편입된 종목들에 대한 실시간 조회 요청 %s. ret[%d]", (lRet >= 0 ? "성공" : "실패"), lRet);
+
 			if (lRet >= 0)
 			{
-				long aIndex = 0;
+				aIndex = 0;
 				if (!m_mapUsedItemCode.Lookup(sCode, aIndex))
 				{
-					if ((!IsInRound() || IsInRoundTime())
-						&& m_ItemCount < min(long(_countof(m_Item)), m_nProcessItemCount))
+					if ( ( IsInRound() && IsInRoundTime() && m_ItemCount < min(long(_countof(m_Item)), m_nProcessItemCount)) ||
+						(!IsInRound() && m_ItemCount < long(_countof(m_Item))))
 					{
 						AddMessage("[%3d][%s][%s] 운용 종목들에 추가", m_ItemCount, sCode, strCodeName);
 						m_Item[m_ItemCount].m_eitemState = eST_ADDED;
