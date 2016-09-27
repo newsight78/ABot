@@ -414,12 +414,21 @@ void CABotDlg::InitComboBox()
 	m_cmbMaxTotalAmount.SetCurSel(2);
 
 	m_cmbMaxAmount.InsertString(0, "10");
-	m_cmbMaxAmount.InsertString(1, "50");
-	m_cmbMaxAmount.InsertString(2, "100");
-	m_cmbMaxAmount.InsertString(3, "200");
-	m_cmbMaxAmount.InsertString(4, "500");
-	m_cmbMaxAmount.InsertString(5, "1000");
-	m_cmbMaxAmount.SetCurSel(2);
+	m_cmbMaxAmount.InsertString(1, "20");
+	m_cmbMaxAmount.InsertString(2, "30");
+	m_cmbMaxAmount.InsertString(3, "40");
+	m_cmbMaxAmount.InsertString(4, "50");
+	m_cmbMaxAmount.InsertString(5, "60");
+	m_cmbMaxAmount.InsertString(6, "70");
+	m_cmbMaxAmount.InsertString(7, "80");
+	m_cmbMaxAmount.InsertString(8, "90");
+	m_cmbMaxAmount.InsertString(9, "100");
+	m_cmbMaxAmount.InsertString(10, "150");
+	m_cmbMaxAmount.InsertString(11, "200");
+	m_cmbMaxAmount.InsertString(12, "300");
+	m_cmbMaxAmount.InsertString(13, "500");
+	m_cmbMaxAmount.InsertString(14, "1000");
+	m_cmbMaxAmount.SetCurSel(0);
 
 	m_cmbBuyMethod.InsertString(0, "현재가");
 	m_cmbBuyMethod.InsertString(1, "시장가");
@@ -1197,6 +1206,10 @@ void CABotDlg::OnReceiveErrorMsg(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCod
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	AddMessage("조회에러,스크린번호[%s],RQName[%s],TrCode[%s],메시지[%s]", sScrNo, sRQName, sTrCode, sMsg);
+
+	//아래 메시지 같은것이 날라온다... 어케 처리해야 할까.
+	//[2016/09/27][09:07:10:466] : 조회에러,스크린번호[6484],RQName[주식주문],TrCode[주식주문],메시지[[571552] 주문단가가 하한가보다 낮습니다.]
+
 }
 
 
@@ -1364,9 +1377,11 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 	{
 		CABotItem &aItem = m_Item[nItemIndex];
 
-		if (lCurPrice > 0)
+		if (lCurPrice > 0 && aItem.m_lcurPrice != lCurPrice)
 		{
 			aItem.m_lcurPrice = lCurPrice;
+			AddMessage(_T("OnReceiveChejanData:: [%s][%s] curPrice[%s]"),
+				aItem.m_strCode, aItem.m_strName, GetCurrencyString(aItem.m_lcurPrice));
 		}
 
 		if (bREQDone)
@@ -1505,7 +1520,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 
 	if (!m_mapJongCode.Lookup(sJongmokCode, strIndex))
 	{
-		AddMessage(_T("OnReceiveRealData:: [%s][%s], grid index[%s]"), sJongmokCode, strCodeName, strIndex);
+		AddMessage(_T("OnReceiveRealData:: [%s][%s], grid index[%s], not in m_mapJongCode"), sJongmokCode, strCodeName, strIndex);
 		return;
 	}
 
@@ -1513,8 +1528,8 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 	if (!m_mapItemCode.Lookup(sJongmokCode, nItemIndex))
 	{
 		nItemIndex = -1;
+		AddMessage(_T("OnReceiveRealData:: [%s][%s], grid index[%s], not in m_mapItemCode"), sJongmokCode, strCodeName, strIndex);
 	}
-	AddMessage(_T("OnReceiveRealData:: [%s][%s], grid index[%s], item index[%d]"), sJongmokCode, strCodeName, strIndex, nItemIndex);
 
 //	AddMessage(_T("OnReceiveRealData::"));
 	CString strReceivedData;
@@ -1540,7 +1555,13 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 
 		if (IsInRound() && nItemIndex >= 0 && i == 2)
 		{
-			m_Item[nItemIndex].m_lcurPrice = atol(strData);
+			long curPrice = atol(strData);
+			if (curPrice > 0 && m_Item[nItemIndex].m_lcurPrice != curPrice)
+			{
+				m_Item[nItemIndex].m_lcurPrice = curPrice;
+				AddMessage(_T("OnReceiveRealData:: [%s][%s] curPrice[%s], grid index[%s], item index[%d]"), 
+					sJongmokCode, strCodeName, GetCurrencyString(m_Item[nItemIndex].m_lcurPrice), strIndex, nItemIndex);
+			}
 		}
 	}
 //	if (m_eProcessState == ePST_IDLE) AddMessage(strReceivedData);
@@ -1809,7 +1830,7 @@ void CABotDlg::SetGridWidth(CGridCtrl& gridCtrl, long col, long width/*=0*/)
 void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode, LPCTSTR sRecordName, LPCTSTR sPrevNext, long nDataLength, LPCTSTR sErrorCode, LPCTSTR sMessage, LPCTSTR sSplmMsg)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-	AddMessage(_T("OnReceiveTrData::"));
+	AddMessage("OnReceiveTrData:: ScrNo[%s],RQName[%s],TrCode[%s]", sScrNo, sRQName, sTrCode);
 
 	CString strRQName = sRQName;
 	if (strRQName == _T("예수금"))		// 주식기본정보 설정
@@ -2076,7 +2097,6 @@ void CABotDlg::OnBnClickedButtonGetBalance()
 void CABotDlg::OnBnClickedButtonDebugTest()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	OnReceiveRealCondition("101670", "I", "단기매매일봉", "2");
 //	InitRealAddGrid();
 //	InitBuyItemGrid();
 }
@@ -2156,8 +2176,8 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 					m_mapJongCode.SetAt(strConditionCode, strIndex);
 					AddMessage(_T("[%s][%s][%s] 검색됨."), strIndex, strConditionCode, strCodeName);
 
-					if ((IsInRound() && IsInRoundTime() && m_ItemCount < min(long(_countof(m_Item)), m_nProcessItemCount)) ||
-						(!IsInRound() && m_ItemCount < long(_countof(m_Item))))
+					if ((IsInRound() && IsInRoundTime() && 0 <= m_ItemCount && m_ItemCount < min(long(_countof(m_Item)), m_nProcessItemCount)) ||
+						(!IsInRound() && 0 <= m_ItemCount && m_ItemCount < long(_countof(m_Item))))
 					{
 						AddMessage("[%3d][%s][%s] 운용 종목들에 추가", m_ItemCount, strConditionCode, strCodeName);
 						m_Item[m_ItemCount].m_eitemState = eST_ADDED;
@@ -2243,8 +2263,8 @@ void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR 
 				aIndex = 0;
 				if (!m_mapUsedItemCode.Lookup(sCode, aIndex))
 				{
-					if ( ( IsInRound() && IsInRoundTime() && m_ItemCount < min(long(_countof(m_Item)), m_nProcessItemCount)) ||
-						(!IsInRound() && m_ItemCount < long(_countof(m_Item))))
+					if ((IsInRound() && IsInRoundTime() && 0 <= m_ItemCount && m_ItemCount < min(long(_countof(m_Item)), m_nProcessItemCount)) ||
+						(!IsInRound() && 0 <= m_ItemCount && m_ItemCount < long(_countof(m_Item))))
 					{
 						AddMessage("[%3d][%s][%s] 운용 종목들에 추가", m_ItemCount, sCode, strCodeName);
 						m_Item[m_ItemCount].m_eitemState = eST_ADDED;
@@ -2871,7 +2891,7 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 //	aItem.m_lQuantity = 1;	//디버그용.
 //	if (aItem.m_lbuyPrice > 20000) //디버그용.
 //	{
-//		aItem.m_lbuyPrice = 20000; //디버그용.
+//		aItem.m_lbuyPrice = 100; //디버그용.
 //	}
 
 	aItem.m_lQuantity = nextQuantity + aItem.m_lBuyQuantity;
