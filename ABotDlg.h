@@ -68,6 +68,7 @@ public:
 	void LoadProcessCondition();
 
 	BOOL getAccountData();
+	CString GetOrderTypeString(long lOrderType);
 
 public:
 	eProcessState		m_eProcessState;		//프로세스 상태.

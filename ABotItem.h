@@ -23,13 +23,16 @@ public:
 	~CABotItem();
 	void Init();
 
+	CString GetStateString();
+
 public:
 	long			m_index;			//순번.
 	eItemState		m_eitemState;		//프로세스 상태.
 	CString			m_strCode;			//코드
 	CString			m_strName;			//이름
 	long			m_lcurPrice;		//현재가. 실시간으로 검색되고 있다면.
-	long			m_lbuyPrice;		//마지막 주문가.
+	long			m_lbuyPrice;		//마지막 매수가.
+	long			m_lsellPrice;		//마지막 매도가.
 	long			m_lQuantity;		//수량.
 	long			m_lupperPrice;		//매각 상한가. 이가격 이상으로 오르면 판다.
 	long			m_lunderPrice;		//매각 하한가. 이가격 이하로 떨어지면 판다.
