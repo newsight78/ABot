@@ -726,6 +726,96 @@ CString GetCurrencyString(long currency)
 	return currencyString;
 }
 
+long CalcBuyAndSellPrice(long price, double fluctuationRatio, BOOL isKOSDAQ) // 입력한 가격, 등락율
+{
+	long calculatedPrice = 0;
+	double dTemp = 0.0;
+
+	dTemp = ((double)price / (double)100) * fluctuationRatio;
+	dTemp = dTemp + (double)price;
+	calculatedPrice = GetAskingPrice(dTemp, isKOSDAQ);
+
+	return calculatedPrice;
+}
+
+long GetAskingPrice(double price, BOOL isKOSDAQ)
+{
+	long askingPrice = 0;
+	long lTemp = 0;
+	double dTemp = 0.0;
+
+	dTemp = (long)round(price); // 1000원 미만의 경우는 그냥 return 하면 된다.
+
+	if (price < 1000) // 1원 단위
+	{
+		askingPrice = (long)dTemp;
+	}
+	else
+	{
+		if (1000 <= price && price < 5000) // 5원 단위
+		{
+			lTemp = (long)dTemp;
+			dTemp = dTemp / 10.0;
+			dTemp = round(dTemp);
+			dTemp = dTemp * 10.0;
+			askingPrice = (long)dTemp;
+			if (lTemp > askingPrice) {
+				askingPrice += 5;
+			}
+		}
+		else if (5000 <= price && price < 10000) // 10원
+		{
+			dTemp = dTemp / 10.0;
+			dTemp = round(dTemp);
+			dTemp = dTemp * 10.0;
+			askingPrice = (long)dTemp;
+		}
+		else if (10000 <= price && price < 50000) // 50원
+		{
+			lTemp = (long)dTemp;
+			dTemp = dTemp / 100.0;
+			dTemp = round(dTemp);
+			dTemp = dTemp * 100.0;
+			askingPrice = (long)dTemp;
+			if (lTemp > askingPrice) {
+				askingPrice += 50;
+			}
+		}
+		else if ( (50000 <= price && price < 100000) || // 거래소는 5만원 이상 10만원 미만 100원
+				  (50000 <= price && isKOSDAQ == TRUE))	// 코스닥은 5만원 이상 무조건 100원
+		{
+			dTemp = dTemp / 100.0;
+			dTemp = round(dTemp);
+			dTemp = dTemp * 100.0;
+			askingPrice = (long)dTemp;
+		}
+		else 
+		{
+			if (100000 <= price && price < 500000) //거래소 500원
+			{
+				lTemp = (long)dTemp;
+				dTemp = dTemp / 1000.0;
+				dTemp = round(dTemp);
+				dTemp = dTemp * 1000.0;
+				askingPrice = (long)dTemp;
+				if (lTemp > askingPrice) {
+					askingPrice += 500;
+				}
+			}
+			else // 500000 <= price // 거래소 1000원
+			{
+				dTemp = dTemp / 1000.0;
+				dTemp = round(dTemp);
+				dTemp = dTemp * 1000.0;
+				askingPrice = (long)dTemp;
+			}
+		}
+	}
+
+	return askingPrice;
+
+}
+
 COLORREF GetFGColor(CString strData)
 {
 	if (strData.Find('-') >= 0) {
