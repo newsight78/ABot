@@ -48,7 +48,7 @@ eWinVersion GetWindowsVersion();
 CString GetCurrencyString(CString currencyWithoutComma);
 CString GetCurrencyString(long currency);
 
-long CalcBuyAndSellPrice(long price, double fluctuationRatio, BOOL isKOSDAQ); // 입력한 가격, 등락율
+long CalcBuyAndSellPrice(long price, double fluctuationRatio, BOOL isKOSDAQ); // 가격, 변동[%], 거래소 구분, CalcBuyAndSellPrice(1000,50,TRUE)는 1500을 리턴한다.
 long GetAskingPrice(double price, BOOL isKOSDAQ);
 
 COLORREF GetFGColor(CString strData);

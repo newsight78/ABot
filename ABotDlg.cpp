@@ -1282,8 +1282,6 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 	CString strGubun(sGubun), strFidList(sFIdList), strText;
 	CString	strAccNo, strOrdNo, strOrdPrice, strOrdCnt;
 
-	CString strBuf;
-
 	long		nItemIndex = -1;
 	BOOL		bTRADEDone = FALSE, bREQDone = FALSE;
 	BOOL		bBUYDone = FALSE, bSELLDone = FALSE;
@@ -1305,8 +1303,6 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 		strText.Format(_T("구분[%s] FID[%4s:%s] = [%s]"), strGubun, strFID, strFIDName, strOneData);
 	//	if (!IsInRound()) 
 			AddMessage(strText);
-
-		strBuf += strText + ", ";
 
 		strFIDName.Empty();
 
@@ -1402,7 +1398,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 				AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매수 주문이 완료 되었습니다."),
 					m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_strBuyOrder);
 			}
-			else if (aItem.m_eitemState == eST_WAITSELL)
+			else if (	aItem.m_eitemState == eST_WAITSELL)
 			{
 				long aTickCount = GetTickCount();
 				aItem.m_ltrySellTimeout = aTickCount + 30000; 	//팔려고 하는데, 30초이상 안팔리면 이상한거임. 그래서 시장가로 팜.
@@ -1499,8 +1495,6 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 			}
 		}
 	}
-
-	AddMessage(_T("OnReceiveChejanData:: %s"), strBuf);
 }
 
 //*******************************************************************/
@@ -2764,7 +2758,15 @@ void CABotDlg::ProcessTrade()
 			break;
 
 		case eST_HOLDING:	//보유 상태.
-			if (aItem.m_lcurPrice > long(aItem.BuyPrice() + aItem.BuyPrice()*m_dSellOverThis / 100.))
+			if (true)
+			{
+				aItem.m_lsellPrice = CalcBuyAndSellPrice(aItem.BuyPrice(), m_dSellOverThis, TRUE);
+				AddMessage(_T("라운드[%d], 종목[%s][%s][%s],목표가[%d],수량[%d], 매도에 도전합니다."),
+					m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity);
+				aItem.m_eitemState = eST_TRYSELL;
+			//	break;
+			}
+			else if (aItem.m_lcurPrice > long(aItem.BuyPrice() + aItem.BuyPrice()*m_dSellOverThis / 100.))
 			{
 				aItem.m_lsellPrice = aItem.m_lcurPrice;
 				AddMessage(_T("라운드[%d], 종목[%s][%s][%s],현재가▲[%d],수량[%d], 매도를 시도합니다. 상승."),
@@ -2822,6 +2824,9 @@ void CABotDlg::ProcessTrade()
 				aItem.m_eitemState = eST_TRADEDONE;
 				break;
 			}
+
+			break;// 거래 될때까지 그냥 기다린다.
+
 			if (aItem.m_ltrySellTime > 0 && aItem.m_ltrySellTime + long(GetTickCount()) > aItem.m_ltrySellTimeout)
 			{
 				if (true)
