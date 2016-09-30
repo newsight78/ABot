@@ -1390,9 +1390,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 			// 주문 번호
 			if (aItem.m_eitemState == eST_WAITBUY)
 			{
-				long aTickCount = GetTickCount();
-				aItem.m_ltryBuyTimeout = aTickCount + m_lItemBuyTimeout;
-				aItem.m_ltryBuyTime = aTickCount;
+				aItem.m_ltryBuyTimeout = GetTickCount() + m_lItemBuyTimeout;
 
 				aItem.m_strBuyOrder = strOrderCode;
 				AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매수 주문이 완료 되었습니다."),
@@ -1400,9 +1398,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 			}
 			else if (	aItem.m_eitemState == eST_WAITSELL)
 			{
-				long aTickCount = GetTickCount();
-				aItem.m_ltrySellTimeout = aTickCount + 30000; 	//팔려고 하는데, 30초이상 안팔리면 이상한거임. 그래서 시장가로 팜.
-				aItem.m_ltrySellTime = aTickCount;
+				aItem.m_ltrySellTimeout = GetTickCount() + 30000; 	//팔려고 하는데, 30초이상 안팔리면 이상한거임. 그래서 시장가로 팜.
 
 				aItem.m_strSellOrder = strOrderCode;
 				AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매도 주문이 완료 되었습니다."),
@@ -2735,7 +2731,7 @@ void CABotDlg::ProcessTrade()
 				aItem.m_eitemState = eST_HOLDING;
 				break;
 			}
-			if (aItem.m_ltryBuyTime > 0 && aItem.m_ltryBuyTime + long(GetTickCount()) > aItem.m_ltryBuyTimeout)
+			if (aItem.m_ltryBuyTimeout > 0 && long(GetTickCount()) > aItem.m_ltryBuyTimeout)
 			{
 				aItem.m_ltryBuyCount++;
 				if (aItem.m_ltryBuyCount > m_lItemBuyTryCount)
@@ -2765,7 +2761,7 @@ void CABotDlg::ProcessTrade()
 			break;
 
 		case eST_HOLDING:	//보유 상태.
-			if (true)
+			if (true)//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			{
 				aItem.m_lsellPrice = CalcBuyAndSellPrice(aItem.BuyPrice(), m_dSellOverThis, TRUE);
 				AddMessage(_T("라운드[%d], 종목[%s][%s][%s],목표가[%d],수량[%d], 매도에 도전합니다."),
@@ -2814,9 +2810,7 @@ void CABotDlg::ProcessTrade()
 			}
 			if (REQ_ItemSellOrder(aItem, FALSE))
 			{
-				aItem.m_ltrySellTime = 0;
-			//	aItem.m_ltrySellTime = GetTickCount();
-			//	aItem.m_ltrySellTimeout = GetTickCount() + 10000;	//팔려고 하는데, 10초이상 안팔리면 이상한거임. 그래서 시장가로 팜.
+				aItem.m_ltrySellTimeout = 0;
 
 				AddMessage(_T("라운드[%d], 종목[%s][%s][%s],단가[%d],수량[%d], 매도가 시도 되었습니다."),
 					m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity - aItem.m_lSellQuantity);
@@ -2832,9 +2826,9 @@ void CABotDlg::ProcessTrade()
 				break;
 			}
 
-			break;// 거래 될때까지 그냥 기다린다.
+			break;// 거래 될때까지 그냥 기다린다.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-			if (aItem.m_ltrySellTime > 0 && aItem.m_ltrySellTime + long(GetTickCount()) > aItem.m_ltrySellTimeout)
+			if (aItem.m_ltrySellTimeout > 0 && long(GetTickCount()) > aItem.m_ltrySellTimeout)
 			{
 				if (true)
 				{
@@ -2895,13 +2889,11 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 
 	if (aItem.m_lbuyPrice == aItem.m_lcurPrice)
 	{
-		aItem.m_ltryBuyTime = GetTickCount();
 		aItem.m_ltryBuyTimeout = GetTickCount() + m_lItemBuyTimeout;
 
 		return TRUE;
 	}
 	
-	aItem.m_ltryBuyTime = 0;
 	aItem.m_ltryBuyTimeout = 0;
 
 	aItem.m_lbuyPrice = aItem.m_lcurPrice;
@@ -2922,7 +2914,6 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 //	}
 
 	aItem.m_lQuantity = nextQuantity + aItem.m_lBuyQuantity;
-	aItem.m_ltryBuyTime = 0;
 
 	long lRet = theApp.m_khOpenApi.SendOrder(strRQName, m_strScrNo, m_strAccNo,
 		lOrderType, aItem.m_strCode, 
@@ -2978,7 +2969,7 @@ BOOL CABotDlg::REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale)
 
 	if (bMarketVale)
 	{
-		aItem.m_ltrySellTime = 0;
+		aItem.m_ltrySellTimeout = 0;
 		strHogaGb = "03"; //03:시장가,
 	}
 

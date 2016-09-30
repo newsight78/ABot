@@ -37,7 +37,6 @@ public:
 	long			m_lupperPrice;		//매각 상한가. 이가격 이상으로 오르면 판다.
 	long			m_lunderPrice;		//매각 하한가. 이가격 이하로 떨어지면 판다.
 
-	long			m_ltryBuyTime;		//최종 구매 시도 시각. clock.
 	long			m_ltryBuyTimeout;	//최종 구매 시도 포기 시각. clock.
 	CString			m_strBuyOrder;		//최종 구매 시도 주문 번호.
 	long			m_lBuyCost;			//실 구매에 사용된 누적 금액.
@@ -48,7 +47,6 @@ public:
 	long			m_lholdTime;		//보유 시각. clock
 	long			m_lholdTimeout;		//보유후 매도까지 타임아웃. clock.
 
-	long			m_ltrySellTime;		//최종 매도 시도 시각. clock.
 	long			m_ltrySellTimeout;	//최종 매도 시도 포기 시각. clock.
 	CString			m_strSellOrder;		//최종 매도 시도 주문 번호.
 	long			m_lSellCost;		//실 매도한 누적 금액.
