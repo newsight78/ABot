@@ -1448,8 +1448,10 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 		if (bTRADEDone)
 		{
-			if (aItem.m_eitemState == eST_WAITBUY || 
-				aItem.m_eitemState == eST_TRYBUY)
+			if (	aItem.m_eitemState == eST_TRYBUY ||
+					aItem.m_eitemState == eST_WAITBUY || 
+					aItem.m_eitemState == eST_BUYCANCLE ||
+					aItem.m_eitemState == eST_WAITBUYCANCLE	)
 			{
 				ASSERT(bBUYDone);
 
@@ -1465,16 +1467,16 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 					aItem.m_lholdTime = GetTickCount();
 					aItem.m_lholdTimeout = (m_lItemHoldTimeout > 0 ? aItem.m_lholdTime + m_lItemHoldTimeout : 0);
 					aItem.m_eitemState = eST_HOLDING;
-					AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],평균단가[%d],수량[%d],재시도[%d], 매수 완료 되었습니다."),
+					AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],평균단가[%d],수량[%d],재시도회수[%d], 매수 완료 되었습니다."),
 						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.BuyPrice(), aItem.m_lQuantity, aItem.m_ltryBuyCount);
 				}
 				return;
 			}
-			else if (	aItem.m_eitemState == eST_WAITSELL || 
-						aItem.m_eitemState == eST_TRYSELL || 
+			else if (	aItem.m_eitemState == eST_TRYSELL ||
+						aItem.m_eitemState == eST_WAITSELL ||
 						aItem.m_eitemState == eST_WAITSELLMARKETVALUE ||
 						aItem.m_eitemState == eST_SELLCANCLE ||
-						aItem.m_eitemState == eST_WAITSELLCANCLE)
+						aItem.m_eitemState == eST_WAITSELLCANCLE	)
 			{
 				ASSERT(bSELLDone);
 
@@ -1487,9 +1489,14 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 				if (aItem.m_lSellQuantity >= aItem.m_lQuantity)
 				{
 					//	m_mapOrderCode.RemoveKey(strOrderCode);
+
+					theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
+					AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],재시도회수_매수[%d]매도[%d], 실시간 관심 종목 제외."),
+						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_ltryBuyCount, aItem.m_ltrySellCount);
+
 					aItem.m_eitemState = eST_TRADEDONE;
-					AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],평균단가[%d],수량[%d],재시도[%d], 거래 완료 되었습니다."),
-						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.SellPrice(), aItem.m_lQuantity, aItem.m_ltryBuyCount);
+					AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],이익[%d],매수가[%d],매도가[%d], 거래 완료 되었습니다."),
+						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.SellPrice() - aItem.BuyPrice(), aItem.BuyPrice(), aItem.SellPrice());
 				}
 				return;
 			}
@@ -2646,7 +2653,7 @@ void CABotDlg::ProcessSequence()
 	case ePST_ITEM_TRADE:	//종목 거래 상태.
 		m_nProcessRetryCount++;
 		ProcessTrade();
-		if (IsEndTrade())
+		if (IsEndTrade() && m_nProcessItemCount <= m_ItemCount)
 		{
 			m_nProcessRetryCount = 0;
 			AddMessage(_T("라운드[%d], 종목 거래가 모두 종료 되었습니다."), m_nRoundCount);
