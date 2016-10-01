@@ -68,7 +68,9 @@ CABotItem::GetStateString()
 		return "WAITSELLCANCLE";
 	if (m_eitemState == eST_WAITSELLMARKETVALUE)	//시장가로 매도 요청후 대기
 		return "WAITSELLMARKETVALUE";
-	if (m_eitemState == eST_TRADEDONE)	//거래 완료 상태.
+	if (m_eitemState == eST_TRADECLOSING)	//거래 정산 상태.
+		return "TRADECLOSING";
+	if (m_eitemState == eST_TRADEDONE)		//거래 완료 상태.
 		return "TRADEDONE";
 
 	return "UNKNOWN";

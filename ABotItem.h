@@ -13,7 +13,8 @@ enum eItemState
 	eST_SELLCANCLE,	//매도 중단 상태.
 	eST_WAITSELLCANCLE,	//매도 중단 대기 상태.
 	eST_WAITSELLMARKETVALUE,	//시장가로 매도 요청후 대기
-	eST_TRADEDONE,	//거래 완료 상태.
+	eST_TRADECLOSING,	//거래 정산 상태.
+	eST_TRADEDONE,		//거래 완료 상태.
 };
 
 class CABotItem

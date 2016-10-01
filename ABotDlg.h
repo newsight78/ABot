@@ -80,12 +80,15 @@ public:
 	long				m_lProcessItemDR;		//종목당 사용할수 있는 예수금 [원]
 	long				m_lItemBuyTimeout;		//종목 구매 타임 아웃 [clock]
 	long				m_lItemBuyTryCount;		//종목 구매 시도 회수.
-	long				m_lItemHoldTimeout;		//종목 보유 타임 아웃 [clock]
+	long				m_lItemHoldTimeout;		//종목 보유 타임 아웃 [분]
 
 	double				m_dSellOverThis;		// 구매후 종목 현재가가, 이 퍼센트 보다 높아지면 판다. [%]
 	double				m_dSellOverThis2;		// 구매후 m_cmbSellOverThis 조건을 트리거후, 이 퍼센트 보다 낮아!!!!!지면 시장가로 판다. [%]
 	double				m_dSellUnderThis;		// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다. [%]
 	double				m_dSellUnderThis2;		// 구매후 m_cmbSellUnderThis 조건을 트리거후, 이 퍼센트 보다 낮아!!!!!!지면 시장가로 판다. [%]
+
+	double				m_dBuyTradeFee;			// 매수 수수료 매수 가격의 본 퍼센트 만큼 뗀다능. [%]
+	double				m_dSellTradeFee;		// 매도 수수료 매도 가격의 본 퍼센트 만큼 뗸다능. [%]
 
 	CABotItem			m_Item[100];			//종목.
 	long				m_ItemCount;			//종목수.
