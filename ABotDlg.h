@@ -47,9 +47,10 @@ public:
 	BOOL AddMessage(char * i_cMsg, ...);
 	BOOL AddMessage(CString i_strMsg);
 
-	void ProcessSequence();	// 프로세스 구동 함수.
-	void ProcessTrade();	// 거래 구동 함수.
-	
+	void ProcessSequence();				// 프로세스 구동 함수.
+	void ProcessTradeAll();				// 전대상 종목 거래 구동 함수.
+	void ProcessTradeItem(int nItemId);	// 특정 종목 거래 구동 함수.
+
 	BOOL IsInRound()	{ return (m_eProcessState != ePST_IDLE?TRUE:FALSE); };
 	BOOL IsInRoundTime();
 	BOOL REQ_DepositReceived();

@@ -41,8 +41,7 @@ CABotItem::~CABotItem()
 }
 
 
-CString
-CABotItem::GetStateString()
+CString CABotItem::GetStateString()
 {
 	if (m_eitemState == eST_NONE)		//아무것도 아닌 상태.
 		return "NONE";
