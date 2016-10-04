@@ -62,11 +62,12 @@ public:
 	BOOL REQ_ItemSellCancle(CABotItem &aItem);
 	BOOL REQ_BalanceInfo();
 	BOOL IsEndTrade();
+	void ReportAllTrade();
 
 	void SetEnableControls() { SetControls(TRUE); };
 	void SetDisableControls() { SetControls(FALSE); };
 	void SetControls(BOOL bEnable);
-	void LoadProcessCondition();
+	void InitProcessCondition();
 
 	BOOL getAccountData();
 	CString GetOrderTypeString(long lOrderType);
@@ -119,7 +120,7 @@ public:
 	CComboBox			m_cmbEndMin;		// 종료 시각의 분
 	CComboBox			m_cmbDpUseRate;		// 매수시 예수금의 최대 사용 퍼센트. [%]
 	CComboBox			m_cmbMaxTotalAmount;// 매수시 예수금의 최대 사용 금액. [만원]
-	CComboBox			m_cmbMaxAmount;		// 종목당 최대 투자 허용 금액 [만원]
+	CComboBox			m_cmbMaxAmount;		// 종목당 운용 금액 [만원]
 	CComboBox			m_cmbBuyMethod;		// 매수 방법, 현재가, 시장가. 향후..퍼센트 지정. [현재가, 시장가]
 	CComboBox			m_cmbBuyTimeOut;	// 매수 체결 대기 타임 아웃. [초]
 	CComboBox			m_cmbBuyRetry;		// 매수 실패시 재시도 회수
