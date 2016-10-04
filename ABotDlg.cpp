@@ -3094,14 +3094,36 @@ BOOL CABotDlg::REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale)
 	// 10:지정가IOC, 13:시장가IOC, 16:최유리IOC, 20:지정가FOK, 23:시장가FOK, 
 	// 26:최유리FOK, 61:장개시전시간외, 62:시간외단일가매매, 81:장후시간외종가
 	CString strHogaGb = "00";
-	ASSERT(aItem.m_lsellPrice != 0);
-	if (aItem.m_lsellPrice == 0){ return FALSE; }
 
 	if (bMarketVale)
 	{
-		aItem.m_lsellPrice = 0;
-		aItem.m_ltrySellTimeout = 0;
-		strHogaGb = "03"; //03:시장가,
+		if (aItem.m_strSellOrder.GetLength() > 0)
+		{
+			long lcancleOrder = 4;
+			long lRet = theApp.m_khOpenApi.SendOrder(strRQName, m_strScrNo, m_strAccNo,
+				lcancleOrder, aItem.m_strCode,
+				aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_lsellPrice, strHogaGb, aItem.m_strSellOrder);
+
+			AddMessage(_T("REQ_ItemSellOrder::주문구분[%s], 종목[%s][%s][%s],단가[%d],수량[%d],거래구분[%s],원주문번호[%s], 시장가 주문을 위한 이전 매도 요청 취소%s!"),
+				GetOrderTypeString(lcancleOrder), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity - aItem.m_lSellQuantity, strHogaGb, aItem.m_strSellOrder, (lRet >= 0 ? "성공" : "실패"));
+
+			if (lRet < 0)
+			{
+				return FALSE;
+			}
+		}
+
+		lOrderType = 2;					//취소 후, 신규 매도로 해야 한다.
+		strHogaGb = "03";				//03:시장가,
+
+		aItem.m_strSellOrder = "";		//원주문 번호 제거.
+		aItem.m_lsellPrice = 0;			//시장가는 가격이 0이다.
+		aItem.m_ltrySellTimeout = 0;	//타임 아웃 없앤다.
+	}
+	else
+	{
+		ASSERT(aItem.m_lsellPrice != 0);
+		if (aItem.m_lsellPrice == 0){ return FALSE; }
 	}
 
 	long lRet = theApp.m_khOpenApi.SendOrder(strRQName, m_strScrNo, m_strAccNo,
