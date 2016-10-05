@@ -49,7 +49,7 @@ public:
 
 	void ProcessSequence();				// 프로세스 구동 함수.
 	void ProcessTradeAll();				// 전대상 종목 거래 구동 함수.
-	void ProcessTradeItem(int nItemId);	// 특정 종목 거래 구동 함수.
+	void ProcessTradeItem(int nItemId, BOOL bFromAllTrade=FALSE);	// 특정 종목 거래 구동 함수.
 
 	BOOL IsInRound()	{ return (m_eProcessState != ePST_IDLE?TRUE:FALSE); };
 	BOOL IsInRoundTime();
@@ -58,7 +58,7 @@ public:
 	BOOL REQ_ItemRealReg();
 	BOOL REQ_ItemBuyOrder(CABotItem &aItem);
 	BOOL REQ_ItemBuyCancle(CABotItem &aItem);
-	BOOL REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale);
+	BOOL REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale, BOOL bFromAllTrade);
 	BOOL REQ_ItemSellCancle(CABotItem &aItem);
 	BOOL REQ_BalanceInfo();
 	BOOL IsEndTrade();
