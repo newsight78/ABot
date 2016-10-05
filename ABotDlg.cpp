@@ -2522,11 +2522,11 @@ void CABotDlg::InitProcessCondition()
 	m_dSellOverThis2 = atof((LPSTR)(LPCSTR)strBuf);
 //	AddMessage(_T("라운드[%d], 종목당 매도 Sell'OVER'This2는 %f[퍼센트] 입니다."), m_nRoundCount, m_dSellOverThis2);
 
-	m_cmbSellOverThis.GetLBText(m_cmbSellOverThis.GetCurSel(), strBuf);
+	m_cmbSellUnderThis.GetLBText(m_cmbSellUnderThis.GetCurSel(), strBuf);
 	m_dSellUnderThis = atof((LPSTR)(LPCSTR)strBuf);
 	AddMessage(_T("라운드[%d], 종목당 매도 Sell'UNDER'This는 %f[퍼센트] 입니다."), m_nRoundCount, m_dSellUnderThis);
 
-	m_cmbSellOverThis2.GetLBText(m_cmbSellOverThis2.GetCurSel(), strBuf);
+	m_cmbSellUnderThis2.GetLBText(m_cmbSellUnderThis2.GetCurSel(), strBuf);
 	m_dSellUnderThis2 = atof((LPSTR)(LPCSTR)strBuf);
 //	AddMessage(_T("라운드[%d], 종목당 매도 Sell'UNDER'This2는 %f[퍼센트] 입니다."), m_nRoundCount, m_dSellUnderThis2);
 
@@ -2768,11 +2768,11 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		break;
 
 	case eST_TRYBUY:	//매수 시도 상태.
-		if (aItem.m_lQuantity != 0 && aItem.m_lQuantity - aItem.m_lBuyQuantity <= 0)
-		{
-			aItem.m_eitemState = eST_HOLDING;
-			break;
-		}
+	//	if (aItem.m_lQuantity != 0 && aItem.m_lQuantity - aItem.m_lBuyQuantity <= 0)
+	//	{
+	//		aItem.m_eitemState = eST_HOLDING;
+	//		break;
+	//	}
 
 		if (m_lProcessDR < long(m_lProcessItemDR*(1 + m_dBuyTradeFee / 100.0)))
 		{
@@ -2961,8 +2961,8 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 
 	case eST_TRADECLOSING:
 		{
-			long lactBuyCost = long(aItem.m_lBuyCost*(1 + m_dBuyTradeFee / 100.));
-			long lactSellCost = long(aItem.m_lSellCost*(1 - m_dSellTradeFee / 100.));
+			long lactBuyCost = aItem.m_lBuyCost;
+			long lactSellCost = long(aItem.m_lSellCost*(1 - m_dSellTradeFee / 100.) - long(aItem.m_lBuyCost*(m_dBuyTradeFee / 100.)));
 			if (lactBuyCost == 0) {	lactBuyCost = 1; }
 			AddMessage(_T("라운드[%d], 종목 결산 ============================================="), m_nRoundCount);
 			AddMessage(_T("라운드[%d], 종목[%s][%s][%s],실 매입금[%s], 실 매도금[%s], 실현 이익[%s], 실 이익율[%4.2f]퍼센트 입니다."),
@@ -3244,27 +3244,35 @@ void CABotDlg::ReportAllTrade()
 	long i = 0;
 	long laccBuyCost = 0;
 	long laccSellCost = 0;
-	AddMessage(_T("라운드[%d], 결산 ============================================================================================="), m_nRoundCount);
+	AddMessage(_T("라운드[%d], 결산 ==================================================================================================================="), m_nRoundCount);
 	for (i = 0; i < m_ItemCount; i++)
 	{
 		if (m_Item[i].m_eitemState == eST_TRADEDONE && m_Item[i].m_lBuyCost!=0)
 		{
-			AddMessage(_T("          ,[%d], 종목[%s][%s][%s],매입금[%d],매도금[%d], 이익율[%4.2f]퍼센트 입니다."),
-				i + 1, m_Item[i].m_strCode, m_Item[i].m_strName, m_Item[i].GetStateString(), m_Item[i].m_lBuyCost, m_Item[i].m_lSellCost, double(m_Item[i].m_lSellCost - m_Item[i].m_lBuyCost) / double(m_Item[i].m_lBuyCost)*100.0);
-			long lactBuyCost = long(m_Item[i].m_lBuyCost*(1 + m_dBuyTradeFee / 100.));
-			long lactSellCost = long(m_Item[i].m_lSellCost*(1 - m_dSellTradeFee / 100.));
+			CString strMark("--");
+			long lactBuyCost = m_Item[i].m_lBuyCost;
+			long lactSellCost = long(m_Item[i].m_lSellCost*(1 - m_dSellTradeFee / 100.)) - long(m_Item[i].m_lBuyCost*(m_dBuyTradeFee / 100.));
+			if (lactSellCost>lactBuyCost)
+			{
+				strMark = "▲";
+			}
+			else if (lactSellCost < lactBuyCost)
+			{
+				strMark = "▼";
+			}
+
 			if (lactBuyCost == 0) {	lactBuyCost = 1; }
-			AddMessage(_T("          ,[%d], 종목[%s][%s][%s],실 매입금[%d], 실 매도금[%d], 실 이익율[%4.2f]퍼센트 입니다."),
-				i + 1, m_Item[i].m_strCode, m_Item[i].m_strName, m_Item[i].GetStateString(), lactBuyCost, lactSellCost, double(lactSellCost - lactBuyCost) / double(lactBuyCost)*100.0);
+			AddMessage(_T("          ,[%s][%3d], 종목[%s][%s][%s],실 매입금[%d], 실 매도금[%d], 실 이익율[%4.2f]퍼센트 입니다."),
+				strMark, i + 1, m_Item[i].m_strCode, m_Item[i].m_strName, m_Item[i].GetStateString(), lactBuyCost, lactSellCost, double(lactSellCost - lactBuyCost) / double(lactBuyCost)*100.0);
 			laccBuyCost += lactBuyCost;
 			laccSellCost += lactSellCost;
 		}
 	}
-	AddMessage(_T("라운드[%d], 결산 ============================================================================================="), m_nRoundCount);
+	AddMessage(_T("라운드[%d], 결산 ==================================================================================================================="), m_nRoundCount);
 
 	AddMessage(_T("라운드[%d], 결산 = 총 매입금[%s], 총 매도금[%s], 총 이익금[%s], 총 이익율[%4.2f]퍼센트"),
 		m_nRoundCount, GetCurrencyString(laccBuyCost), GetCurrencyString(laccSellCost), GetCurrencyString(laccSellCost - laccBuyCost), double(laccSellCost - laccBuyCost) / double(laccBuyCost)*100.0);
 
-	AddMessage(_T("라운드[%d], 결산 ============================================================================================="), m_nRoundCount);
+	AddMessage(_T("라운드[%d], 결산 ==================================================================================================================="), m_nRoundCount);
 }
 
