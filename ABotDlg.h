@@ -23,6 +23,7 @@ protected:
 
 // 구현입니다.
 protected:
+	CCriticalSection m_criticalItemProcess;
 	HICON m_hIcon;
 
 	// 생성된 메시지 맵 함수

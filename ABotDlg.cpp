@@ -1310,6 +1310,8 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 	BOOL		bBUYDone = FALSE, bSELLDone = FALSE;
 	CString		strItemCode, strOrderCode;
 	long		lTradeQuantity = 0, lTradePrice = 0, lCurPrice = 0;
+	long		lRemainQuantity = 0;
+	long		lReqQuantity = 0, lReqPrice = 0;
 
 	long		nIndex(0);
 	long		lFid = 0;
@@ -1329,16 +1331,37 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 		strFIDName.Empty();
 
-		//구분[0] FID[9203:주문번호] = [0050945]
-		//구분[0] FID[9001:종목코드] = [A054540]
-		//구분[0] FID[ 913:주문상태] = [접수]
-		//구분[0] FID[ 913:주문상태] = [체결]
-		//구분[0] FID[ 909:체결번호] = [22026]
-		//구분[0] FID[ 905:주문구분] = [+매수]
-		//구분[0] FID[ 905:주문구분] = [-매도]
-		//구분[0] FID[ 910:체결가] = [4405]
-		//구분[0] FID[ 911:체결량] = [1]
-		//구분[1] FID[  10:현재가] = [+4410]
+		//구분[0] FID[9201:계좌번호] = [5088156710]
+		//구분[0] FID[9203:주문번호] = [0067777]
+		//구분[0] FID[9205:9205] = []
+		//구분[0] FID[9001:종목코드] = [A009180]
+		//구분[0] FID[912:912] = [JJ]
+		//구분[0] FID[913:주문상태] = [체결]
+		//구분[0] FID[302:종목명] = [한솔로지스틱스]
+		//구분[0] FID[900:주문수량] = [90]
+		//구분[0] FID[901:주문가격] = [3300]
+		//구분[0] FID[902:미체결수량] = [0]
+		//구분[0] FID[903:체결누계금액] = [296670]
+		//구분[0] FID[904:원주문번호] = [0000000]
+		//구분[0] FID[905:주문구분] = [+매수]
+		//구분[0] FID[906:매매구분] = [보통]
+		//구분[0] FID[907:매도수구분] = [2]
+		//구분[0] FID[908:주문 / 체결시간] = [124500]
+		//구분[0] FID[909:체결번호] = [14728]
+		//구분[0] FID[910:체결가] = [3296]
+		//구분[0] FID[911:체결량] = [90]
+		//구분[0] FID[10:현재가] = [+3300]
+		//구분[0] FID[27:(최우선)매도호가] = [+3300]
+		//구분[0] FID[28:(최우선)매수호가] = [+3290]
+		//구분[0] FID[914:단위체결가] = [3300]
+		//구분[0] FID[915:단위체결량] = [24]
+		//구분[0] FID[938:938] = [40]
+		//구분[0] FID[939:939] = [0]
+		//구분[0] FID[919:거부사유] = [0]
+		//구분[0] FID[920:화면번호] = [7198]
+		//구분[0] FID[921:921] = [Y3011168]
+		//구분[0] FID[922:922] = [00]
+		//구분[0] FID[923:923] = [00000000]
 
 	//	if (IsInRound())// && strGubun=="0")
 		{
@@ -1380,6 +1403,10 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 			{
 				lTradeQuantity = atol(strOneData);
 			}
+			else if (strFID == "902")	//미 체결량
+			{
+				lRemainQuantity = atol(strOneData);
+			}
 			else if (strFID == "910")	//체결가
 			{
 				lTradePrice = atol(strOneData);
@@ -1387,6 +1414,14 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 			else if (strFID == "10")	//현재가
 			{
 				lCurPrice = atol(strOneData);
+			}
+			else if (strFID == "900")	//요청수량
+			{
+				lReqQuantity = atol(strOneData);
+			}
+			else if (strFID == "901")	//요청가
+			{
+				lReqPrice = atol(strOneData);
 			}
 		}
 	}
@@ -1399,8 +1434,9 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 	if (nItemIndex >= 0 && strGubun == "0")
 	{
-		CABotItem &aItem = m_Item[nItemIndex];
+		CSingleLock	lock(&m_criticalItemProcess, TRUE);
 
+		CABotItem &aItem = m_Item[nItemIndex];
 		if (lCurPrice > 0 && aItem.m_lcurPrice != lCurPrice)
 		{
 			aItem.m_lcurPrice = lCurPrice;
@@ -1417,7 +1453,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 				aItem.m_strBuyOrder = strOrderCode;
 				AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매수 주문이 완료 되었습니다."),
-					m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_strBuyOrder);
+					m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_strBuyOrder);
 			}
 			else if (	aItem.m_eitemState == eST_WAITSELL)
 			{
@@ -1425,7 +1461,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 				aItem.m_strSellOrder = strOrderCode;
 				AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매도 주문이 완료 되었습니다."),
-					m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_strSellOrder);
+					m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_strSellOrder);
 			}
 			else if (	aItem.m_eitemState == eST_WAITBUYCANCLE || 
 						aItem.m_eitemState == eST_BUYCANCLE)
@@ -1433,7 +1469,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 				if (aItem.m_lBuyQuantity > 0)
 				{
 					AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 취소 주문이 완료 되었습니다."),
-						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
+						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
 					aItem.m_eitemState = eST_HOLDING;
 				//	return;
 				}
@@ -1451,7 +1487,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 				if (aItem.m_lSellQuantity > 0)
 				{
 					AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 취소 주문이 완료 되었습니다."),
-						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
+						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
 					aItem.m_eitemState = eST_HOLDING;
 				//	return;
 				}
@@ -1474,9 +1510,14 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 			{
 				ASSERT(bBUYDone);
 
-				aItem.m_lBuyCost += lTradePrice*lTradeQuantity;
-				aItem.m_lBuyQuantity += lTradeQuantity;
-
+				aItem.m_lBuyCost = lTradePrice*lTradeQuantity;
+				aItem.m_lBuyQuantity = lTradeQuantity;
+				if (lRemainQuantity == 0 && aItem.m_lQuantity != aItem.m_lBuyQuantity)
+				{
+					aItem.m_lQuantity = aItem.m_lBuyQuantity;
+					AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],매수 잔여 수량이 [0]으로 정정 되었습니다."),
+						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
+				}
 				AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 되었습니다."),
 					m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
 
@@ -1499,9 +1540,14 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 			{
 				ASSERT(bSELLDone);
 
-				aItem.m_lSellCost += lTradePrice*lTradeQuantity;
-				aItem.m_lSellQuantity += lTradeQuantity;
-
+				aItem.m_lSellCost = lTradePrice*lTradeQuantity;
+				aItem.m_lSellQuantity = lTradeQuantity;
+				if (lRemainQuantity == 0 && aItem.m_lQuantity != aItem.m_lSellQuantity)
+				{
+					aItem.m_lQuantity = aItem.m_lSellQuantity;
+					AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],매도 잔여 수량이 [0]으로 정정 되었습니다."),
+						m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
+				}
 				AddMessage(_T("___________________:: 라운드[%d], 종목[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 되었습니다."),
 					m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
 
@@ -1581,16 +1627,21 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 			curPrice = atol(strData);
 		}
 	}
-	AddMessage(_T("OnReceiveRealData:: %s"), strReceivedData);
+	AddMessage(_T("OnReceiveRealData:: 종목[%s][%s][%s],%s"), sJongmokCode, strCodeName, (nItemIndex >= 0 ? m_Item[nItemIndex].GetStateString() : "NotInItem"), strReceivedData);
 
-	if (IsInRound() && nItemIndex >= 0 && 
-		curPrice > 0 && m_Item[nItemIndex].m_lcurPrice != curPrice)
+	if(true)
 	{
-		m_Item[nItemIndex].m_lcurPrice = curPrice;
-		AddMessage(_T("OnReceiveRealData:: 종목[%s][%s][%s] 현재가[%s], grid index[%s], item index[%d]"),
-			sJongmokCode, strCodeName, m_Item[nItemIndex].GetStateString(), GetCurrencyString(m_Item[nItemIndex].m_lcurPrice), strIndex, nItemIndex);
+		CSingleLock	lock(&m_criticalItemProcess, TRUE);
 
-		ProcessTradeItem(nItemIndex);
+		if (IsInRound() && nItemIndex >= 0 &&
+			curPrice > 0 && m_Item[nItemIndex].m_lcurPrice != curPrice)
+		{
+			m_Item[nItemIndex].m_lcurPrice = curPrice;
+			AddMessage(_T("OnReceiveRealData:: 종목[%s][%s][%s] 현재가[%s], grid index[%s], item index[%d]"),
+				sJongmokCode, strCodeName, m_Item[nItemIndex].GetStateString(), GetCurrencyString(m_Item[nItemIndex].m_lcurPrice), strIndex, nItemIndex);
+
+			ProcessTradeItem(nItemIndex);
+		}
 	}
 
 //	if (m_eProcessState == ePST_IDLE) AddMessage(strReceivedData);
@@ -2393,7 +2444,7 @@ void CABotDlg::OnBnClickedButtonStartRound()
 			m_nRoundCount = 1;
 			m_bDoFinishProcess = FALSE;
 			m_eProcessState = ePST_ROUND_START;
-			SetTimer(ROUND_TIMER, 1, NULL);
+			SetTimer(ROUND_TIMER, 10, NULL);
 			AddMessage(_T("라운드 시작 요청."));
 		}
 	}
@@ -2530,6 +2581,9 @@ void CABotDlg::InitProcessCondition()
 	m_dSellUnderThis2 = atof((LPSTR)(LPCSTR)strBuf);
 //	AddMessage(_T("라운드[%d], 종목당 매도 Sell'UNDER'This2는 %f[퍼센트] 입니다."), m_nRoundCount, m_dSellUnderThis2);
 
+
+	theApp.m_khOpenApi.SetRealRemove(_T("ALL"), _T("ALL"));
+	AddMessage(_T("라운드[%d], 현재 등록된 실시간 조회 요청 종목을 모두 삭제합니다."), m_nRoundCount);
 }
 
 BOOL CABotDlg::getAccountData()
@@ -2737,6 +2791,8 @@ void CABotDlg::ProcessSequence()
 
 void CABotDlg::ProcessTradeAll()
 {
+	CSingleLock	lock(&m_criticalItemProcess, TRUE);
+
 	long i = 0;
 	for (i = 0; i < m_ItemCount; i++)
 	{
@@ -2774,7 +2830,7 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 	//		break;
 	//	}
 
-		if (m_lProcessDR < long(m_lProcessItemDR*(1 + m_dBuyTradeFee / 100.0)))
+		if (m_lProcessDR < m_lProcessItemDR)
 		{
 			//실시간 정보를 보여주는 그리드에서 지운다
 			CString strIndex;
@@ -2792,8 +2848,8 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 			theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
 
 			//다시 종목으로 검색될때 까지 안녕~
-			AddMessage(_T("라운드[%d], 종목[%s][%s][%s], 잔여 운용 금액 %s[원]이 종목 운용 금액(수수료 포함) %s[원]보다 작습니다. 라운드를 종료합니다."), 
-				m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), GetCurrencyString(m_lProcessDR), GetCurrencyString(long(m_lProcessItemDR*(1 + m_dBuyTradeFee / 100.0))));
+			AddMessage(_T("라운드[%d], 종목[%s][%s][%s], 잔여 운용 금액 %s[원]이 종목 운용 금액(수수료 포함) %s[원]보다 작습니다. 다시 관심 종목에 진입할때까지 거래를 하지 않습니다."), 
+				m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), GetCurrencyString(m_lProcessDR), GetCurrencyString(m_lProcessItemDR));
 			aItem.m_eitemState = eST_NONE;
 			break;
 		}
@@ -2961,6 +3017,8 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 
 	case eST_TRADECLOSING:
 		{
+			theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
+
 			long lactBuyCost = aItem.m_lBuyCost;
 			long lactSellCost = long(aItem.m_lSellCost*(1 - m_dSellTradeFee / 100.) - long(aItem.m_lBuyCost*(m_dBuyTradeFee / 100.)));
 			if (lactBuyCost == 0) {	lactBuyCost = 1; }
@@ -3012,7 +3070,7 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 	aItem.m_ltryBuyTimeout = 0;
 
 	long lcurPrice = aItem.m_lcurPrice;
-	long nextQuantity = long((m_lProcessItemDR - aItem.m_lBuyCost)*(m_dBuyTradeFee / 100.0) / lcurPrice);
+	long nextQuantity = long((m_lProcessItemDR - aItem.m_lBuyCost) / lcurPrice);
 
 	if (nextQuantity <= 0)	//구매 가능 수량이 0일 경우 예외 처리.
 	{
