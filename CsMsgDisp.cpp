@@ -121,7 +121,7 @@ BOOL CsMsgDisp::AddMessage(char * i_cMsg, ...)
 
 	va_start(arglist, i_cMsg);
 	_vstprintf_s(arbytebuf, i_cMsg, arglist);
-	_stprintf_s(arbyteMsg, "[%s:%03u] %s\r\n", time.Format("%Y/%m/%d %H:%M:%S"), tstruct.millitm, arbytebuf);
+	_stprintf_s(arbyteMsg, "[%s.%03u] %s\r\n", time.Format("%Y/%m/%d %H:%M:%S"), tstruct.millitm, arbytebuf);
 
 	//여기서 로그를 바로 쓴다.
 	g_logger.WriteLog(arbytebuf);

@@ -423,10 +423,11 @@ void CABotDlg::InitComboBox()
 	m_cmbStartMin.SetCurSel(0);
 	m_cmbEndMin.SetCurSel(0);
 
-	m_cmbDpUseRate.InsertString(0, "90");
-	m_cmbDpUseRate.InsertString(1, "80");
-	m_cmbDpUseRate.InsertString(2, "50");
-	m_cmbDpUseRate.SetCurSel(2);
+	m_cmbDpUseRate.InsertString(0, "100");
+	m_cmbDpUseRate.InsertString(1, "90");
+	m_cmbDpUseRate.InsertString(2, "80");
+	m_cmbDpUseRate.InsertString(3, "50");
+	m_cmbDpUseRate.SetCurSel(3);
 
 	m_cmbMaxTotalAmount.InsertString(0, "10");
 	m_cmbMaxTotalAmount.InsertString(1, "50");
@@ -643,7 +644,7 @@ void CABotDlg::LoadSystemFile()
 	// 매수시 예수금의 최대 사용 퍼센트. [%]
 	ReadFromIniFile_String(m_strConfigFile, "BUY", "use_rate", "50", strBuf);
 	n = atol((LPSTR)(LPCSTR)strBuf);
-	if (n > 95) {n = 95;}
+	if (n > 100) {n = 100;}
 	strBuf.Format("%d", n);
 	for (i = 0; i<m_cmbDpUseRate.GetCount(); i++)
 	{
