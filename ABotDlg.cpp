@@ -35,16 +35,16 @@
 //567 상한가발생시간
 //568 하한가발생시간
 
-// {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬,	앞 문자, 뒷 문자}
+// {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬,		앞 문자, 뒷 문자}
 const stGRID lstOPTSBFID[] =
 {
-	{ "종목코드",		"9001",	-1, 0, DT_NONE,			FALSE,	DT_LEFT,	"", "" },
-//	{ "종목명",			"302",	-1, 1, DT_NONE,			FALSE,	DT_LEFT,	"", "" },
-	{ "현재가",			"10",	-1, 2, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	"", "" },
-	{ "전일대비기호",	"25",	-1, 3, DT_SIGN,			TRUE,	DT_CENTER,	"", "" },
-	{ "전일대비",		"11",	-1, 4, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	"", "" },
-	{ "등락율",			"12",	-1, 5, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	"", "%" },
-	{ "누적거래량",		"13",	-1, 6, DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	"", "" },
+	{ "종목코드",		"9001",	-1, 0, DT_NONE,			FALSE,	DT_LEFT,		"", "" },
+//	{ "종목명",			"302",	-1, 1, DT_NONE,			FALSE,	DT_LEFT,		"", "" },
+	{ "현재가",			"10",	-1, 2, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "" },
+	{ "전일대비기호",	"25",	-1, 3, DT_SIGN,			TRUE,	DT_CENTER,		"", "" },
+	{ "전일대비",		"11",	-1, 4, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "" },
+	{ "등락율",			"12",	-1, 5, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "%" },
+	{ "누적거래량",		"13",	-1, 6, DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,		"", "" },
 };
 
 
@@ -148,7 +148,7 @@ void CABotDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_FILTER, m_cmbCon);
 	DDX_Control(pDX, IDC_GRD_REALADD, m_grdRealAdd);
 	DDX_Control(pDX, IDC_GRD_BUY_ITEM, m_grdBuyItem);
-	DDX_Control(pDX, IDC_COMBO_ROUND, m_cmbRoundCount);
+	DDX_Control(pDX, IDC_COMBO_ITEM_COUNT, m_cmbItemCount);
 	DDX_Control(pDX, IDC_COMBO_SHOUR, m_cmbStartHour);
 	DDX_Control(pDX, IDC_COMBO_SMIN, m_cmbStartMin);
 	DDX_Control(pDX, IDC_COMBO_EHOUR, m_cmbEndHour);
@@ -391,18 +391,18 @@ BOOL CABotDlg::InitLogData()
 void CABotDlg::InitComboBox()
 {
 	//콤보 박스 기초 데이터.
-	m_cmbRoundCount.InsertString(0, "반복");
-	m_cmbRoundCount.InsertString(1, "1");
-	m_cmbRoundCount.InsertString(2, "3");
-	m_cmbRoundCount.InsertString(3, "5");
-	m_cmbRoundCount.InsertString(4, "10");
-	m_cmbRoundCount.InsertString(5, "20");
-	m_cmbRoundCount.InsertString(6, "50");
-	m_cmbRoundCount.InsertString(7, "100");
-	m_cmbRoundCount.InsertString(8, "500");
-	m_cmbRoundCount.InsertString(9, "1000");
-	m_cmbRoundCount.InsertString(10,"10000");
-	m_cmbRoundCount.SetCurSel(1);
+	m_cmbItemCount.InsertString(0, "1");
+	m_cmbItemCount.InsertString(1, "3");
+	m_cmbItemCount.InsertString(2, "5");
+	m_cmbItemCount.InsertString(3, "10");
+	m_cmbItemCount.InsertString(4, "20");
+	m_cmbItemCount.InsertString(5, "50");
+	m_cmbItemCount.InsertString(6, "100");
+	m_cmbItemCount.InsertString(7, "500");
+	m_cmbItemCount.InsertString(8, "1000");
+	m_cmbItemCount.InsertString(9, "10000");
+	m_cmbItemCount.InsertString(10,"9999999");
+	m_cmbItemCount.SetCurSel(3);
 
 	CString strBuf;
 	long i = 0;
@@ -592,25 +592,25 @@ void CABotDlg::LoadSystemFile()
 	ReadFromIniFile_String(m_strConfigFile, "ROUND", "count", "1", strBuf);
 	if ("반복" == strBuf)
 	{
-		m_cmbRoundCount.SetCurSel(0);
+		m_cmbItemCount.SetCurSel(0);
 	}
 	else
 	{
 		n = atol((LPSTR)(LPCSTR)strBuf);
 		strBuf.Format("%d", n);
-		for (i = 1; i<m_cmbRoundCount.GetCount(); i++)
+		for (i = 1; i<m_cmbItemCount.GetCount(); i++)
 		{
-			m_cmbRoundCount.GetLBText(i, strCombo);
+			m_cmbItemCount.GetLBText(i, strCombo);
 			if (strCombo == strBuf)
 			{
 				break;
 			}
 		}
-		if (i >= m_cmbRoundCount.GetCount())
+		if (i >= m_cmbItemCount.GetCount())
 		{
-			m_cmbRoundCount.InsertString(i, strBuf);
+			m_cmbItemCount.InsertString(i, strBuf);
 		}
-		m_cmbRoundCount.SetCurSel(i);
+		m_cmbItemCount.SetCurSel(i);
 	}
 	AddMessage("     반복 회수[%s].", strBuf);
 
@@ -887,7 +887,7 @@ void CABotDlg::SaveSystemFile()
 	WriteToIniFile_String(m_strConfigFile, "ACCOUNT", "number", strBuf);
 
 	// 반복 회수
-	m_cmbRoundCount.GetLBText(m_cmbRoundCount.GetCurSel(), strBuf);
+	m_cmbItemCount.GetLBText(m_cmbItemCount.GetCurSel(), strBuf);
 	WriteToIniFile_String(m_strConfigFile, "ROUND", "count", strBuf);
 
 	// 시작 시각의 시
@@ -2433,7 +2433,7 @@ void CABotDlg::SetControls(BOOL bEnable)
 {
 	((CEdit*)GetDlgItem(IDC_EDIT_ACCNO))->EnableWindow(bEnable);
 	m_cmbCon.EnableWindow(bEnable);
-	m_cmbRoundCount.EnableWindow(bEnable);
+	m_cmbItemCount.EnableWindow(bEnable);
 	m_cmbStartHour.EnableWindow(bEnable);
 	m_cmbStartMin.EnableWindow(bEnable);
 	m_cmbEndHour.EnableWindow(bEnable);
@@ -2556,7 +2556,7 @@ void CABotDlg::InitProcessCondition()
 
 	CString strBuf;
 
-	m_cmbRoundCount.GetLBText(m_cmbRoundCount.GetCurSel(), strBuf);
+	m_cmbItemCount.GetLBText(m_cmbItemCount.GetCurSel(), strBuf);
 	if (strBuf == "반복")
 	{
 		m_nProcessItemCount = 9999999;

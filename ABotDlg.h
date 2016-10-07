@@ -114,7 +114,7 @@ public:
 	CGridCtrl			m_grdRealAdd;		// 종목 그리드
 	CGridCtrl			m_grdBuyItem;		// 매수된 종목 내용 그리드
 	CComboBox			m_cmbCon;			// 검색 조건 콤보
-	CComboBox			m_cmbRoundCount;	// 반복 회수
+	CComboBox			m_cmbItemCount;	// 운용 종목 개수
 	CComboBox			m_cmbStartHour;		// 시작 시각의 시
 	CComboBox			m_cmbStartMin;		// 시작 시각의 분
 	CComboBox			m_cmbEndHour;		// 종료 시각의 시
