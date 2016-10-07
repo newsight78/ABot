@@ -15,18 +15,36 @@
 #define ROUND_TIMER	1002
 
 
-#define FIDLIST	_T("9001;302;10;11;25;12;13")
+//#define FIDLIST	_T("9001;302;10;11;25;12;13")
+#define FIDLIST	_T("9001;10;11;25;12;13")
+
+//참고
+//27 (최우선)매도 호가
+//28 (최우선)매수 호가
+//14 누적거래대금
+//16 시가
+//17 고가
+//18 저가
+//21 호가
+//26 전일거래량대비(계약,주)
+//29 거래대금증감
+//30 전일거래량대비(비율)
+//31 거래회전율
+//32 거래비용
+//311 시가총액(억)
+//567 상한가발생시간
+//568 하한가발생시간
 
 // {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬,	앞 문자, 뒷 문자}
 const stGRID lstOPTSBFID[] =
 {
 	{ "종목코드",		"9001",	-1, 0, DT_NONE,			FALSE,	DT_LEFT,	"", "" },
-	{ "종목명",			"302",	-1, 1, DT_NONE,			FALSE,	DT_LEFT,	"", "" },
+//	{ "종목명",			"302",	-1, 1, DT_NONE,			FALSE,	DT_LEFT,	"", "" },
 	{ "현재가",			"10",	-1, 2, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	"", "" },
 	{ "전일대비기호",	"25",	-1, 3, DT_SIGN,			TRUE,	DT_CENTER,	"", "" },
 	{ "전일대비",		"11",	-1, 4, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	"", "" },
 	{ "등락율",			"12",	-1, 5, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,	"", "%" },
-	{ "거래량",			"13",	-1, 6, DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	"", "" },
+	{ "누적거래량",		"13",	-1, 6, DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,	"", "" },
 };
 
 
@@ -2675,10 +2693,10 @@ void CABotDlg::ProcessSequence()
 			m_lProcessDR = min(long(m_lDepositReceived*(nUseRate / 100.0)), lMaxTotalAmount);
 			AddMessage(_T("라운드[%d], 운용 금액 총합은 %s[원] 입니다."), m_nRoundCount, GetCurrencyString(m_lProcessDR));
 
-			if (m_lProcessDR < long(m_lProcessItemDR*(1 + m_dBuyTradeFee / 100.0)))
+			if (m_lProcessDR < m_lProcessItemDR)
 			{
 				m_nProcessRetryCount = 0;
-				AddMessage(_T("라운드[%d], 전체 운용 금액 %s[원]이 종목 운용 금액(수수료 포함) %s[원]보다 작습니다. 라운드를 종료합니다."), m_nRoundCount, GetCurrencyString(m_lProcessDR), GetCurrencyString(long(m_lProcessItemDR*(1 + m_dBuyTradeFee / 100.0))));
+				AddMessage(_T("라운드[%d], 전체 운용 금액 %s[원]이 종목 운용 금액(수수료 포함) %s[원]보다 작습니다. 라운드를 종료합니다."), m_nRoundCount, GetCurrencyString(m_lProcessDR), GetCurrencyString(m_lProcessItemDR));
 				m_eProcessState = ePST_ROUND_END;
 				break;
 			}
@@ -2862,7 +2880,7 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 
 			if (aItem.m_ltryBuyCount == 0)
 			{
-				m_lProcessDR -= long(m_lProcessItemDR*(1 + m_dBuyTradeFee / 100.0));
+				m_lProcessDR -= m_lProcessItemDR;
 				AddMessage(_T("라운드[%d], 운용 금액 총합은 %s[원]이 되었습니다."), m_nRoundCount, GetCurrencyString(m_lProcessDR));
 			}
 
@@ -3027,7 +3045,7 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 				m_nRoundCount, aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), GetCurrencyString(lactBuyCost), GetCurrencyString(lactSellCost), GetCurrencyString(lactSellCost - lactBuyCost), double(lactSellCost - lactBuyCost) / double(lactBuyCost)*100.0);
 			AddMessage(_T("라운드[%d], 종목 결산 ============================================="), m_nRoundCount);
 
-			m_lProcessDR += long(m_lProcessItemDR*(1 + m_dBuyTradeFee / 100.0));
+			m_lProcessDR += m_lProcessItemDR;
 
 			m_lProcessDR -= lactBuyCost;
 			m_lProcessDR += lactSellCost;
