@@ -113,8 +113,8 @@ public:
 	CCellID				m_cellSelect;		// 종목 그리드 선택 행
 	CGridCtrl			m_grdRealAdd;		// 종목 그리드
 	CGridCtrl			m_grdBuyItem;		// 매수된 종목 내용 그리드
-	CComboBox			m_cmbCon;			// 검색 조건 콤보
-	CComboBox			m_cmbItemCount;	// 운용 종목 개수
+	CComboBox			m_cmbCondtion;		// 검색 조건 콤보
+	CComboBox			m_cmbItemCount;		// 운용 종목 개수
 	CComboBox			m_cmbStartHour;		// 시작 시각의 시
 	CComboBox			m_cmbStartMin;		// 시작 시각의 분
 	CComboBox			m_cmbEndHour;		// 종료 시각의 시
@@ -137,8 +137,10 @@ public:
 	afx_msg void OnBnClickedBalanceQuery();
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	afx_msg void OnBnClickedButtonGetfilter();
-	afx_msg void OnBnClickedButtonGettarget();
+	afx_msg void OnBnClickedButtonGetCondition();
+	afx_msg void OnBnClickedButtonGetCondItems();
+	afx_msg void OnBnClickedButtonRegItems();
+	afx_msg void OnBnClickedButtonGetBalance();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedButtonSaveconfig();
 	DECLARE_EVENTSINK_MAP()
@@ -153,8 +155,6 @@ public:
 	afx_msg void OnBnClickedButtonStopRound();
 	afx_msg void OnBnClickedButtonSellAllCurCost();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	afx_msg void OnBnClickedButtonRegtarget();
-	afx_msg void OnBnClickedButtonGetBalance();
 	afx_msg void OnBnClickedButtonDebugTest();
 	void OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR strConditionName, LPCTSTR strConditionIndex);
 };

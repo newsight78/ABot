@@ -145,9 +145,9 @@ void CABotDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_KHOPENAPICTRL1, theApp.m_khOpenApi);
-	DDX_Control(pDX, IDC_COMBO_FILTER, m_cmbCon);
 	DDX_Control(pDX, IDC_GRD_REALADD, m_grdRealAdd);
 	DDX_Control(pDX, IDC_GRD_BUY_ITEM, m_grdBuyItem);
+	DDX_Control(pDX, IDC_COMBO_CONDITION, m_cmbCondtion);
 	DDX_Control(pDX, IDC_COMBO_ITEM_COUNT, m_cmbItemCount);
 	DDX_Control(pDX, IDC_COMBO_SHOUR, m_cmbStartHour);
 	DDX_Control(pDX, IDC_COMBO_SMIN, m_cmbStartMin);
@@ -176,15 +176,15 @@ BEGIN_MESSAGE_MAP(CABotDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BALANCE_QUERY, &CABotDlg::OnBnClickedBalanceQuery)
 	ON_WM_SHOWWINDOW()
 	ON_WM_TIMER()
-	ON_BN_CLICKED(IDC_BUTTON_GETFILTER, &CABotDlg::OnBnClickedButtonGetfilter)
-	ON_BN_CLICKED(IDC_BUTTON_GETTARGET, &CABotDlg::OnBnClickedButtonGettarget)
 	ON_BN_CLICKED(IDOK, &CABotDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_BUTTON_GETCONDITION, &CABotDlg::OnBnClickedButtonGetCondition)
+	ON_BN_CLICKED(IDC_BUTTON_GETITEM, &CABotDlg::OnBnClickedButtonGetCondItems)
+	ON_BN_CLICKED(IDC_BUTTON_REGITEM, &CABotDlg::OnBnClickedButtonRegItems)
 	ON_BN_CLICKED(IDC_BUTTON_SAVECONFIG, &CABotDlg::OnBnClickedButtonSaveconfig)
 	ON_BN_CLICKED(IDC_BUTTON_START_ROUND, &CABotDlg::OnBnClickedButtonStartRound)
 	ON_BN_CLICKED(IDC_BUTTON_FINISH_ROUND, &CABotDlg::OnBnClickedButtonFinishRound)
 	ON_BN_CLICKED(IDC_BUTTON_STOP_ROUND, &CABotDlg::OnBnClickedButtonStopRound)
 	ON_BN_CLICKED(IDC_BUTTON_SELL_ALL_CUR_COST, &CABotDlg::OnBnClickedButtonSellAllCurCost)
-	ON_BN_CLICKED(IDC_BUTTON_REGTARGET, &CABotDlg::OnBnClickedButtonRegtarget)
 	ON_BN_CLICKED(IDC_BUTTON_GET_BALANCE, &CABotDlg::OnBnClickedButtonGetBalance)
 	ON_BN_CLICKED(IDC_BUTTON_DEBUG_TEST, &CABotDlg::OnBnClickedButtonDebugTest)
 END_MESSAGE_MAP()
@@ -401,7 +401,7 @@ void CABotDlg::InitComboBox()
 	m_cmbItemCount.InsertString(7, "500");
 	m_cmbItemCount.InsertString(8, "1000");
 	m_cmbItemCount.InsertString(9, "10000");
-	m_cmbItemCount.InsertString(10,"9999999");
+	m_cmbItemCount.InsertString(10,"99999999");
 	m_cmbItemCount.SetCurSel(3);
 
 	CString strBuf;
@@ -432,10 +432,10 @@ void CABotDlg::InitComboBox()
 	m_cmbMaxTotalAmount.InsertString(0, "10");
 	m_cmbMaxTotalAmount.InsertString(1, "50");
 	m_cmbMaxTotalAmount.InsertString(2, "100");
-	m_cmbMaxTotalAmount.InsertString(3, "200");
-	m_cmbMaxTotalAmount.InsertString(4, "500");
-	m_cmbMaxTotalAmount.InsertString(5, "1000");
-	m_cmbMaxTotalAmount.SetCurSel(2);
+//	m_cmbMaxTotalAmount.InsertString(3, "200");
+//	m_cmbMaxTotalAmount.InsertString(4, "500");
+//	m_cmbMaxTotalAmount.InsertString(5, "1000");
+	m_cmbMaxTotalAmount.SetCurSel(0);
 
 	m_cmbMaxAmount.InsertString(0, "10");
 	m_cmbMaxAmount.InsertString(1, "20");
@@ -681,22 +681,23 @@ void CABotDlg::LoadSystemFile()
 	AddMessage("     최대 예수금 사용 허용 금액 [%s]만원.", strBuf);
 
 	// 종목당 최대 투자 허용 금액
-	ReadFromIniFile_String(m_strConfigFile, "BUY", "max_amount", "100", strBuf);
+	ReadFromIniFile_String(m_strConfigFile, "BUY", "max_amount", "10", strBuf);
 	n = atol((LPSTR)(LPCSTR)strBuf);
+	if (n > 100) { n = 100; }
 	strBuf.Format("%d", n);
 	for (i = 0; i<m_cmbMaxAmount.GetCount(); i++)
 	{
 		m_cmbMaxAmount.GetLBText(i, strCombo);
 		if (strCombo == strBuf)
 		{
+			m_cmbMaxAmount.SetCurSel(i);
 			break;
 		}
 	}
 	if (i >= m_cmbMaxAmount.GetCount())
 	{
-		m_cmbMaxAmount.InsertString(i, strBuf);
+		m_cmbMaxAmount.SetWindowText(strBuf);
 	}
-	m_cmbMaxAmount.SetCurSel(i);
 	AddMessage("     종목당 운용 금액 [%s]만원.", strBuf);
 
 	// 매수 방법, 현재가, 시장가. 향후..퍼센트 지정.
@@ -789,14 +790,14 @@ void CABotDlg::LoadSystemFile()
 		m_cmbSellOverThis.GetLBText(i, strCombo);
 		if (strCombo == strBuf)
 		{
+			m_cmbSellOverThis.SetCurSel(i);
 			break;
 		}
 	}
 	if (i >= m_cmbSellOverThis.GetCount())
 	{
-		m_cmbSellOverThis.InsertString(i, strBuf);
+		m_cmbSellOverThis.SetWindowText(strBuf);
 	}
-	m_cmbSellOverThis.SetCurSel(i);
 	AddMessage("     매도 시점 1-1. 현재가가 매수 금액의 [%s] 퍼센트 이상 상승시.", strBuf);
 
 	// 구매후 종목 현재가가, 이 퍼센트 보다 높아지면 판다.
@@ -811,14 +812,14 @@ void CABotDlg::LoadSystemFile()
 		m_cmbSellOverThis2.GetLBText(i, strCombo);
 		if (strCombo == strBuf)
 		{
+			m_cmbSellOverThis2.SetCurSel(i);
 			break;
 		}
 	}
 	if (i >= m_cmbSellOverThis2.GetCount())
 	{
-		m_cmbSellOverThis2.InsertString(i, strBuf);
+		m_cmbSellOverThis2.SetWindowText(strBuf);
 	}
-	m_cmbSellOverThis2.SetCurSel(i);
 //	AddMessage("     매도 시점 1-2. 현재가가 1-1 트리거후 매수 금액의 [%s] 퍼센트 이하 도달시 시장가 매도.", strBuf);
 
 	// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다.
@@ -833,14 +834,14 @@ void CABotDlg::LoadSystemFile()
 		m_cmbSellUnderThis.GetLBText(i, strCombo);
 		if (strCombo == strBuf)
 		{
+			m_cmbSellUnderThis.SetCurSel(i);
 			break;
 		}
 	}
 	if (i >= m_cmbSellUnderThis.GetCount())
 	{
-		m_cmbSellUnderThis.InsertString(i, strBuf);
+		m_cmbSellUnderThis.SetWindowText(strBuf);
 	}
-	m_cmbSellUnderThis.SetCurSel(i);
 	AddMessage("     매도 시점 2-1. 현재가가 매수 금액의 [%s] 퍼센트 이상 하락시 시장가 매도.", strBuf);
 
 	// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다.
@@ -855,14 +856,14 @@ void CABotDlg::LoadSystemFile()
 		m_cmbSellUnderThis2.GetLBText(i, strCombo);
 		if (strCombo == strBuf)
 		{
+			m_cmbSellUnderThis2.SetCurSel(i);
 			break;
 		}
 	}
 	if (i >= m_cmbSellUnderThis2.GetCount())
 	{
-		m_cmbSellUnderThis2.InsertString(i, strBuf);
+		m_cmbSellUnderThis2.SetWindowText(strBuf);
 	}
-	m_cmbSellUnderThis2.SetCurSel(i);
 //	AddMessage("     매도 시점 2-2. 현재가가 2-2 트리거후 매수 금액의 [%s] 퍼센트 이하 도달시 시장가 매도.", strBuf);
 
 	// 매수 수수료
@@ -888,72 +889,72 @@ void CABotDlg::SaveSystemFile()
 	WriteToIniFile_String(m_strConfigFile, "ACCOUNT", "number", strBuf);
 
 	// 반복 회수
-	m_cmbItemCount.GetLBText(m_cmbItemCount.GetCurSel(), strBuf);
+	m_cmbItemCount.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "ROUND", "count", strBuf);
 
 	// 시작 시각의 시
-	m_cmbStartHour.GetLBText(m_cmbStartHour.GetCurSel(), strBuf);
+	m_cmbStartHour.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "ROUND", "start_hour", strBuf);
 
 	// 시작 시각의 분
-	m_cmbStartMin.GetLBText(m_cmbStartMin.GetCurSel(), strBuf);
+	m_cmbStartMin.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "ROUND", "start_min", strBuf);
 
 	// 종료 시각의 시
-	m_cmbEndHour.GetLBText(m_cmbEndHour.GetCurSel(), strBuf);
+	m_cmbEndHour.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "ROUND", "end_hour", strBuf);
 
 	// 종료 시각의 분
-	m_cmbEndMin.GetLBText(m_cmbEndMin.GetCurSel(), strBuf);
+	m_cmbEndMin.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "ROUND", "end_min", strBuf);
 
 	// 검색 조건
-	if (m_cmbCon.GetCurSel() > 0)
+	if (m_cmbCondtion.GetCurSel() > 0)
 	{
-		m_cmbCon.GetLBText(m_cmbCon.GetCurSel(), strBuf);
-		WriteToIniFile_String(m_strConfigFile, "FILTER", "name", strBuf);
+		m_cmbCondtion.GetWindowText(strBuf);
+		WriteToIniFile_String(m_strConfigFile, "CONDITION", "name", strBuf);
 	}
 
 	// 매수시 예수금의 최대 사용 퍼센트. [%]
-	m_cmbDpUseRate.GetLBText(m_cmbDpUseRate.GetCurSel(), strBuf);
+	m_cmbDpUseRate.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "BUY", "use_rate", strBuf);
 
 	// 매수시 예수금의 최대 사용 금액. [만원]
-	m_cmbMaxTotalAmount.GetLBText(m_cmbMaxTotalAmount.GetCurSel(), strBuf);
+	m_cmbMaxTotalAmount.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "BUY", "max_total_amount", strBuf);	
 
 	// 종목당 최대 투자 허용 금액
-	m_cmbMaxAmount.GetLBText(m_cmbMaxAmount.GetCurSel(), strBuf);
+	m_cmbMaxAmount.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "BUY", "max_amount", strBuf);
 
 	// 매수 방법, 현재가, 시장가. 향후..퍼센트 지정.
-	m_cmbBuyMethod.GetLBText(m_cmbBuyMethod.GetCurSel(), strBuf);
+	m_cmbBuyMethod.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "BUY", "method", strBuf);
 
 	// 매수 체결 대기 타임 아웃.
-	m_cmbBuyTimeOut.GetLBText(m_cmbBuyTimeOut.GetCurSel(), strBuf);
+	m_cmbBuyTimeOut.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "BUY", "timeout", strBuf);
 
 	// 매수 실패시 재시도 회수
-	m_cmbBuyRetry.GetLBText(m_cmbBuyRetry.GetCurSel(), strBuf);
+	m_cmbBuyRetry.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "BUY", "retry", strBuf);
 
 	// 주식 보유 타임 아웃.
-	m_cmbHoldTimeOut.GetLBText(m_cmbHoldTimeOut.GetCurSel(), strBuf);
+	m_cmbHoldTimeOut.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "HOLD", "timeout", strBuf);
 
 	// 구매후 종목 현재가가, 이 퍼센트 보다 높아지면 판다.
-	m_cmbSellOverThis.GetLBText(m_cmbSellOverThis.GetCurSel(), strBuf);
+	m_cmbSellOverThis.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "SELL", "over_this_1", strBuf);
 
-	m_cmbSellOverThis2.GetLBText(m_cmbSellOverThis2.GetCurSel(), strBuf);
+	m_cmbSellOverThis2.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "SELL", "over_this_2", strBuf);
 
 	// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다.
-	m_cmbSellUnderThis.GetLBText(m_cmbSellUnderThis.GetCurSel(), strBuf);
+	m_cmbSellUnderThis.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "SELL", "under_this_1", strBuf);
 
-	m_cmbSellUnderThis2.GetLBText(m_cmbSellUnderThis2.GetCurSel(), strBuf);
+	m_cmbSellUnderThis2.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "SELL", "under_this_2", strBuf);
 }
 
@@ -2090,7 +2091,7 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 
 
 
-void CABotDlg::OnBnClickedButtonGetfilter()
+void CABotDlg::OnBnClickedButtonGetCondition()
 {
 	long nGetConditionRet = theApp.m_khOpenApi.GetConditionLoad();
 	if (nGetConditionRet <= 0)
@@ -2106,7 +2107,7 @@ void CABotDlg::OnBnClickedButtonGetfilter()
 	strConditionNameList = theApp.m_khOpenApi.GetConditionNameList();
 
 	//받아온 조건검색명을 콤보에 넣는다.
-	m_cmbCon.ResetContent();
+	m_cmbCondtion.ResetContent();
 
 	long i(0);
 
@@ -2120,27 +2121,27 @@ void CABotDlg::OnBnClickedButtonGetfilter()
 			strConditionName = strCondition.Mid(nPos + 1, strCondition.GetLength());
 			strIndex.Format(_T("%d"), nConditionNo);
 			m_mapNameList.SetAt(strConditionName, strIndex);
-			m_cmbCon.InsertString(i - 1, strConditionName);
+			m_cmbCondtion.InsertString(i - 1, strConditionName);
 		}
 	}
 
 	static BOOL bConfigApplied = FALSE;
 
-	if (m_cmbCon.GetCount() > 0)
+	if (m_cmbCondtion.GetCount() > 0)
 	{
-		m_cmbCon.SetCurSel(0);
+		m_cmbCondtion.SetCurSel(0);
 
 		if (!bConfigApplied)
 		{
 			CString strBuf, strCombo;
 			// 검색 조건
-			ReadFromIniFile_String(m_strConfigFile, "FILTER", "name", "-", strBuf);
-			for (i = 0; i < m_cmbCon.GetCount(); i++)
+			ReadFromIniFile_String(m_strConfigFile, "CONDITION", "name", "-", strBuf);
+			for (i = 0; i < m_cmbCondtion.GetCount(); i++)
 			{
-				m_cmbCon.GetLBText(i, strCombo);
+				m_cmbCondtion.GetLBText(i, strCombo);
 				if (strCombo == strBuf)
 				{
-					m_cmbCon.SetCurSel(i);
+					m_cmbCondtion.SetCurSel(i);
 				}
 			}
 			bConfigApplied = TRUE;
@@ -2149,7 +2150,7 @@ void CABotDlg::OnBnClickedButtonGetfilter()
 }
 
 
-void CABotDlg::OnBnClickedButtonGettarget()
+void CABotDlg::OnBnClickedButtonGetCondItems()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	REQ_ItemSearch();
@@ -2164,7 +2165,7 @@ BOOL CABotDlg::REQ_ItemSearch()
 	CString strConditionCodeList = _T(""), strIndex;
 
 	//선택한 조건명의 검색된 종목리스트를 불러온다.
-	m_cmbCon.GetLBText(m_cmbCon.GetCurSel(), m_strConditionName);
+	m_cmbCondtion.GetLBText(m_cmbCondtion.GetCurSel(), m_strConditionName);
 	m_mapNameList.Lookup(m_strConditionName, strIndex);
 	m_nConditionIndex = _ttoi(strIndex);
 
@@ -2180,12 +2181,12 @@ BOOL CABotDlg::REQ_ItemSearch()
 	//실시간 조건 검색을 하고 싶으면 마지막 파라메터에 1로 준다.
 	BOOL bRet = theApp.m_khOpenApi.SendCondition(m_strScrNo, m_strConditionName, m_nConditionIndex, 1);
 //	BOOL bRet = theApp.m_khOpenApi.SendCondition(m_strScrNo, m_strConditionName, m_nConditionIndex, 0);
-	AddMessage("조건식[%d][%s], 실시간 종목 검색 요청 %s.", m_nConditionIndex, m_strConditionName, (bRet ? "성공" : "실패"));
+	AddMessage("검색식[%d][%s], 실시간 종목 검색 요청 %s.", m_nConditionIndex, m_strConditionName, (bRet ? "성공" : "실패"));
 	return bRet;
 }
 
 
-void CABotDlg::OnBnClickedButtonRegtarget()
+void CABotDlg::OnBnClickedButtonRegItems()
 {
 	REQ_ItemRealReg();
 }
@@ -2238,11 +2239,11 @@ void CABotDlg::OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR
 	AddMessage(_T("OnReceiveTrCondition::"));
 
 	CString strCndName, sConditionName;
-	m_cmbCon.GetLBText(m_cmbCon.GetCurSel(), strCndName);	//선택된 조건명
+	m_cmbCondtion.GetLBText(m_cmbCondtion.GetCurSel(), strCndName);	//선택된 조건명
 
 	if (strConditionName == strCndName)	//현재 조건명과 조회응답으로 들어온 조건명이 같을때만 처리.
 	{
-		AddMessage("조건식[%d][%s], 종목 검색 요청 결과,", nConditionIndex, strConditionName);
+		AddMessage("검색식[%d][%s], 종목 검색 요청 결과,", nConditionIndex, strConditionName);
 
 		if (strlen(strCodeList)>0)
 		{
@@ -2327,14 +2328,14 @@ void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR 
 	CString strName, strMsg, strIndex, sType, sCode;
 	sType = strType;	//종목 편입, 이탈 구분
 	sCode = sTrCode;	//종목코드
-	m_cmbCon.GetLBText(m_cmbCon.GetCurSel(), strName);	//현재 선택된 조건명
+	m_cmbCondtion.GetLBText(m_cmbCondtion.GetCurSel(), strName);	//현재 선택된 조건명
 	if (IsInRound()) { strName = m_strConditionName; }
 
 	// 종목명/
 	CString strCodeName;
 	strCodeName = theApp.m_khOpenApi.GetMasterCodeName(sCode);
 
-	AddMessage(_T("OnReceiveRealCondition::조건식[%s], [%s][%s]종목이 %s되었습니다."), strConditionName, sCode, strCodeName, (sType=="I"?"편입":"이탈"));
+	AddMessage(_T("OnReceiveRealCondition::검색식[%s], [%s][%s]종목이 %s되었습니다."), strConditionName, sCode, strCodeName, (sType=="I"?"편입":"이탈"));
 
 	if (strName == strConditionName)	//현재 선택된 조건명과 실시간으로 들어온 조건명이 같은지 비교.
 	{
@@ -2433,7 +2434,7 @@ void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR 
 void CABotDlg::SetControls(BOOL bEnable)
 {
 	((CEdit*)GetDlgItem(IDC_EDIT_ACCNO))->EnableWindow(bEnable);
-	m_cmbCon.EnableWindow(bEnable);
+	m_cmbCondtion.EnableWindow(bEnable);
 	m_cmbItemCount.EnableWindow(bEnable);
 	m_cmbStartHour.EnableWindow(bEnable);
 	m_cmbStartMin.EnableWindow(bEnable);
@@ -2459,6 +2460,7 @@ void CABotDlg::OnBnClickedButtonStartRound()
 	{
 		if (REQ_DepositReceived())
 		{
+			OnBnClickedButtonGetCondition();
 			SetDisableControls();
 			m_nRoundCount = 1;
 			m_bDoFinishProcess = FALSE;
@@ -2557,46 +2559,45 @@ void CABotDlg::InitProcessCondition()
 
 	CString strBuf;
 
-	m_cmbItemCount.GetLBText(m_cmbItemCount.GetCurSel(), strBuf);
-	if (strBuf == "반복")
-	{
-		m_nProcessItemCount = 9999999;
-	}
-	else
-	{
-		m_nProcessItemCount = atol((LPSTR)(LPCSTR)strBuf);
-	}
+	CString strIndex;
+	m_cmbCondtion.GetLBText(m_cmbCondtion.GetCurSel(), m_strConditionName);
+	m_mapNameList.Lookup(m_strConditionName, strIndex);
+	m_nConditionIndex = _ttoi(strIndex);
+	AddMessage(_T("라운드[%d], 검색식[%d][%s]을 사용합니다."), m_nRoundCount, m_nConditionIndex, m_strConditionName);
+
+	m_cmbItemCount.GetWindowText(strBuf);
+	m_nProcessItemCount = atol((LPSTR)(LPCSTR)strBuf);
 	AddMessage(_T("라운드[%d], 운용 종목수는 %d[개] 입니다."), m_nRoundCount, m_nProcessItemCount);
 
-	m_cmbMaxAmount.GetLBText(m_cmbMaxAmount.GetCurSel(), strBuf);
+	m_cmbMaxAmount.GetWindowText(strBuf);
 	m_lProcessItemDR = atol((LPSTR)(LPCSTR)strBuf) * 10000;
 	AddMessage(_T("라운드[%d], 종목당 운용 금액은 %s[원] 입니다."), m_nRoundCount, GetCurrencyString(m_lProcessItemDR));
 
-	m_cmbBuyTimeOut.GetLBText(m_cmbBuyTimeOut.GetCurSel(), strBuf);
+	m_cmbBuyTimeOut.GetWindowText(strBuf);
 	m_lItemBuyTimeout = atol((LPSTR)(LPCSTR)strBuf) * 1000;
 	AddMessage(_T("라운드[%d], 종목당 매수 timeout은 %d[초] 입니다."), m_nRoundCount, m_lItemBuyTimeout/1000);
 
-	m_cmbBuyRetry.GetLBText(m_cmbBuyRetry.GetCurSel(), strBuf);
+	m_cmbBuyRetry.GetWindowText(strBuf);
 	m_lItemBuyTryCount = atol((LPSTR)(LPCSTR)strBuf);
 	AddMessage(_T("라운드[%d], 종목당 매수 재시도 회수는 %d[회] 입니다."), m_nRoundCount, m_lItemBuyTryCount);
 
-	m_cmbHoldTimeOut.GetLBText(m_cmbHoldTimeOut.GetCurSel(), strBuf);
+	m_cmbHoldTimeOut.GetWindowText(strBuf);
 	m_lItemHoldTimeout = atol((LPSTR)(LPCSTR)strBuf) * 1000*60;
 	AddMessage(_T("라운드[%d], 종목당 보유 timeout은 %d[분] 입니다."), m_nRoundCount, m_lItemHoldTimeout/(1000*60));
 
-	m_cmbSellOverThis.GetLBText(m_cmbSellOverThis.GetCurSel(), strBuf);
+	m_cmbSellOverThis.GetWindowText(strBuf);
 	m_dSellOverThis = atof((LPSTR)(LPCSTR)strBuf);
 	AddMessage(_T("라운드[%d], 종목당 매도 Sell'OVER'This는 %f[퍼센트] 입니다."), m_nRoundCount, m_dSellOverThis);
 
-	m_cmbSellOverThis2.GetLBText(m_cmbSellOverThis2.GetCurSel(), strBuf);
+	m_cmbSellOverThis2.GetWindowText(strBuf);
 	m_dSellOverThis2 = atof((LPSTR)(LPCSTR)strBuf);
 //	AddMessage(_T("라운드[%d], 종목당 매도 Sell'OVER'This2는 %f[퍼센트] 입니다."), m_nRoundCount, m_dSellOverThis2);
 
-	m_cmbSellUnderThis.GetLBText(m_cmbSellUnderThis.GetCurSel(), strBuf);
+	m_cmbSellUnderThis.GetWindowText(strBuf);
 	m_dSellUnderThis = atof((LPSTR)(LPCSTR)strBuf);
 	AddMessage(_T("라운드[%d], 종목당 매도 Sell'UNDER'This는 %f[퍼센트] 입니다."), m_nRoundCount, m_dSellUnderThis);
 
-	m_cmbSellUnderThis2.GetLBText(m_cmbSellUnderThis2.GetCurSel(), strBuf);
+	m_cmbSellUnderThis2.GetWindowText(strBuf);
 	m_dSellUnderThis2 = atof((LPSTR)(LPCSTR)strBuf);
 //	AddMessage(_T("라운드[%d], 종목당 매도 Sell'UNDER'This2는 %f[퍼센트] 입니다."), m_nRoundCount, m_dSellUnderThis2);
 
@@ -2713,9 +2714,9 @@ void CABotDlg::ProcessSequence()
 		m_nProcessRetryCount++;
 		if (!IsInRoundTime()) { m_eProcessState = ePST_ROUND_END; break; }	//라운드 가능 시간 확인
 
-		if (m_cmbCon.GetCount()<=0)
+		if (m_cmbCondtion.GetCount()<=0)
 		{
-			OnBnClickedButtonGetfilter();
+			OnBnClickedButtonGetCondition();
 			break;
 		}
 
