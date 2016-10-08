@@ -93,7 +93,7 @@ public:
 	double				m_dBuyTradeFee;			// 매수 수수료 매수 가격의 본 퍼센트 만큼 뗀다능. [%]
 	double				m_dSellTradeFee;		// 매도 수수료 매도 가격의 본 퍼센트 만큼 뗸다능. [%]
 
-	CABotItem			m_Item[100];			//종목.
+	CABotItem			m_Item[1000];			//종목.
 	long				m_ItemCount;			//종목수.
 	CMap<CString, LPCSTR, long, long>	m_mapItemCode;			// CodeString => m_Item's index;
 	CMap<CString, LPCSTR, long, long>	m_mapOrderCode;			// CodeString => m_Item's index;

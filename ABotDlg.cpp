@@ -11,8 +11,9 @@
 #define new DEBUG_NEW
 #endif
 
-#define START_TIMER	1001
-#define ROUND_TIMER	1002
+#define START_TIMER		(1001)
+#define CONDITION_TIMER	(1002)
+#define ROUND_TIMER		(1003)
 
 
 //#define FIDLIST	_T("9001;302;10;11;25;12;13")
@@ -429,12 +430,17 @@ void CABotDlg::InitComboBox()
 	m_cmbDpUseRate.InsertString(3, "50");
 	m_cmbDpUseRate.SetCurSel(3);
 
-	m_cmbMaxTotalAmount.InsertString(0, "10");
-	m_cmbMaxTotalAmount.InsertString(1, "50");
-	m_cmbMaxTotalAmount.InsertString(2, "100");
-//	m_cmbMaxTotalAmount.InsertString(3, "200");
-//	m_cmbMaxTotalAmount.InsertString(4, "500");
-//	m_cmbMaxTotalAmount.InsertString(5, "1000");
+	m_cmbMaxTotalAmount.InsertString(0, "50");
+	m_cmbMaxTotalAmount.InsertString(1, "100");
+	m_cmbMaxTotalAmount.InsertString(2, "200");
+	m_cmbMaxTotalAmount.InsertString(3, "300");
+	m_cmbMaxTotalAmount.InsertString(4, "400");
+	m_cmbMaxTotalAmount.InsertString(5, "500");
+	m_cmbMaxTotalAmount.InsertString(6, "600");
+	m_cmbMaxTotalAmount.InsertString(7, "700");
+	m_cmbMaxTotalAmount.InsertString(8, "800");
+	m_cmbMaxTotalAmount.InsertString(9, "900");
+	m_cmbMaxTotalAmount.InsertString(10, "1000");
 	m_cmbMaxTotalAmount.SetCurSel(0);
 
 	m_cmbMaxAmount.InsertString(0, "10");
@@ -447,11 +453,6 @@ void CABotDlg::InitComboBox()
 	m_cmbMaxAmount.InsertString(7, "80");
 	m_cmbMaxAmount.InsertString(8, "90");
 	m_cmbMaxAmount.InsertString(9, "100");
-	m_cmbMaxAmount.InsertString(10, "150");
-	m_cmbMaxAmount.InsertString(11, "200");
-	m_cmbMaxAmount.InsertString(12, "300");
-	m_cmbMaxAmount.InsertString(13, "500");
-	m_cmbMaxAmount.InsertString(14, "1000");
 	m_cmbMaxAmount.SetCurSel(0);
 
 	m_cmbBuyMethod.InsertString(0, "현재가");
@@ -469,7 +470,6 @@ void CABotDlg::InitComboBox()
 	m_cmbBuyRetry.InsertString(0, "0");
 	m_cmbBuyRetry.InsertString(1, "1");
 	m_cmbBuyRetry.InsertString(2, "2");
-	m_cmbBuyRetry.InsertString(3, "3");
 	m_cmbBuyRetry.SetCurSel(1);
 
 	m_cmbSellOverThis.InsertString(0, "0.5");
@@ -683,7 +683,6 @@ void CABotDlg::LoadSystemFile()
 	// 종목당 최대 투자 허용 금액
 	ReadFromIniFile_String(m_strConfigFile, "BUY", "max_amount", "10", strBuf);
 	n = atol((LPSTR)(LPCSTR)strBuf);
-	if (n > 100) { n = 100; }
 	strBuf.Format("%d", n);
 	for (i = 0; i<m_cmbMaxAmount.GetCount(); i++)
 	{
@@ -1038,6 +1037,12 @@ void CABotDlg::OnTimer(UINT_PTR nIDEvent)
 		}
 	}
 
+	if (CONDITION_TIMER == nIDEvent)
+	{
+		OnBnClickedButtonGetCondition();
+		KillTimer(nIDEvent);
+	}
+
 	if (ROUND_TIMER == nIDEvent)
 	{
 		static eProcessState aOldProcessState = ePST_IDLE;
@@ -1235,6 +1240,7 @@ void CABotDlg::OnEventConnect(long nErrCode)
 	{
 		long nGetConditionRet = theApp.m_khOpenApi.GetConditionLoad();
 		AddMessage("검색 조건 조회 %s. [%d]", (nGetConditionRet>=0?"성공":"실패"), nGetConditionRet);
+		SetTimer(CONDITION_TIMER, 1000, NULL);
 	}
 }
 //*******************************************************************/
@@ -1653,8 +1659,9 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 	{
 		CSingleLock	lock(&m_criticalItemProcess, TRUE);
 
-		if (IsInRound() && nItemIndex >= 0 &&
-			curPrice > 0 && m_Item[nItemIndex].m_lcurPrice != curPrice)
+		if (IsInRound() && 0<= nItemIndex && nItemIndex < _countof(m_Item) &&
+			curPrice > 0 && m_Item[nItemIndex].m_lcurPrice != curPrice &&
+			eST_NONE < m_Item[nItemIndex].m_eitemState && m_Item[nItemIndex].m_eitemState < eST_TRADEDONE)
 		{
 			m_Item[nItemIndex].m_lcurPrice = curPrice;
 			AddMessage(_T("OnReceiveRealData:: 종목[%s][%s][%s] 현재가[%s], grid index[%s], item index[%d]"),
@@ -2460,7 +2467,6 @@ void CABotDlg::OnBnClickedButtonStartRound()
 	{
 		if (REQ_DepositReceived())
 		{
-			OnBnClickedButtonGetCondition();
 			SetDisableControls();
 			m_nRoundCount = 1;
 			m_bDoFinishProcess = FALSE;
@@ -2470,7 +2476,6 @@ void CABotDlg::OnBnClickedButtonStartRound()
 		}
 	}
 }
-
 
 void CABotDlg::OnBnClickedButtonFinishRound()
 {
@@ -2571,6 +2576,10 @@ void CABotDlg::InitProcessCondition()
 
 	m_cmbMaxAmount.GetWindowText(strBuf);
 	m_lProcessItemDR = atol((LPSTR)(LPCSTR)strBuf) * 10000;
+	if (m_lProcessItemDR > 100 * 10000)
+	{
+		m_lProcessItemDR = 100 * 10000;
+	}
 	AddMessage(_T("라운드[%d], 종목당 운용 금액은 %s[원] 입니다."), m_nRoundCount, GetCurrencyString(m_lProcessItemDR));
 
 	m_cmbBuyTimeOut.GetWindowText(strBuf);
