@@ -76,8 +76,7 @@ public:
 public:
 	eProcessState		m_eProcessState;		//프로세스 상태.
 	BOOL				m_bDoFinishProcess;		//프로세스 종료 요청.
-	long				m_nRoundCount;			//라운드 수.
-	long				m_nProcessItemCount;	//라운드 시 사용할 최대 Item 수.	//당분간 최대 라운드 수를 사용한다.
+	long				m_nProcessItemCount;	//라운드에서 사용할 최대 종목수.
 	long				m_nProcessRetryCount;	//프로세스 재시도 회수.
 	long				m_lProcessDR;			//프로세스에서 사용할 예수금 [원]
 	long				m_lProcessItemDR;		//종목당 사용할수 있는 예수금 [원]
