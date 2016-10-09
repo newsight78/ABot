@@ -1994,7 +1994,7 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 		if (rowCount >= 1)
 		{
 			CString strData;
-			COLORREF color = RGB(0, 0, 0);
+
 			for (long row = 0; row < rowCount; row++)
 			{
 				strBuff.Empty();
@@ -2352,7 +2352,7 @@ void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR 
 		if (sType == "I")	//종목 편입
 		{
 			long aIndex = 0;
-			if (m_mapItemCode.Lookup(sCode, aIndex))
+			if (m_mapItemCode.Lookup(sCode, aIndex)) // 이미 있는 종목의 경우 다시 매수 종목 리스트로 옮기지 않는다.
 			{
 				return;
 			}
@@ -2697,7 +2697,7 @@ void CABotDlg::ProcessSequence()
 		{
 			CString strBuf;
 			m_cmbMaxTotalAmount.GetLBText(m_cmbMaxTotalAmount.GetCurSel(), strBuf);
-			long lMaxTotalAmount = atol((LPSTR)(LPCSTR)strBuf) * 10000;
+			long lMaxTotalAmount = atol((LPSTR)(LPCSTR)strBuf) * 10000;	// 단위가 만원이므로 10000을 곱한다.
 
 			m_cmbDpUseRate.GetLBText(m_cmbDpUseRate.GetCurSel(), strBuf);
 			long nUseRate = atol((LPSTR)(LPCSTR)strBuf);
