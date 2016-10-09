@@ -1461,6 +1461,8 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 	{
 		CSingleLock	lock(&m_criticalItemProcess, TRUE);
 
+		ASSERT(MAX_ITEM_COUNT > nItemIndex);
+
 		CABotItem &aItem = m_Item[nItemIndex];
 		if (lCurPrice > 0 && aItem.m_lcurPrice != lCurPrice)
 		{
@@ -1652,6 +1654,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 			curPrice = atol(strData);
 		}
 	}
+	ASSERT(MAX_ITEM_COUNT > nItemIndex);
 	AddMessage(_T("OnReceiveRealData::종목[%s][%s][%s],%s"), sJongmokCode, strCodeName, (nItemIndex >= 0 ? m_Item[nItemIndex].GetStateString() : "NotInItem"), strReceivedData);
 
 	if(true)
@@ -2215,6 +2218,7 @@ BOOL CABotDlg::REQ_ItemRealReg()
 	CString strTargetCodeList;
 	long nIndex = 0;
 	long nMaxIndex = min(m_ItemCount, _countof(m_Item));
+	ASSERT(MAX_ITEM_COUNT >= nMaxIndex);
 	for (nIndex = 0; nIndex < nMaxIndex; nIndex++)
 	{
 		strTargetCodeList += m_Item[nIndex].m_strCode + ";";
@@ -2866,7 +2870,7 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 			//실시간 정보를 보여주는 그리드의 순서에서 지운다
 			m_mapJongCode.RemoveKey(aItem.m_strCode);
 
-			//m_Item[100]에서의 item Index를 멥에서 지운다.
+			//m_Item[MAX_ITEM_COUNT]에서의 item Index를 멥에서 지운다.
 			m_mapItemCode.RemoveKey(aItem.m_strCode);
 
 			//종목의 시세를 받지 않는다.
@@ -3321,6 +3325,7 @@ void CABotDlg::ReportAllTrade()
 	long laccBuyCost = 0;
 	long laccSellCost = 0;
 	AddMessage(_T("총결산 ==============================================================================================================="));
+	ASSERT(MAX_ITEM_COUNT >= m_ItemCount);
 	for (i = 0; i < m_ItemCount; i++)
 	{
 		if (m_Item[i].m_eitemState == eST_TRADEDONE && m_Item[i].m_lBuyCost!=0)

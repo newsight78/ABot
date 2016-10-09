@@ -45,4 +45,6 @@ typedef struct
 #define SafeDeleteArray(A) {if(A) {delete[] A; A=NULL;}}
 #define IsSafeWindow(pwnd) ((pwnd && (pwnd)->GetSafeHwnd()) ? TRUE : FALSE)
 
+#define MAX_ITEM_COUNT	(1000)
+
 #endif
