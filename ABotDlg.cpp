@@ -907,7 +907,7 @@ void CABotDlg::SaveSystemFile()
 	WriteToIniFile_String(m_strConfigFile, "ROUND", "end_min", strBuf);
 
 	// 검색 조건
-	if (m_cmbCondtion.GetCurSel() > 0)
+	if (m_cmbCondtion.GetCurSel() >= 0)
 	{
 		m_cmbCondtion.GetWindowText(strBuf);
 		WriteToIniFile_String(m_strConfigFile, "CONDITION", "name", strBuf);
