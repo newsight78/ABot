@@ -737,7 +737,13 @@ long CalcBuyAndSellPrice(long price, double fluctuationRatio, BOOL isKOSDAQ) // 
 
 	return calculatedPrice;
 }
-
+/////////////////////////////////////////////////////////////////////
+// 5, 50, 500 원 단위의 처리 방법.
+// 5원 단위를 예로 들면 결정된 가격의 끝자리가 
+// 1, 2원일 경우 0으로 변경.
+// 3, 4, 5, 6, 7원일 경우 5로 변경.
+// 8, 9원일 경우 10으로 십의 자리를 1올림.
+/////////////////////////////////////////////////////////////////////
 long GetAskingPrice(double price, BOOL isKOSDAQ)
 {
 	long askingPrice = 0;
@@ -759,8 +765,21 @@ long GetAskingPrice(double price, BOOL isKOSDAQ)
 			dTemp = round(dTemp);
 			dTemp = dTemp * 10.0;
 			askingPrice = (long)dTemp;
-			if (lTemp > askingPrice) {
-				askingPrice += 5;
+
+			if (lTemp > askingPrice) // 5미만되는 수를 버림하는 경우이다.
+			{
+				lTemp = lTemp - askingPrice;
+				if (4 >= lTemp && lTemp >= 3) { // 4, 3로 가격이 끝나는 경우이다.
+					askingPrice += 5; //4, 3은 5에 가까워 다시 +5를 한다. 나머지는 이미 버림이 되었기 때문에 처리하지 않는다.
+				}
+				
+			}
+			else if (lTemp < askingPrice) // 5이상되는 수를 반올림하는 경우이다.
+			{
+				lTemp = askingPrice - lTemp;
+				if (5 >= lTemp && lTemp >= 3) { // 5, 6, 7로 가격이 끝나는 경우이다.
+					askingPrice -= 5; //5, 6, 7은 5에 가까워 다시 -5를 한다. 나머지는 이미 반올림이 되었기 때문에 처리하지 않는다.
+				}
 			}
 		}
 		else if (5000 <= price && price < 10000) // 10원
@@ -777,8 +796,21 @@ long GetAskingPrice(double price, BOOL isKOSDAQ)
 			dTemp = round(dTemp);
 			dTemp = dTemp * 100.0;
 			askingPrice = (long)dTemp;
-			if (lTemp > askingPrice) {
-				askingPrice += 50;
+
+			if (lTemp > askingPrice)
+			{
+				lTemp = lTemp - askingPrice;
+				if (40 >= lTemp && lTemp >= 30) {
+					askingPrice += 50;
+				}
+
+			}
+			else if (lTemp < askingPrice)
+			{
+				lTemp = askingPrice - lTemp;
+				if (50 >= lTemp && lTemp >= 30) {
+					askingPrice -= 50;
+				}
 			}
 		}
 		else if ( (50000 <= price && price < 100000) || // 거래소는 5만원 이상 10만원 미만 100원
@@ -798,8 +830,21 @@ long GetAskingPrice(double price, BOOL isKOSDAQ)
 				dTemp = round(dTemp);
 				dTemp = dTemp * 1000.0;
 				askingPrice = (long)dTemp;
-				if (lTemp > askingPrice) {
-					askingPrice += 500;
+				
+				if (lTemp > askingPrice)
+				{
+					lTemp = lTemp - askingPrice;
+					if (400 >= lTemp && lTemp >= 300) {
+						askingPrice += 500;
+					}
+
+				}
+				else if (lTemp < askingPrice)
+				{
+					lTemp = askingPrice - lTemp;
+					if (500 >= lTemp && lTemp >= 300) {
+						askingPrice -= 500;
+					}
 				}
 			}
 			else // 500000 <= price // 거래소 1000원
