@@ -203,8 +203,7 @@ CString CALog::GetTimeData()
 	long	iMili = systmCurTime.wMilliseconds;
 	CString sLogContent; 
 
-	sLogContent.Format(TEXT("[%02d:%02d:%02d:%03d]"), iHour, iMin, iSec, iMili);
-
+	sLogContent.Format(TEXT("[%02d:%02d:%02d.%03d]"), iHour, iMin, iSec, iMili);
 
 	return sLogContent;
 }
