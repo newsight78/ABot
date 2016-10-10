@@ -19,6 +19,9 @@
 //#define FIDLIST	_T("9001;302;10;11;25;12;13")
 #define FIDLIST	_T("9001;10;11;25;12;13")
 
+//예약어.
+#define DEF_CUR_PRICE	_T("현재가")
+
 //참고
 //27 (최우선)매도 호가
 //28 (최우선)매수 호가
@@ -41,7 +44,7 @@ const stGRID lstOPTSBFID[] =
 {
 	{ "종목코드",		"9001",	-1, 0, DT_NONE,			FALSE,	DT_LEFT,		"", "" },
 //	{ "종목명",			"302",	-1, 1, DT_NONE,			FALSE,	DT_LEFT,		"", "" },
-	{ "현재가",			"10",	-1, 2, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "" },
+	{ DEF_CUR_PRICE,	"10",	-1, 2, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "" },
 	{ "전일대비기호",	"25",	-1, 3, DT_SIGN,			TRUE,	DT_CENTER,		"", "" },
 	{ "전일대비",		"11",	-1, 4, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "" },
 	{ "등락율",			"12",	-1, 5, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "%" },
@@ -907,11 +910,8 @@ void CABotDlg::SaveSystemFile()
 	WriteToIniFile_String(m_strConfigFile, "ROUND", "end_min", strBuf);
 
 	// 검색 조건
-	if (m_cmbCondtion.GetCurSel() >= 0)
-	{
-		m_cmbCondtion.GetWindowText(strBuf);
-		WriteToIniFile_String(m_strConfigFile, "CONDITION", "name", strBuf);
-	}
+	m_cmbCondtion.GetWindowText(strBuf);
+	WriteToIniFile_String(m_strConfigFile, "CONDITION", "name", strBuf);
 
 	// 매수시 예수금의 최대 사용 퍼센트. [%]
 	m_cmbDpUseRate.GetWindowText(strBuf);
@@ -1649,7 +1649,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 		strReceivedData += strData;
 		strReceivedData += _T(",");
 
-		if ("현재가" == lstOPTSBFID[i].strKey)// i == 1)
+		if ( DEF_CUR_PRICE == lstOPTSBFID[i].strKey)// i == 1)
 		{
 			curPrice = atol(strData);
 		}
