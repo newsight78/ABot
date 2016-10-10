@@ -1649,7 +1649,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 		strReceivedData += strData;
 		strReceivedData += _T(",");
 
-		if ( i == 2)
+		if ("현재가" == lstOPTSBFID[i].strKey)// i == 1)
 		{
 			curPrice = atol(strData);
 		}
@@ -2209,7 +2209,7 @@ void CABotDlg::OnBnClickedButtonDebugTest()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	long ret = 0;
-	ret = CalcBuyAndSellPrice(1780, 1.0, FALSE);
+	ret = CalcBuyAndSellPrice(5300, 1.0, FALSE);
 }
 
 BOOL CABotDlg::REQ_ItemRealReg()
