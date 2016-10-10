@@ -1649,7 +1649,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 		strReceivedData += strData;
 		strReceivedData += _T(",");
 
-		if ( DEF_CUR_PRICE == lstOPTSBFID[i].strKey)// i == 1)
+		if ( DEF_CUR_PRICE == lstOPTSBFID[i].strKey)
 		{
 			curPrice = atol(strData);
 		}
@@ -2215,6 +2215,10 @@ void CABotDlg::OnBnClickedButtonDebugTest()
 BOOL CABotDlg::REQ_ItemRealReg()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (m_ItemCount <= 0) 
+	{
+		return FALSE;
+	}
 	CString strTargetCodeList;
 	long nIndex = 0;
 	long nMaxIndex = min(m_ItemCount, _countof(m_Item));
@@ -2443,7 +2447,10 @@ void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR 
 
 void CABotDlg::SetControls(BOOL bEnable)
 {
-	((CEdit*)GetDlgItem(IDC_EDIT_ACCNO))->EnableWindow(bEnable);
+	GetDlgItem(IDC_EDIT_ACCNO)->EnableWindow(bEnable);
+	GetDlgItem(IDC_BUTTON_GETCONDITION)->EnableWindow(bEnable);
+	GetDlgItem(IDC_BUTTON_GETITEM)->EnableWindow(bEnable);
+	GetDlgItem(IDC_BUTTON_REGITEM)->EnableWindow(bEnable);
 	m_cmbCondtion.EnableWindow(bEnable);
 	m_cmbItemCount.EnableWindow(bEnable);
 	m_cmbStartHour.EnableWindow(bEnable);
@@ -2644,6 +2651,7 @@ void CABotDlg::ProcessSequence()
 		m_mapOrderCode.RemoveAll();
 		m_mapItemCode.RemoveAll();
 		m_mapUsedItemCode.RemoveAll();
+		m_grdRealAdd.SetRowCount(1);
 		m_nProcessRetryCount = 0;
 		InitProcessCondition();
 		AddMessage(_T("라운드::시작 합니다."));
