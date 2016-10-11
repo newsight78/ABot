@@ -129,6 +129,9 @@ public:
 	CComboBox			m_cmbSellOverThis2;	// 구매후 m_cmbSellOverThis 조건을 트리거후, 이 퍼센트 보다 낮아!!!!!지면 시장가로 판다. [%]
 	CComboBox			m_cmbSellUnderThis;	// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다. [%]
 	CComboBox			m_cmbSellUnderThis2;// 구매후 m_cmbSellUnderThis 조건을 트리거후, 이 퍼센트 보다 낮아!!!!!!지면 시장가로 판다. [%]
+	
+	BOOL				m_bDoSellItemMarketValueAtRoundEnd;// 라운드 종료 시점에 미채결 종목을 시장가로 팔기.
+	CButton				m_checkDoSellItemMarketValueAtRoundEnd;// 라운드 종료 시점에 미채결 종목을 시장가로 팔기.
 
 public:
 	afx_msg void OnDestroy();

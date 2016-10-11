@@ -142,6 +142,7 @@ CABotDlg::CABotDlg(CWnd* pParent /*=NULL*/)
 
 	m_dBuyTradeFee = 0.;
 	m_dSellTradeFee = 0.;
+	m_bDoSellItemMarketValueAtRoundEnd = FALSE;
 }
 
 void CABotDlg::DoDataExchange(CDataExchange* pDX)
@@ -167,7 +168,7 @@ void CABotDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_SELL_UNDERTHIS, m_cmbSellUnderThis);
 	DDX_Control(pDX, IDC_COMBO_SELL_UNDERTHIS2, m_cmbSellUnderThis2);
 	DDX_Control(pDX, IDC_COMBO_BUY_TIMEOUT, m_cmbBuyTimeOut);
-	
+	DDX_Control(pDX, IDC_CHECK_SELL_ITEM_MARKETVALUE_AT_ROUNDEND, m_checkDoSellItemMarketValueAtRoundEnd);
 }
 
 BEGIN_MESSAGE_MAP(CABotDlg, CDialogEx)
@@ -877,6 +878,11 @@ void CABotDlg::LoadSystemFile()
 	m_dSellTradeFee = atof((LPSTR)(LPCSTR)strBuf);
 	AddMessage("     매도 거래 수수료(세금 포함)매도 금액의 [%s] 퍼센트.", strBuf);
 
+	// 라운드 종료후 미채결 종목 시장가로 팔기.
+	ReadFromIniFile_String(m_strConfigFile, "SELL", "sell_item_market_value_at_round_end", "0", strBuf);
+	m_bDoSellItemMarketValueAtRoundEnd = (atoi((LPSTR)(LPCSTR)strBuf) != 0 ? TRUE : FALSE);
+	m_checkDoSellItemMarketValueAtRoundEnd.SetCheck(m_bDoSellItemMarketValueAtRoundEnd ? BST_CHECKED : BST_UNCHECKED);
+	AddMessage("     라운드 종료 후, 미채결 종목 시장가로 팔기 [%s].", m_bDoSellItemMarketValueAtRoundEnd?"함":"안함");	
 }
 
 void CABotDlg::SaveSystemFile()
@@ -954,6 +960,10 @@ void CABotDlg::SaveSystemFile()
 
 	m_cmbSellUnderThis2.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "SELL", "under_this_2", strBuf);
+	
+	m_bDoSellItemMarketValueAtRoundEnd = (m_checkDoSellItemMarketValueAtRoundEnd.GetCheck() == BST_CHECKED);
+	strBuf = (m_bDoSellItemMarketValueAtRoundEnd ? "1" : "0");
+	WriteToIniFile_String(m_strConfigFile, "SELL", "sell_item_market_value_at_round_end", strBuf);
 }
 
 
@@ -1027,21 +1037,6 @@ void CABotDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 void CABotDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	if (START_TIMER == nIDEvent)
-	{
-		if (IsSafeWindow(g_pMsgDisp) == TRUE)
-		{
-			g_pMsgDisp->ShowWindow(SW_SHOW);
-			KillTimer(nIDEvent);
-		}
-	}
-
-	if (CONDITION_TIMER == nIDEvent)
-	{
-		OnBnClickedButtonGetCondition();
-		KillTimer(nIDEvent);
-	}
-
 	if (ROUND_TIMER == nIDEvent)
 	{
 		static eProcessState aOldProcessState = ePST_IDLE;
@@ -1053,6 +1048,19 @@ void CABotDlg::OnTimer(UINT_PTR nIDEvent)
 			SetWindowText(strBuf);
 		}
 		ProcessSequence();
+	}
+	else if (START_TIMER == nIDEvent)
+	{
+		if (IsSafeWindow(g_pMsgDisp) == TRUE)
+		{
+			g_pMsgDisp->ShowWindow(SW_SHOW);
+			KillTimer(nIDEvent);
+		}
+	}
+	else if (CONDITION_TIMER == nIDEvent)
+	{
+		OnBnClickedButtonGetCondition();
+		KillTimer(nIDEvent);
 	}
 
 	CDialogEx::OnTimer(nIDEvent);
@@ -2468,6 +2476,7 @@ void CABotDlg::SetControls(BOOL bEnable)
 	m_cmbSellOverThis2.EnableWindow(bEnable);
 	m_cmbSellUnderThis.EnableWindow(bEnable);
 	m_cmbSellUnderThis2.EnableWindow(bEnable);
+	m_checkDoSellItemMarketValueAtRoundEnd.EnableWindow(bEnable);
 }
 
 void CABotDlg::OnBnClickedButtonStartRound()
@@ -2618,6 +2627,9 @@ void CABotDlg::InitProcessCondition()
 	m_cmbSellUnderThis2.GetWindowText(strBuf);
 	m_dSellUnderThis2 = atof((LPSTR)(LPCSTR)strBuf);
 //	AddMessage(_T("_____::종목당 매도 Sell'UNDER'This2는 %f[퍼센트] 입니다."), m_dSellUnderThis2);
+
+	m_bDoSellItemMarketValueAtRoundEnd = (m_checkDoSellItemMarketValueAtRoundEnd.GetCheck() == BST_CHECKED);
+	AddMessage(_T("_____::라운드 종료 후, 미채결 종목 시장가로 팔기 [%s]."), m_bDoSellItemMarketValueAtRoundEnd ? "함" : "안함");
 
 	theApp.m_khOpenApi.SetRealRemove(_T("ALL"), _T("ALL"));
 	AddMessage(_T("_____::현재 등록된 실시간 조회 요청 종목을 모두 삭제합니다."));
@@ -3012,7 +3024,20 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 			aItem.m_eitemState = eST_TRADECLOSING;
 			break;
 		}
-		if (aItem.m_ltrySellTimeout > 0 && long(GetTickCount()) > aItem.m_ltrySellTimeout)
+
+		if (m_bDoSellItemMarketValueAtRoundEnd && !IsInRoundTime())
+		{
+		//	aItem.m_lsellPrice = aItem.m_lcurPrice;
+			if (REQ_ItemSellOrder(aItem, TRUE, bFromAllTrade))
+			{
+			//	aItem.m_ltrySellTimeout = 0;
+				AddMessage(_T("라운드::[%s][%s][%s],현재가[%d],수량[%d], 라운드 시간 후 시장가 매도 옵션에 의해, 매도가 시장가로 시도합니다."),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity);
+				aItem.m_eitemState = eST_WAITSELLMARKETVALUE;
+				break;
+			}
+		}
+		else if (aItem.m_ltrySellTimeout > 0 && long(GetTickCount()) > aItem.m_ltrySellTimeout)
 		{
 		//	aItem.m_lsellPrice = aItem.m_lcurPrice;
 			if (REQ_ItemSellOrder(aItem, TRUE, bFromAllTrade))
@@ -3338,16 +3363,16 @@ void CABotDlg::ReportAllTrade()
 	{
 		if (m_Item[i].m_eitemState == eST_TRADEDONE && m_Item[i].m_lBuyCost!=0)
 		{
-			CString strMark("--");
+			CString strMark("----");
 			long lactBuyCost = m_Item[i].m_lBuyCost;
 			long lactSellCost = long(m_Item[i].m_lSellCost*(1 - m_dSellTradeFee / 100.)) - long(m_Item[i].m_lBuyCost*(m_dBuyTradeFee / 100.));
 			if (lactSellCost>lactBuyCost)
 			{
-				strMark = "▲";
+				strMark = "▲__";
 			}
 			else if (lactSellCost < lactBuyCost)
 			{
-				strMark = "▼";
+				strMark = "__▼";
 			}
 
 			if (lactBuyCost == 0) {	lactBuyCost = 1; }
