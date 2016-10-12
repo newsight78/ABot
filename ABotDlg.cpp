@@ -191,6 +191,7 @@ BEGIN_MESSAGE_MAP(CABotDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_SELL_ALL_CUR_COST, &CABotDlg::OnBnClickedButtonSellAllCurCost)
 	ON_BN_CLICKED(IDC_BUTTON_GET_BALANCE, &CABotDlg::OnBnClickedButtonGetBalance)
 	ON_BN_CLICKED(IDC_BUTTON_DEBUG_TEST, &CABotDlg::OnBnClickedButtonDebugTest)
+	ON_BN_CLICKED(IDC_BUTTON_EDIT_INROUND, &CABotDlg::OnBnClickedButtonEditInround)
 END_MESSAGE_MAP()
 
 
@@ -1467,142 +1468,146 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 	if (nItemIndex >= 0 && strGubun == "0")
 	{
-		CSingleLock	lock(&m_criticalItemProcess, TRUE);
-
-		ASSERT(MAX_ITEM_COUNT > nItemIndex);
-
-		CABotItem &aItem = m_Item[nItemIndex];
-		if (lCurPrice > 0 && aItem.m_lcurPrice != lCurPrice)
+		CSingleLock	lock(&m_criticalItemProcess);
+		lock.Lock();
+		if (lock.IsLocked())
 		{
-			aItem.m_lcurPrice = lCurPrice;
-			AddMessage(_T("___________________::[%s][%s][%s] curPrice[%s]"),
-				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), GetCurrencyString(aItem.m_lcurPrice));
-		}
+			ASSERT(MAX_ITEM_COUNT > nItemIndex);
 
-		if (bREQDone)
-		{
-			// 주문 번호
-			if (aItem.m_eitemState == eST_WAITBUY)
+			CABotItem &aItem = m_Item[nItemIndex];
+			if (lCurPrice > 0 && aItem.m_lcurPrice != lCurPrice)
 			{
-				aItem.m_ltryBuyTimeout = GetTickCount() + m_lItemBuyTimeout;
+				aItem.m_lcurPrice = lCurPrice;
+				AddMessage(_T("___________________::[%s][%s][%s] curPrice[%s]"),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), GetCurrencyString(aItem.m_lcurPrice));
+			}
 
-				aItem.m_strBuyOrder = strOrderCode;
-				AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매수 주문이 완료 되었습니다."),
-					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_strBuyOrder);
-			}
-			else if (	aItem.m_eitemState == eST_WAITSELL)
+			if (bREQDone)
 			{
-				aItem.m_ltrySellTimeout = (m_lItemHoldTimeout>0 ? GetTickCount() + m_lItemHoldTimeout : 0);
+				// 주문 번호
+				if (aItem.m_eitemState == eST_WAITBUY)
+				{
+					aItem.m_ltryBuyTimeout = GetTickCount() + m_lItemBuyTimeout;
 
-				aItem.m_strSellOrder = strOrderCode;
-				AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매도 주문이 완료 되었습니다."),
-					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_strSellOrder);
-			}
-			else if (	aItem.m_eitemState == eST_WAITBUYCANCLE || 
-						aItem.m_eitemState == eST_BUYCANCLE)
-			{
-				if (aItem.m_lBuyQuantity > 0)
-				{
-					AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 취소 주문이 완료 되었습니다."),
-						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
-					aItem.m_eitemState = eST_HOLDING;
-				//	return;
+					aItem.m_strBuyOrder = strOrderCode;
+					AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매수 주문이 완료 되었습니다."),
+						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_strBuyOrder);
 				}
-				else
+				else if (aItem.m_eitemState == eST_WAITSELL)
 				{
-					AddMessage(_T("___________________::[%s][%s][%s] 거래 완료 처리 되었습니다."),
-						aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
-					aItem.m_eitemState = eST_TRADECLOSING;
-				//	return;
-				}
-			}
-			else if (	aItem.m_eitemState == eST_WAITSELLCANCLE || 
-						aItem.m_eitemState == eST_SELLCANCLE)
-			{
-				if (aItem.m_lSellQuantity > 0)
-				{
-					AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 취소 주문이 완료 되었습니다."),
-						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
-					aItem.m_eitemState = eST_HOLDING;
-				//	return;
-				}
-				else
-				{
-					AddMessage(_T("___________________::[%s][%s][%s] 매도 취소가 완료 되었습니다."),
-						aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
-					aItem.m_eitemState = eST_HOLDING;
-				//	return;
-				}
-			}
-		}
+					aItem.m_ltrySellTimeout = (m_lItemHoldTimeout > 0 ? GetTickCount() + m_lItemHoldTimeout : 0);
 
-		if (bTRADEDone)
-		{
-			if (	aItem.m_eitemState == eST_TRYBUY ||
-					aItem.m_eitemState == eST_WAITBUY || 
+					aItem.m_strSellOrder = strOrderCode;
+					AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매도 주문이 완료 되었습니다."),
+						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_strSellOrder);
+				}
+				else if (aItem.m_eitemState == eST_WAITBUYCANCLE ||
+					aItem.m_eitemState == eST_BUYCANCLE)
+				{
+					if (aItem.m_lBuyQuantity > 0)
+					{
+						AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 취소 주문이 완료 되었습니다."),
+							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
+						aItem.m_eitemState = eST_HOLDING;
+						//	return;
+					}
+					else
+					{
+						AddMessage(_T("___________________::[%s][%s][%s] 거래 완료 처리 되었습니다."),
+							aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
+						aItem.m_eitemState = eST_TRADECLOSING;
+						//	return;
+					}
+				}
+				else if (aItem.m_eitemState == eST_WAITSELLCANCLE ||
+					aItem.m_eitemState == eST_SELLCANCLE)
+				{
+					if (aItem.m_lSellQuantity > 0)
+					{
+						AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 취소 주문이 완료 되었습니다."),
+							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
+						aItem.m_eitemState = eST_HOLDING;
+						//	return;
+					}
+					else
+					{
+						AddMessage(_T("___________________::[%s][%s][%s] 매도 취소가 완료 되었습니다."),
+							aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
+						aItem.m_eitemState = eST_HOLDING;
+						//	return;
+					}
+				}
+			}
+
+			if (bTRADEDone)
+			{
+				if (aItem.m_eitemState == eST_TRYBUY ||
+					aItem.m_eitemState == eST_WAITBUY ||
 					aItem.m_eitemState == eST_BUYCANCLE ||
-					aItem.m_eitemState == eST_WAITBUYCANCLE	)
-			{
-				ASSERT(bBUYDone);
-
-				aItem.m_lBuyCost = lTradePrice*lTradeQuantity;
-				aItem.m_lBuyQuantity = lTradeQuantity;
-				if (lRemainQuantity == 0 && aItem.m_lQuantity != aItem.m_lBuyQuantity)
+					aItem.m_eitemState == eST_WAITBUYCANCLE)
 				{
-					aItem.m_lQuantity = aItem.m_lBuyQuantity;
-					AddMessage(_T("___________________::[%s][%s][%s],매수 잔여 수량이 [0]으로 정정 되었습니다."),
-						aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
-				}
-				AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 되었습니다."),
-					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
+					ASSERT(bBUYDone);
 
-				if (aItem.m_lBuyQuantity >= aItem.m_lQuantity)
-				{
-					//	m_mapOrderCode.RemoveKey(strOrderCode);
-					aItem.m_lholdTime = GetTickCount();
-					aItem.m_lholdTimeout = (m_lItemHoldTimeout > 0 ? aItem.m_lholdTime + m_lItemHoldTimeout : 0);
-					aItem.m_eitemState = eST_HOLDING;
-					AddMessage(_T("___________________::[%s][%s][%s],평균단가[%d],수량[%d],재시도회수[%d], 매수 완료 되었습니다."),
-						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.BuyPrice(), aItem.m_lQuantity, aItem.m_ltryBuyCount);
+					aItem.m_lBuyCost = lTradePrice*lTradeQuantity;
+					aItem.m_lBuyQuantity = lTradeQuantity;
+					if (lRemainQuantity == 0 && aItem.m_lQuantity != aItem.m_lBuyQuantity)
+					{
+						aItem.m_lQuantity = aItem.m_lBuyQuantity;
+						AddMessage(_T("___________________::[%s][%s][%s],매수 잔여 수량이 [0]으로 정정 되었습니다."),
+							aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
+					}
+					AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 되었습니다."),
+						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
+
+					if (aItem.m_lBuyQuantity >= aItem.m_lQuantity)
+					{
+						//	m_mapOrderCode.RemoveKey(strOrderCode);
+						aItem.m_lholdTime = GetTickCount();
+						aItem.m_lholdTimeout = (m_lItemHoldTimeout > 0 ? aItem.m_lholdTime + m_lItemHoldTimeout : 0);
+						aItem.m_eitemState = eST_HOLDING;
+						AddMessage(_T("___________________::[%s][%s][%s],평균단가[%d],수량[%d],재시도회수[%d], 매수 완료 되었습니다."),
+							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.BuyPrice(), aItem.m_lQuantity, aItem.m_ltryBuyCount);
+					}
+					//	return;
 				}
-			//	return;
+				else if (aItem.m_eitemState == eST_TRYSELL ||
+					aItem.m_eitemState == eST_WAITSELL ||
+					aItem.m_eitemState == eST_WAITSELLMARKETVALUE ||
+					aItem.m_eitemState == eST_SELLCANCLE ||
+					aItem.m_eitemState == eST_WAITSELLCANCLE)
+				{
+					ASSERT(bSELLDone);
+
+					aItem.m_lSellCost = lTradePrice*lTradeQuantity;
+					aItem.m_lSellQuantity = lTradeQuantity;
+					if (lRemainQuantity == 0 && aItem.m_lQuantity != aItem.m_lSellQuantity)
+					{
+						aItem.m_lQuantity = aItem.m_lSellQuantity;
+						AddMessage(_T("___________________::[%s][%s][%s],매도 잔여 수량이 [0]으로 정정 되었습니다."),
+							aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
+					}
+					AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 되었습니다."),
+						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
+
+					if (aItem.m_lSellQuantity >= aItem.m_lQuantity)
+					{
+						//	m_mapOrderCode.RemoveKey(strOrderCode);
+
+						theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
+						AddMessage(_T("___________________::[%s][%s][%s],재시도회수_매수[%d]매도[%d], 실시간 관심 종목 제외."),
+							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_ltryBuyCount, aItem.m_ltrySellCount);
+
+						aItem.m_eitemState = eST_TRADECLOSING;
+						AddMessage(_T("___________________::[%s][%s][%s],이익[%d],매수가[%d],매도가[%d], 거래 완료 되었습니다."),
+							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.SellPrice() - aItem.BuyPrice(), aItem.BuyPrice(), aItem.SellPrice());
+					}
+					//	return;
+				}
 			}
-			else if (	aItem.m_eitemState == eST_TRYSELL ||
-						aItem.m_eitemState == eST_WAITSELL ||
-						aItem.m_eitemState == eST_WAITSELLMARKETVALUE ||
-						aItem.m_eitemState == eST_SELLCANCLE ||
-						aItem.m_eitemState == eST_WAITSELLCANCLE	)
-			{
-				ASSERT(bSELLDone);
 
-				aItem.m_lSellCost = lTradePrice*lTradeQuantity;
-				aItem.m_lSellQuantity = lTradeQuantity;
-				if (lRemainQuantity == 0 && aItem.m_lQuantity != aItem.m_lSellQuantity)
-				{
-					aItem.m_lQuantity = aItem.m_lSellQuantity;
-					AddMessage(_T("___________________::[%s][%s][%s],매도 잔여 수량이 [0]으로 정정 되었습니다."),
-						aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
-				}
-				AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 되었습니다."),
-					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
-
-				if (aItem.m_lSellQuantity >= aItem.m_lQuantity)
-				{
-					//	m_mapOrderCode.RemoveKey(strOrderCode);
-
-					theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
-					AddMessage(_T("___________________::[%s][%s][%s],재시도회수_매수[%d]매도[%d], 실시간 관심 종목 제외."),
-						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_ltryBuyCount, aItem.m_ltrySellCount);
-
-					aItem.m_eitemState = eST_TRADECLOSING;
-					AddMessage(_T("___________________::[%s][%s][%s],이익[%d],매수가[%d],매도가[%d], 거래 완료 되었습니다."),
-						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.SellPrice() - aItem.BuyPrice(), aItem.BuyPrice(), aItem.SellPrice());
-				}
-			//	return;
-			}
+			ProcessTradeItem(nItemIndex);
+			lock.Unlock();
 		}
-
-		ProcessTradeItem(nItemIndex);
 	}
 }
 
@@ -1667,17 +1672,21 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 
 	if(true)
 	{
-		CSingleLock	lock(&m_criticalItemProcess, TRUE);
-
-		if (IsInRound() && 0<= nItemIndex && nItemIndex < _countof(m_Item) &&
+		if (IsInRound() && 0 <= nItemIndex && nItemIndex < _countof(m_Item) &&
 			curPrice > 0 && m_Item[nItemIndex].m_lcurPrice != curPrice &&
 			eST_NONE < m_Item[nItemIndex].m_eitemState && m_Item[nItemIndex].m_eitemState < eST_TRADEDONE)
 		{
-			m_Item[nItemIndex].m_lcurPrice = curPrice;
-		//	AddMessage(_T("OnReceiveRealData::종목[%s][%s][%s] 현재가[%s], grid index[%s], item index[%d]"),
-		//		sJongmokCode, strCodeName, m_Item[nItemIndex].GetStateString(), GetCurrencyString(m_Item[nItemIndex].m_lcurPrice), strIndex, nItemIndex);
+			CSingleLock	lock(&m_criticalItemProcess);
+			lock.Lock();
+			if (lock.IsLocked())
+			{
+				m_Item[nItemIndex].m_lcurPrice = curPrice;
+				//	AddMessage(_T("OnReceiveRealData::종목[%s][%s][%s] 현재가[%s], grid index[%s], item index[%d]"),
+				//		sJongmokCode, strCodeName, m_Item[nItemIndex].GetStateString(), GetCurrencyString(m_Item[nItemIndex].m_lcurPrice), strIndex, nItemIndex);
 
-			ProcessTradeItem(nItemIndex);
+				ProcessTradeItem(nItemIndex);
+				lock.Unlock();
+			}
 		}
 	}
 
@@ -2540,6 +2549,45 @@ void CABotDlg::OnBnClickedButtonSellAllCurCost()
 }
 
 
+void CABotDlg::OnBnClickedButtonEditInround()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (IsInRound())
+	{
+		CString strBuf;
+		GetDlgItemText(IDC_BUTTON_EDIT_INROUND, strBuf);
+		if (strBuf == "비율 수정")
+		{
+			m_cmbSellOverThis.EnableWindow(TRUE);
+			m_cmbSellUnderThis.EnableWindow(TRUE);
+			SetDlgItemText(IDC_BUTTON_EDIT_INROUND, "비율 적용");
+		}
+		else if (strBuf == "비율 적용")
+		{
+			m_cmbSellOverThis.EnableWindow(FALSE);
+			m_cmbSellUnderThis.EnableWindow(FALSE);
+			SetDlgItemText(IDC_BUTTON_EDIT_INROUND, "비율 수정");
+
+			m_cmbSellOverThis.GetWindowText(strBuf);
+			double dSellOverThis = atof((LPSTR)(LPCSTR)strBuf);
+
+			m_cmbSellUnderThis.GetWindowText(strBuf);
+			double dSellUnderThis = atof((LPSTR)(LPCSTR)strBuf);
+
+			if (m_dSellOverThis != dSellOverThis || m_dSellUnderThis != dSellUnderThis)
+			{
+				m_dSellOverThis = dSellOverThis;
+				m_dSellUnderThis = dSellUnderThis;
+				AddMessage(_T("_____::[정정]종목당 매도 Sell'OVER'This는 %f[퍼센트] 입니다."), m_dSellOverThis);
+				AddMessage(_T("_____::[정정]종목당 매도 Sell'UNDER'This는 %f[퍼센트] 입니다."), m_dSellUnderThis);
+
+				ProcessTradeAll();
+			}
+		}
+	}
+}
+
+
 BOOL CABotDlg::IsInRoundTime()
 {
 	SYSTEMTIME  systmCurTime;
@@ -2579,6 +2627,8 @@ void CABotDlg::InitProcessCondition()
 		m_Item[i].m_index = i;
 		m_Item[i].Init();
 	}
+
+	SetDlgItemText(IDC_BUTTON_EDIT_INROUND, "비율 수정");
 
 	CString strBuf;
 
@@ -2840,12 +2890,16 @@ void CABotDlg::ProcessSequence()
 
 void CABotDlg::ProcessTradeAll()
 {
-	CSingleLock	lock(&m_criticalItemProcess, TRUE);
-
-	long i = 0;
-	for (i = 0; i < m_ItemCount; i++)
+	CSingleLock	lock(&m_criticalItemProcess);
+	lock.Lock();
+	if (lock.IsLocked())
 	{
-		ProcessTradeItem(i, TRUE);
+		long i = 0;
+		for (i = 0; i < m_ItemCount; i++)
+		{
+			ProcessTradeItem(i, TRUE);
+		}
+		lock.Unlock();
 	}
 }
 
