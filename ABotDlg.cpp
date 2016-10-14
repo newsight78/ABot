@@ -1335,7 +1335,7 @@ void CABotDlg::RealData()
 void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdList)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-	AddMessage(_T("OnReceiveChejanData::"));
+	AddMessage(_T("ChejanData::"));
 	CString strGubun(sGubun), strFidList(sFIdList), strText;
 	CString	strAccNo, strOrdNo, strOrdPrice, strOrdCnt;
 
@@ -1359,7 +1359,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 
 		strOneData = theApp.m_khOpenApi.GetChejanData(atol(strFID)).Trim();
 
-		strText.Format(_T("___________________::구분[%s] FID[%4s:%s] = [%s]"), strGubun, strFID, strFIDName, strOneData);
+		strText.Format(_T("__________::구분[%s] FID[%4s:%s] = [%s]"), strGubun, strFID, strFIDName, strOneData);
 	//	if (!IsInRound()) 
 			AddMessage(strText);
 
@@ -1478,7 +1478,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 			if (lCurPrice > 0 && aItem.m_lcurPrice != lCurPrice)
 			{
 				aItem.m_lcurPrice = lCurPrice;
-				AddMessage(_T("___________________::[%s][%s][%s] curPrice[%s]"),
+				AddMessage(_T("__________::[%s][%s][%s] curPrice[%s]"),
 					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), GetCurrencyString(aItem.m_lcurPrice));
 			}
 
@@ -1490,7 +1490,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 					aItem.m_ltryBuyTimeout = GetTickCount() + m_lItemBuyTimeout;
 
 					aItem.m_strBuyOrder = strOrderCode;
-					AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매수 주문이 완료 되었습니다."),
+					AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매수 주문이 완료 되었습니다."),
 						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_strBuyOrder);
 				}
 				else if (aItem.m_eitemState == eST_WAITSELL)
@@ -1498,40 +1498,40 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 					aItem.m_ltrySellTimeout = (m_lItemHoldTimeout > 0 ? GetTickCount() + m_lItemHoldTimeout : 0);
 
 					aItem.m_strSellOrder = strOrderCode;
-					AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매도 주문이 완료 되었습니다."),
+					AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매도 주문이 완료 되었습니다."),
 						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_strSellOrder);
 				}
-				else if (aItem.m_eitemState == eST_WAITBUYCANCLE ||
-					aItem.m_eitemState == eST_BUYCANCLE)
+				else if (aItem.m_eitemState == eST_WAITBUYCANCEL ||
+					aItem.m_eitemState == eST_BUYCANCEL)
 				{
 					if (aItem.m_lBuyQuantity > 0)
 					{
-						AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 취소 주문이 완료 되었습니다."),
+						AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 취소 주문이 완료 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
 						aItem.m_eitemState = eST_HOLDING;
 						//	return;
 					}
 					else
 					{
-						AddMessage(_T("___________________::[%s][%s][%s] 거래 완료 처리 되었습니다."),
+						AddMessage(_T("__________::[%s][%s][%s] 거래 완료 처리 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
 						aItem.m_eitemState = eST_TRADECLOSING;
 						//	return;
 					}
 				}
-				else if (aItem.m_eitemState == eST_WAITSELLCANCLE ||
-					aItem.m_eitemState == eST_SELLCANCLE)
+				else if (aItem.m_eitemState == eST_WAITSELLCANCEL ||
+					aItem.m_eitemState == eST_SELLCANCEL)
 				{
 					if (aItem.m_lSellQuantity > 0)
 					{
-						AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 취소 주문이 완료 되었습니다."),
+						AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 취소 주문이 완료 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
 						aItem.m_eitemState = eST_HOLDING;
 						//	return;
 					}
 					else
 					{
-						AddMessage(_T("___________________::[%s][%s][%s] 매도 취소가 완료 되었습니다."),
+						AddMessage(_T("__________::[%s][%s][%s] 매도 취소가 완료 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
 						aItem.m_eitemState = eST_HOLDING;
 						//	return;
@@ -1543,8 +1543,8 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 			{
 				if (aItem.m_eitemState == eST_TRYBUY ||
 					aItem.m_eitemState == eST_WAITBUY ||
-					aItem.m_eitemState == eST_BUYCANCLE ||
-					aItem.m_eitemState == eST_WAITBUYCANCLE)
+					aItem.m_eitemState == eST_BUYCANCEL ||
+					aItem.m_eitemState == eST_WAITBUYCANCEL)
 				{
 					ASSERT(bBUYDone);
 
@@ -1553,10 +1553,10 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 					if (lRemainQuantity == 0 && aItem.m_lQuantity != aItem.m_lBuyQuantity)
 					{
 						aItem.m_lQuantity = aItem.m_lBuyQuantity;
-						AddMessage(_T("___________________::[%s][%s][%s],매수 잔여 수량이 [0]으로 정정 되었습니다."),
+						AddMessage(_T("__________::[%s][%s][%s],매수 잔여 수량이 [0]으로 정정 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
 					}
-					AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 되었습니다."),
+					AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 되었습니다."),
 						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
 
 					if (aItem.m_lBuyQuantity >= aItem.m_lQuantity)
@@ -1565,7 +1565,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 						aItem.m_lholdTime = GetTickCount();
 						aItem.m_lholdTimeout = (m_lItemHoldTimeout > 0 ? aItem.m_lholdTime + m_lItemHoldTimeout : 0);
 						aItem.m_eitemState = eST_HOLDING;
-						AddMessage(_T("___________________::[%s][%s][%s],평균단가[%d],수량[%d],재시도회수[%d], 매수 완료 되었습니다."),
+						AddMessage(_T("__________::[%s][%s][%s],평균단가[%d],수량[%d],재시도회수[%d], 매수 완료 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.BuyPrice(), aItem.m_lQuantity, aItem.m_ltryBuyCount);
 					}
 					//	return;
@@ -1573,8 +1573,8 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 				else if (aItem.m_eitemState == eST_TRYSELL ||
 					aItem.m_eitemState == eST_WAITSELL ||
 					aItem.m_eitemState == eST_WAITSELLMARKETVALUE ||
-					aItem.m_eitemState == eST_SELLCANCLE ||
-					aItem.m_eitemState == eST_WAITSELLCANCLE)
+					aItem.m_eitemState == eST_SELLCANCEL ||
+					aItem.m_eitemState == eST_WAITSELLCANCEL)
 				{
 					ASSERT(bSELLDone);
 
@@ -1583,10 +1583,10 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 					if (lRemainQuantity == 0 && aItem.m_lQuantity != aItem.m_lSellQuantity)
 					{
 						aItem.m_lQuantity = aItem.m_lSellQuantity;
-						AddMessage(_T("___________________::[%s][%s][%s],매도 잔여 수량이 [0]으로 정정 되었습니다."),
+						AddMessage(_T("__________::[%s][%s][%s],매도 잔여 수량이 [0]으로 정정 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
 					}
-					AddMessage(_T("___________________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 되었습니다."),
+					AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 되었습니다."),
 						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lTradePrice, lTradeQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
 
 					if (aItem.m_lSellQuantity >= aItem.m_lQuantity)
@@ -1594,11 +1594,11 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 						//	m_mapOrderCode.RemoveKey(strOrderCode);
 
 						theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
-						AddMessage(_T("___________________::[%s][%s][%s],재시도회수_매수[%d]매도[%d], 실시간 관심 종목 제외."),
+						AddMessage(_T("__________::[%s][%s][%s],재시도회수_매수[%d]매도[%d], 실시간 관심 종목 제외."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_ltryBuyCount, aItem.m_ltrySellCount);
 
 						aItem.m_eitemState = eST_TRADECLOSING;
-						AddMessage(_T("___________________::[%s][%s][%s],이익[%d],매수가[%d],매도가[%d], 거래 완료 되었습니다."),
+						AddMessage(_T("__________::[%s][%s][%s],이익[%d],매수가[%d],매도가[%d], 거래 완료 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.SellPrice() - aItem.BuyPrice(), aItem.BuyPrice(), aItem.SellPrice());
 					}
 					//	return;
@@ -1629,7 +1629,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 
 	if (!m_mapJongCode.Lookup(sJongmokCode, strIndex))
 	{
-		AddMessage(_T("OnReceiveRealData::[%s][%s], grid index[%s], not in m_mapJongCode"), sJongmokCode, strCodeName, strIndex);
+		AddMessage(_T("RealData::[%s][%s], grid index[%s], not in m_mapJongCode"), sJongmokCode, strCodeName, strIndex);
 		return;
 	}
 
@@ -1637,7 +1637,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 	if (!m_mapItemCode.Lookup(sJongmokCode, nItemIndex))
 	{
 		nItemIndex = -1;
-		AddMessage(_T("OnReceiveRealData::[%s][%s], grid index[%s], not in m_mapItemCode"), sJongmokCode, strCodeName, strIndex);
+		AddMessage(_T("RealData::[%s][%s], grid index[%s], not in m_mapItemCode"), sJongmokCode, strCodeName, strIndex);
 	}
 
 //	AddMessage(_T("OnReceiveRealData::"));
@@ -1668,7 +1668,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 		}
 	}
 	ASSERT(MAX_ITEM_COUNT > nItemIndex);
-	AddMessage(_T("OnReceiveRealData::종목[%s][%s][%s],%s"), sJongmokCode, strCodeName, (nItemIndex >= 0 ? m_Item[nItemIndex].GetStateString() : "NotInItem"), strReceivedData);
+	AddMessage(_T("RealData::[%s][%s][%s],%s"), sJongmokCode, strCodeName, (nItemIndex >= 0 ? m_Item[nItemIndex].GetStateString() : "NotInItem"), strReceivedData);
 
 	if(true)
 	{
@@ -2986,7 +2986,7 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 			{
 				AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d],재시도[%d], 거래를 포기 합니다."),
 					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_ltryBuyCount);
-				aItem.m_eitemState = eST_BUYCANCLE;
+				aItem.m_eitemState = eST_BUYCANCEL;
 				break;
 			}
 
@@ -2997,15 +2997,15 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		}
 		break;
 
-	case eST_BUYCANCLE:
-		if (REQ_ItemBuyCancle(aItem))
+	case eST_BUYCANCEL:
+		if (REQ_ItemBuyCancel(aItem))
 		{
-			aItem.m_eitemState = eST_WAITBUYCANCLE;
+			aItem.m_eitemState = eST_WAITBUYCANCEL;
 			break;
 		}
 		break;
 
-	case eST_WAITBUYCANCLE:
+	case eST_WAITBUYCANCEL:
 		break;
 
 	case eST_HOLDING:	//보유 상태.
@@ -3117,15 +3117,15 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		}
 		break;
 
-	case eST_SELLCANCLE:
-		if (REQ_ItemSellCancle(aItem))
+	case eST_SELLCANCEL:
+		if (REQ_ItemSellCancel(aItem))
 		{
-			aItem.m_eitemState = eST_WAITSELLCANCLE;
+			aItem.m_eitemState = eST_WAITSELLCANCEL;
 			break;
 		}
 		break;
 
-	case eST_WAITSELLCANCLE:
+	case eST_WAITSELLCANCEL:
 		break;
 
 	case eST_WAITSELLMARKETVALUE:
@@ -3190,12 +3190,12 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 
 	if (nextQuantity <= 0)	//구매 가능 수량이 0일 경우 예외 처리.
 	{
-		AddMessage(_T("REQ_ItemBuyOrder::주문구분[%s],[%s][%s][%s],단가[%d],수량[%d], 거래를 포기 합니다."),
+		AddMessage(_T("BUY_ORDER::[%s],[%s][%s][%s],단가[%d],수량[%d], 거래를 포기 합니다."),
 			GetOrderTypeString(lOrderType), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity - aItem.m_lBuyQuantity);
 		if (aItem.m_lBuyQuantity > 0)
 		{
 			//매수 취소.
-			if (!REQ_ItemBuyCancle(aItem))
+			if (!REQ_ItemBuyCancel(aItem))
 			{
 				return FALSE;
 			}
@@ -3213,7 +3213,7 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 	if (aItem.m_ltryBuyCount > 0)//aItem.m_lQuantity != nextQuantity + aItem.m_lBuyQuantity)
 	{
 		//매수 취소.
-		if (!REQ_ItemBuyCancle(aItem))
+		if (!REQ_ItemBuyCancel(aItem))
 		{
 			return FALSE;
 		}
@@ -3227,18 +3227,18 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 		lOrderType, aItem.m_strCode, 
 		aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_lbuyPrice, strHogaGb, aItem.m_strBuyOrder);
 
-	AddMessage(_T("REQ_ItemBuyOrder::주문구분[%s],[%s][%s][%s],단가[%d],수량[%d],거래구분[%s],원주문번호[%s], 매수 요청 %s!"),
+	AddMessage(_T("BUY_ORDER::[%s],[%s][%s][%s],단가[%d],수량[%d],거래구분[%s],원주문번호[%s], 매수 요청 %s!"),
 		GetOrderTypeString(lOrderType), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity - aItem.m_lBuyQuantity, strHogaGb, aItem.m_strBuyOrder, (lRet >= 0 ? "성공" : "실패"));
 
 	return (lRet >= 0 ? TRUE : FALSE);
 }
 
-BOOL CABotDlg::REQ_ItemBuyCancle(CABotItem &aItem)
+BOOL CABotDlg::REQ_ItemBuyCancel(CABotItem &aItem)
 {
 	CString strRQName = "주식주문";
 
 	// 매매구분 취득(1:신규매수, 2:신규매도 3:매수취소, 4:매도취소, 5:매수정정, 6:매도정정)
-	long lcancleOrder = 3; //3:매수취소
+	long lCANCELOrder = 3; //3:매수취소
 
 	// 거래구분 취득
 	// 00:지정가, 03:시장가, 05:조건부지정가, 06:최유리지정가, 07:최우선지정가, 
@@ -3246,14 +3246,14 @@ BOOL CABotDlg::REQ_ItemBuyCancle(CABotItem &aItem)
 	// 26:최유리FOK, 61:장개시전시간외, 62:시간외단일가매매, 81:장후시간외종가
 	CString strHogaGb = "00";
 
-	long lcancleQuantity = aItem.m_lQuantity - aItem.m_lBuyQuantity;
-	long lcanclePrice = 0;
+	long lCANCELQuantity = aItem.m_lQuantity - aItem.m_lBuyQuantity;
+	long lCANCELPrice = 0;
 	long lRet = theApp.m_khOpenApi.SendOrder(strRQName, m_strScrNo, m_strAccNo,
-		lcancleOrder, aItem.m_strCode,
-		lcancleQuantity, lcanclePrice, strHogaGb, aItem.m_strBuyOrder);
+		lCANCELOrder, aItem.m_strCode,
+		lCANCELQuantity, lCANCELPrice, strHogaGb, aItem.m_strBuyOrder);
 
-	AddMessage(_T("REQ_ItemBuyCancle::주문구분[%s],[%s][%s][%s],단가[%d],수량[%d],거래구분[%s],원주문번호[%s], 매수 취소 요청 %s!"),
-		GetOrderTypeString(lcancleOrder), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lcanclePrice, lcancleQuantity, strHogaGb, aItem.m_strBuyOrder, (lRet >= 0 ? "성공" : "실패"));
+	AddMessage(_T("BUY_CANCEL::[%s],[%s][%s][%s],단가[%d],수량[%d],거래구분[%s],원주문번호[%s], 매수 취소 요청 %s!"),
+		GetOrderTypeString(lCANCELOrder), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lCANCELPrice, lCANCELQuantity, strHogaGb, aItem.m_strBuyOrder, (lRet >= 0 ? "성공" : "실패"));
 
 	return (lRet >= 0 ? TRUE : FALSE);
 }
@@ -3279,7 +3279,7 @@ BOOL CABotDlg::REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale, BOOL bFromA
 	{
 		if (aItem.m_strSellOrder.GetLength() > 0)
 		{
-			if (!REQ_ItemSellCancle(aItem))
+			if (!REQ_ItemSellCancel(aItem))
 			{
 				return FALSE;
 			}
@@ -3302,18 +3302,18 @@ BOOL CABotDlg::REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale, BOOL bFromA
 		lOrderType, aItem.m_strCode,
 		aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_lsellPrice, strHogaGb, aItem.m_strSellOrder);
 
-	AddMessage(_T("REQ_ItemSellOrder::주문구분[%s],[%s][%s][%s],단가[%d],수량[%d],거래구분[%s],원주문번호[%s], 매도 요청[%s] %s!"),
+	AddMessage(_T("SELL_ORDER::[%s],[%s][%s][%s],단가[%d],수량[%d],거래구분[%s],원주문번호[%s], 매도 요청[%s] %s!"),
 		GetOrderTypeString(lOrderType), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity - aItem.m_lSellQuantity, strHogaGb, aItem.m_strSellOrder, (bFromAllTrade ? "타이머" : "이벤트"), (lRet >= 0 ? "성공" : "실패"));
 
 	return (lRet >= 0 ? TRUE : FALSE);
 }
 
-BOOL CABotDlg::REQ_ItemSellCancle(CABotItem &aItem)
+BOOL CABotDlg::REQ_ItemSellCancel(CABotItem &aItem)
 {
 	CString strRQName = "주식주문";
 
 	// 매매구분 취득(1:신규매수, 2:신규매도 3:매수취소, 4:매도취소, 5:매수정정, 6:매도정정)
-	long lcancleOrder = 4;
+	long lCANCELOrder = 4;
 
 	// 거래구분 취득
 	// 00:지정가, 03:시장가, 05:조건부지정가, 06:최유리지정가, 07:최우선지정가, 
@@ -3322,11 +3322,11 @@ BOOL CABotDlg::REQ_ItemSellCancle(CABotItem &aItem)
 	CString strHogaGb = "00";
 
 	long lRet = theApp.m_khOpenApi.SendOrder(strRQName, m_strScrNo, m_strAccNo,
-		lcancleOrder, aItem.m_strCode,
+		lCANCELOrder, aItem.m_strCode,
 		aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_lsellPrice, strHogaGb, aItem.m_strSellOrder);
 
-	AddMessage(_T("REQ_ItemSellCancle::주문구분[%s],[%s][%s][%s],단가[%d],수량[%d],거래구분[%s],원주문번호[%s], 매도 취소 요청 %s!"),
-		GetOrderTypeString(lcancleOrder), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity - aItem.m_lSellQuantity, strHogaGb, aItem.m_strSellOrder, (lRet >= 0 ? "성공" : "실패"));
+	AddMessage(_T("SELL_CANCEL::[%s],[%s][%s][%s],단가[%d],수량[%d],거래구분[%s],원주문번호[%s], 매도 취소 요청 %s!"),
+		GetOrderTypeString(lCANCELOrder), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity - aItem.m_lSellQuantity, strHogaGb, aItem.m_strSellOrder, (lRet >= 0 ? "성공" : "실패"));
 
 	return (lRet >= 0 ? TRUE : FALSE);
 }

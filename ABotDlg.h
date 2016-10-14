@@ -58,9 +58,9 @@ public:
 	BOOL REQ_ItemSearch();
 	BOOL REQ_ItemRealReg();
 	BOOL REQ_ItemBuyOrder(CABotItem &aItem);
-	BOOL REQ_ItemBuyCancle(CABotItem &aItem);
+	BOOL REQ_ItemBuyCancel(CABotItem &aItem);
 	BOOL REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale, BOOL bFromAllTrade);
-	BOOL REQ_ItemSellCancle(CABotItem &aItem);
+	BOOL REQ_ItemSellCancel(CABotItem &aItem);
 	BOOL REQ_BalanceInfo();
 	BOOL IsEndTrade();
 	void ReportAllTrade();
@@ -145,6 +145,12 @@ public:
 	afx_msg void OnBnClickedButtonGetBalance();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedButtonSaveconfig();
+	afx_msg void OnBnClickedButtonStartRound();
+	afx_msg void OnBnClickedButtonFinishRound();
+	afx_msg void OnBnClickedButtonStopRound();
+	afx_msg void OnBnClickedButtonSellAllCurCost();
+	afx_msg void OnBnClickedButtonDebugTest();
+	afx_msg void OnBnClickedButtonEditInround();
 	DECLARE_EVENTSINK_MAP()
 	void OnEventConnect(long nErrCode);
 	void OnReceiveErrorMsg(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode, LPCTSTR sMsg);
@@ -152,12 +158,6 @@ public:
 	void OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTSTR sRealData);
 	void OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode, LPCTSTR sRecordName, LPCTSTR sPrevNext, long nDataLength, LPCTSTR sErrorCode, LPCTSTR sMessage, LPCTSTR sSplmMsg);
 	void OnReceiveTrCondition(LPCTSTR sScrNo, LPCTSTR strCodeList, LPCTSTR strConditionName, long nConditionIndex, long nNext);
-	afx_msg void OnBnClickedButtonStartRound();
-	afx_msg void OnBnClickedButtonFinishRound();
-	afx_msg void OnBnClickedButtonStopRound();
-	afx_msg void OnBnClickedButtonSellAllCurCost();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	afx_msg void OnBnClickedButtonDebugTest();
 	void OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR strConditionName, LPCTSTR strConditionIndex);
-	afx_msg void OnBnClickedButtonEditInround();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
