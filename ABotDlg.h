@@ -88,7 +88,8 @@ public:
 	double				m_dSellOverThis2;		// 구매후 m_cmbSellOverThis 조건을 트리거후, 이 퍼센트 보다 낮아!!!!!지면 시장가로 판다. [%]
 	double				m_dSellUnderThis;		// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다. [%]
 	double				m_dSellUnderThis2;		// 구매후 m_cmbSellUnderThis 조건을 트리거후, 이 퍼센트 보다 낮아!!!!!!지면 시장가로 판다. [%]
-
+	long				m_lItemSellTimeout;		// 종목 매도 타임 아웃 [분]
+	
 	double				m_dBuyTradeFee;			// 매수 수수료 매수 가격의 본 퍼센트 만큼 뗀다능. [%]
 	double				m_dSellTradeFee;		// 매도 수수료 매도 가격의 본 퍼센트 만큼 뗸다능. [%]
 
@@ -125,10 +126,13 @@ public:
 	CComboBox			m_cmbBuyTimeOut;	// 매수 체결 대기 타임 아웃. [초]
 	CComboBox			m_cmbBuyRetry;		// 매수 실패시 재시도 회수
 	CComboBox			m_cmbHoldTimeOut;	// 구매후 타임아웃 동안 대기후 현재가 매도(매도 될때까지). [초]
-	CComboBox			m_cmbSellOverThis;	// 구매후 종목 현재가가, 이 퍼센트 보다 높아지면 판다. [%]
-	CComboBox			m_cmbSellOverThis2;	// 구매후 m_cmbSellOverThis 조건을 트리거후, 이 퍼센트 보다 낮아!!!!!지면 시장가로 판다. [%]
-	CComboBox			m_cmbSellUnderThis;	// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다. [%]
-	CComboBox			m_cmbSellUnderThis2;// 구매후 m_cmbSellUnderThis 조건을 트리거후, 이 퍼센트 보다 낮아!!!!!!지면 시장가로 판다. [%]
+
+	CComboBox			m_cmbSellTimeOut;	// 매도 시도후(==보유 후) 체결 대기 타임 아웃. [분]
+
+	CComboBox			m_cmbSellOverThis;	// 구매후 종목 현재가가, 이 퍼센트 보다 높아지면 판다. [%] >>> 상가.
+	CComboBox			m_cmbSellOverThis2;	// 매도 타임 아웃후, 상가를 이것으로 바꾼다. [%]
+	CComboBox			m_cmbSellUnderThis;	// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다. [%] >>> 하가.
+	CComboBox			m_cmbSellUnderThis2;// 매도 타임 아웃후, 하가를 이것으로 바꾼다. [%]
 	
 	BOOL				m_bDoSellItemMarketValueAtRoundEnd;// 라운드 종료 시점에 미채결 종목을 시장가로 팔기.
 	CButton				m_checkDoSellItemMarketValueAtRoundEnd;// 라운드 종료 시점에 미채결 종목을 시장가로 팔기.

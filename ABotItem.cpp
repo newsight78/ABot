@@ -45,31 +45,33 @@ CString CABotItem::GetStateString()
 {
 	if (m_eitemState == eST_NONE)		//아무것도 아닌 상태.
 		return "NONE";
-	if (m_eitemState == eST_ADDED)		//관심 종목에 추가 되었을때.
+	else if (m_eitemState == eST_ADDED)		//관심 종목에 추가 되었을때.
 		return "ADDED";
-	if (m_eitemState == eST_TRYBUY)		//매수 시도 상태.
+	else if (m_eitemState == eST_TRYBUY)		//매수 시도 상태.
 		return "TRYBUY";
-	if (m_eitemState == eST_WAITBUY)	//매수 체결 대기 상태.
+	else if (m_eitemState == eST_WAITBUY)	//매수 체결 대기 상태.
 		return "WAITBUY";
-	if (m_eitemState == eST_BUYCANCEL)	//매수 중단 상태.
+	else if (m_eitemState == eST_BUYCANCEL)	//매수 중단 상태.
 		return "BUYCANCEL";
-	if (m_eitemState == eST_WAITBUYCANCEL)	//매수 중단 대기 상태.
+	else if (m_eitemState == eST_WAITBUYCANCEL)	//매수 중단 대기 상태.
 		return "WAITBUYCANCEL";
-	if (m_eitemState == eST_HOLDING)	//보유 상태.
+	else if (m_eitemState == eST_HOLDING)	//보유 상태.
 		return "HOLDING";
-	if (m_eitemState == eST_TRYSELL)	//매도 시도 상태.
+	else if (m_eitemState == eST_TRYSELL)	//매도 시도 상태.
 		return "TRYSELL";
-	if (m_eitemState == eST_WAITSELL)	//매도 체결 대기 상태.
+	else if (m_eitemState == eST_WAITSELL)	//매도 체결 대기 상태.
 		return "WAITSELL";
-	if (m_eitemState == eST_SELLCANCEL)	//매도 중단 상태.
+	else if (m_eitemState == eST_SELLCANCEL)	//매도 중단 상태.
 		return "SELLCANCEL";
-	if (m_eitemState == eST_WAITSELLCANCEL)	//매도 중단 대기 상태.
+	else if (m_eitemState == eST_WAITSELLCANCEL)	//매도 중단 대기 상태.
 		return "WAITSELLCANCEL";
-	if (m_eitemState == eST_WAITSELLMARKETVALUE)	//시장가로 매도 요청후 대기
+	else if (m_eitemState == eST_SELLMARKETVALUE)		//시장가로 매도 요청
+		return "SELLMARKETVALUE";
+	else if (m_eitemState == eST_WAITSELLMARKETVALUE)	//시장가로 매도 요청후 대기
 		return "WAITSELLMARKETVALUE";
-	if (m_eitemState == eST_TRADECLOSING)	//거래 정산 상태.
+	else if (m_eitemState == eST_TRADECLOSING)	//거래 정산 상태.
 		return "TRADECLOSING";
-	if (m_eitemState == eST_TRADEDONE)		//거래 완료 상태.
+	else if (m_eitemState == eST_TRADEDONE)		//거래 완료 상태.
 		return "TRADEDONE";
 
 	return "UNKNOWN";
