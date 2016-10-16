@@ -135,11 +135,15 @@ CABotDlg::CABotDlg(CWnd* pParent /*=NULL*/)
 	m_lItemBuyTryCount = 0;
 	m_lItemHoldTimeout = 0;
 
-	m_dSellOverThis = 0.;
+	m_dSellOverThis0 = 0.;
+	m_dSellUnderThis0 = 0.;
+	m_dSellOverThis1 = 0.;
+	m_dSellUnderThis1 = 0.;
 	m_dSellOverThis2 = 0.;
-	m_dSellUnderThis = 0.;
 	m_dSellUnderThis2 = 0.;
-	m_lItemSellTimeout = 0;
+
+	m_lItemSellTimeout0 = 0;
+	m_lItemSellTimeout1 = 0;
 
 	m_dBuyTradeFee = 0.;
 	m_dSellTradeFee = 0.;
@@ -165,10 +169,13 @@ void CABotDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_BUY_RETRY, m_cmbBuyRetry);
 	DDX_Control(pDX, IDC_COMBO_BUY_TIMEOUT, m_cmbBuyTimeOut);
 	DDX_Control(pDX, IDC_COMBO_HOLD_TIMEOUT, m_cmbHoldTimeOut);
-	DDX_Control(pDX, IDC_COMBO_SELL_TIMEOUT, m_cmbSellTimeOut);
-	DDX_Control(pDX, IDC_COMBO_SELL_OVERTHIS, m_cmbSellOverThis);
+	DDX_Control(pDX, IDC_COMBO_SELL_TIMEOUT0, m_cmbSellTimeOut0);
+	DDX_Control(pDX, IDC_COMBO_SELL_TIMEOUT1, m_cmbSellTimeOut1);
+	DDX_Control(pDX, IDC_COMBO_SELL_OVERTHIS0, m_cmbSellOverThis0);
+	DDX_Control(pDX, IDC_COMBO_SELL_UNDERTHIS0, m_cmbSellUnderThis0);
+	DDX_Control(pDX, IDC_COMBO_SELL_OVERTHIS1, m_cmbSellOverThis1);
+	DDX_Control(pDX, IDC_COMBO_SELL_UNDERTHIS1, m_cmbSellUnderThis1);
 	DDX_Control(pDX, IDC_COMBO_SELL_OVERTHIS2, m_cmbSellOverThis2);
-	DDX_Control(pDX, IDC_COMBO_SELL_UNDERTHIS, m_cmbSellUnderThis);
 	DDX_Control(pDX, IDC_COMBO_SELL_UNDERTHIS2, m_cmbSellUnderThis2);
 	DDX_Control(pDX, IDC_CHECK_SELL_ITEM_MARKETVALUE_AT_ROUNDEND, m_checkDoSellItemMarketValueAtRoundEnd);
 }
@@ -478,28 +485,109 @@ void CABotDlg::InitComboBox()
 	m_cmbBuyRetry.InsertString(2, "2");
 	m_cmbBuyRetry.SetCurSel(1);
 
-	m_cmbSellOverThis.InsertString(0, "0.5");
-	m_cmbSellOverThis.InsertString(1, "1.0");
-	m_cmbSellOverThis.InsertString(2, "1.5");
-	m_cmbSellOverThis.InsertString(3, "2.0");
-	m_cmbSellOverThis.InsertString(4, "2.5");
-	m_cmbSellOverThis.InsertString(5, "3.0");
-	m_cmbSellOverThis.InsertString(6, "3.5");
-	m_cmbSellOverThis.InsertString(7, "4.0");
-	m_cmbSellOverThis.InsertString(8, "4.5");
-	m_cmbSellOverThis.InsertString(9, "5.0");
-	m_cmbSellOverThis.InsertString(10, "5.5");
-	m_cmbSellOverThis.InsertString(11, "6.0");
-	m_cmbSellOverThis.InsertString(12, "6.5");
-	m_cmbSellOverThis.InsertString(13, "7.0");
-	m_cmbSellOverThis.InsertString(14, "7.5");
-	m_cmbSellOverThis.InsertString(15, "8.0");
-	m_cmbSellOverThis.InsertString(16, "8.5");
-	m_cmbSellOverThis.InsertString(17, "9.0");
-	m_cmbSellOverThis.InsertString(18, "9.5");
-	m_cmbSellOverThis.InsertString(19, "10.0");
-	m_cmbSellOverThis.InsertString(20, "10.5");
-	m_cmbSellOverThis.SetCurSel(1);
+	m_cmbHoldTimeOut.InsertString(0, "0");
+	m_cmbHoldTimeOut.InsertString(1, "10");
+	m_cmbHoldTimeOut.InsertString(2, "20");
+	m_cmbHoldTimeOut.InsertString(3, "30");
+	m_cmbHoldTimeOut.InsertString(4, "40");
+	m_cmbHoldTimeOut.InsertString(5, "50");
+	m_cmbHoldTimeOut.InsertString(6, "60");
+	m_cmbHoldTimeOut.InsertString(7, "120");
+	m_cmbHoldTimeOut.InsertString(8, "180");
+	m_cmbHoldTimeOut.SetCurSel(0);
+
+
+	m_cmbSellOverThis0.InsertString(0, "0.5");
+	m_cmbSellOverThis0.InsertString(1, "1.0");
+	m_cmbSellOverThis0.InsertString(2, "1.5");
+	m_cmbSellOverThis0.InsertString(3, "2.0");
+	m_cmbSellOverThis0.InsertString(4, "2.5");
+	m_cmbSellOverThis0.InsertString(5, "3.0");
+	m_cmbSellOverThis0.InsertString(6, "3.5");
+	m_cmbSellOverThis0.InsertString(7, "4.0");
+	m_cmbSellOverThis0.InsertString(8, "4.5");
+	m_cmbSellOverThis0.InsertString(9, "5.0");
+	m_cmbSellOverThis0.InsertString(10, "5.5");
+	m_cmbSellOverThis0.InsertString(11, "6.0");
+	m_cmbSellOverThis0.InsertString(12, "6.5");
+	m_cmbSellOverThis0.InsertString(13, "7.0");
+	m_cmbSellOverThis0.InsertString(14, "7.5");
+	m_cmbSellOverThis0.InsertString(15, "8.0");
+	m_cmbSellOverThis0.InsertString(16, "8.5");
+	m_cmbSellOverThis0.InsertString(17, "9.0");
+	m_cmbSellOverThis0.InsertString(18, "9.5");
+	m_cmbSellOverThis0.InsertString(19, "10.0");
+	m_cmbSellOverThis0.InsertString(20, "10.5");
+	m_cmbSellOverThis0.SetCurSel(1);
+
+	m_cmbSellUnderThis0.InsertString(0, "0.5");
+	m_cmbSellUnderThis0.InsertString(1, "1.0");
+	m_cmbSellUnderThis0.InsertString(2, "1.5");
+	m_cmbSellUnderThis0.InsertString(3, "2.0");
+	m_cmbSellUnderThis0.InsertString(4, "2.5");
+	m_cmbSellUnderThis0.InsertString(5, "3.0");
+	m_cmbSellUnderThis0.InsertString(6, "3.5");
+	m_cmbSellUnderThis0.InsertString(7, "4.0");
+	m_cmbSellUnderThis0.InsertString(8, "4.5");
+	m_cmbSellUnderThis0.InsertString(9, "5.0");
+	m_cmbSellUnderThis0.InsertString(10, "5.5");
+	m_cmbSellUnderThis0.InsertString(11, "6.0");
+	m_cmbSellUnderThis0.InsertString(12, "6.5");
+	m_cmbSellUnderThis0.InsertString(13, "7.0");
+	m_cmbSellUnderThis0.InsertString(14, "7.5");
+	m_cmbSellUnderThis0.InsertString(15, "8.0");
+	m_cmbSellUnderThis0.InsertString(16, "8.5");
+	m_cmbSellUnderThis0.InsertString(17, "9.0");
+	m_cmbSellUnderThis0.InsertString(18, "9.5");
+	m_cmbSellUnderThis0.InsertString(19, "10.0");
+	m_cmbSellUnderThis0.InsertString(20, "10.5");
+	m_cmbSellUnderThis0.SetCurSel(1);
+
+	m_cmbSellOverThis1.InsertString(0, "0.5");
+	m_cmbSellOverThis1.InsertString(1, "1.0");
+	m_cmbSellOverThis1.InsertString(2, "1.5");
+	m_cmbSellOverThis1.InsertString(3, "2.0");
+	m_cmbSellOverThis1.InsertString(4, "2.5");
+	m_cmbSellOverThis1.InsertString(5, "3.0");
+	m_cmbSellOverThis1.InsertString(6, "3.5");
+	m_cmbSellOverThis1.InsertString(7, "4.0");
+	m_cmbSellOverThis1.InsertString(8, "4.5");
+	m_cmbSellOverThis1.InsertString(9, "5.0");
+	m_cmbSellOverThis1.InsertString(10, "5.5");
+	m_cmbSellOverThis1.InsertString(11, "6.0");
+	m_cmbSellOverThis1.InsertString(12, "6.5");
+	m_cmbSellOverThis1.InsertString(13, "7.0");
+	m_cmbSellOverThis1.InsertString(14, "7.5");
+	m_cmbSellOverThis1.InsertString(15, "8.0");
+	m_cmbSellOverThis1.InsertString(16, "8.5");
+	m_cmbSellOverThis1.InsertString(17, "9.0");
+	m_cmbSellOverThis1.InsertString(18, "9.5");
+	m_cmbSellOverThis1.InsertString(19, "10.0");
+	m_cmbSellOverThis1.InsertString(20, "10.5");
+	m_cmbSellOverThis1.SetCurSel(1);
+
+	m_cmbSellUnderThis1.InsertString(0, "0.5");
+	m_cmbSellUnderThis1.InsertString(1, "1.0");
+	m_cmbSellUnderThis1.InsertString(2, "1.5");
+	m_cmbSellUnderThis1.InsertString(3, "2.0");
+	m_cmbSellUnderThis1.InsertString(4, "2.5");
+	m_cmbSellUnderThis1.InsertString(5, "3.0");
+	m_cmbSellUnderThis1.InsertString(6, "3.5");
+	m_cmbSellUnderThis1.InsertString(7, "4.0");
+	m_cmbSellUnderThis1.InsertString(8, "4.5");
+	m_cmbSellUnderThis1.InsertString(9, "5.0");
+	m_cmbSellUnderThis1.InsertString(10, "5.5");
+	m_cmbSellUnderThis1.InsertString(11, "6.0");
+	m_cmbSellUnderThis1.InsertString(12, "6.5");
+	m_cmbSellUnderThis1.InsertString(13, "7.0");
+	m_cmbSellUnderThis1.InsertString(14, "7.5");
+	m_cmbSellUnderThis1.InsertString(15, "8.0");
+	m_cmbSellUnderThis1.InsertString(16, "8.5");
+	m_cmbSellUnderThis1.InsertString(17, "9.0");
+	m_cmbSellUnderThis1.InsertString(18, "9.5");
+	m_cmbSellUnderThis1.InsertString(19, "10.0");
+	m_cmbSellUnderThis1.InsertString(20, "10.5");
+	m_cmbSellUnderThis1.SetCurSel(1);
 
 	m_cmbSellOverThis2.InsertString(0, "0.5");
 	m_cmbSellOverThis2.InsertString(1, "1.0");
@@ -511,7 +599,7 @@ void CABotDlg::InitComboBox()
 	m_cmbSellOverThis2.InsertString(7, "4.0");
 	m_cmbSellOverThis2.InsertString(8, "4.5");
 	m_cmbSellOverThis2.InsertString(9, "5.0");
-	m_cmbSellOverThis2.InsertString(10,"5.5");
+	m_cmbSellOverThis2.InsertString(10, "5.5");
 	m_cmbSellOverThis2.InsertString(11, "6.0");
 	m_cmbSellOverThis2.InsertString(12, "6.5");
 	m_cmbSellOverThis2.InsertString(13, "7.0");
@@ -523,29 +611,6 @@ void CABotDlg::InitComboBox()
 	m_cmbSellOverThis2.InsertString(19, "10.0");
 	m_cmbSellOverThis2.InsertString(20, "10.5");
 	m_cmbSellOverThis2.SetCurSel(0);
-
-	m_cmbSellUnderThis.InsertString(0, "0.5");
-	m_cmbSellUnderThis.InsertString(1, "1.0");
-	m_cmbSellUnderThis.InsertString(2, "1.5");
-	m_cmbSellUnderThis.InsertString(3, "2.0");
-	m_cmbSellUnderThis.InsertString(4, "2.5");
-	m_cmbSellUnderThis.InsertString(5, "3.0");
-	m_cmbSellUnderThis.InsertString(6, "3.5");
-	m_cmbSellUnderThis.InsertString(7, "4.0");
-	m_cmbSellUnderThis.InsertString(8, "4.5");
-	m_cmbSellUnderThis.InsertString(9, "5.0");
-	m_cmbSellUnderThis.InsertString(10, "5.5");
-	m_cmbSellUnderThis.InsertString(11, "6.0");
-	m_cmbSellUnderThis.InsertString(12, "6.5");
-	m_cmbSellUnderThis.InsertString(13, "7.0");
-	m_cmbSellUnderThis.InsertString(14, "7.5");
-	m_cmbSellUnderThis.InsertString(15, "8.0");
-	m_cmbSellUnderThis.InsertString(16, "8.5");
-	m_cmbSellUnderThis.InsertString(17, "9.0");
-	m_cmbSellUnderThis.InsertString(18, "9.5");
-	m_cmbSellUnderThis.InsertString(19, "10.0");
-	m_cmbSellUnderThis.InsertString(20, "10.5");
-	m_cmbSellUnderThis.SetCurSel(1);
 
 	m_cmbSellUnderThis2.InsertString(0, "0.5");
 	m_cmbSellUnderThis2.InsertString(1, "1.0");
@@ -570,29 +635,33 @@ void CABotDlg::InitComboBox()
 	m_cmbSellUnderThis2.InsertString(20, "10.5");
 	m_cmbSellUnderThis2.SetCurSel(3);
 
-
-	m_cmbHoldTimeOut.InsertString(0, "0");
-	m_cmbHoldTimeOut.InsertString(1, "10");
-	m_cmbHoldTimeOut.InsertString(2, "20");
-	m_cmbHoldTimeOut.InsertString(3, "30");
-	m_cmbHoldTimeOut.InsertString(4, "40");
-	m_cmbHoldTimeOut.InsertString(5, "50");
-	m_cmbHoldTimeOut.InsertString(6, "60");
-	m_cmbHoldTimeOut.InsertString(7, "120");
-	m_cmbHoldTimeOut.InsertString(8, "180");
-	m_cmbHoldTimeOut.SetCurSel(0);
-
-	m_cmbSellTimeOut.InsertString(0, "0");
-	m_cmbSellTimeOut.InsertString(1, "10");
-	m_cmbSellTimeOut.InsertString(2, "20");
-	m_cmbSellTimeOut.InsertString(3, "30");
-	m_cmbSellTimeOut.InsertString(4, "40");
-	m_cmbSellTimeOut.InsertString(5, "50");
-	m_cmbSellTimeOut.InsertString(6, "60");
-	m_cmbSellTimeOut.InsertString(7, "120");
-	m_cmbSellTimeOut.InsertString(8, "180");
-	m_cmbSellTimeOut.SetCurSel(0);
+	m_cmbSellTimeOut0.InsertString(0, "0");
+	m_cmbSellTimeOut0.InsertString(1, "1");
+	m_cmbSellTimeOut0.InsertString(2, "2");
+	m_cmbSellTimeOut0.InsertString(3, "3");
+	m_cmbSellTimeOut0.InsertString(4, "4");
+	m_cmbSellTimeOut0.InsertString(5, "5");
+	m_cmbSellTimeOut0.InsertString(6, "6");
+	m_cmbSellTimeOut0.InsertString(7, "7");
+	m_cmbSellTimeOut0.InsertString(8, "8");
+	m_cmbSellTimeOut0.InsertString(9, "9");
+	m_cmbSellTimeOut0.InsertString(10, "10");
+	m_cmbSellTimeOut0.SetCurSel(0);
 	
+	m_cmbSellTimeOut1.InsertString(0, "0");
+	m_cmbSellTimeOut1.InsertString(1, "5");
+	m_cmbSellTimeOut1.InsertString(2, "10");
+	m_cmbSellTimeOut1.InsertString(3, "15");
+	m_cmbSellTimeOut1.InsertString(4, "20");
+	m_cmbSellTimeOut1.InsertString(5, "25");
+	m_cmbSellTimeOut1.InsertString(6, "30");
+	m_cmbSellTimeOut1.InsertString(7, "35");
+	m_cmbSellTimeOut1.InsertString(8, "40");
+	m_cmbSellTimeOut1.InsertString(9, "45");
+	m_cmbSellTimeOut1.InsertString(10, "50");
+	m_cmbSellTimeOut1.InsertString(11, "55");
+	m_cmbSellTimeOut1.InsertString(12, "60");
+	m_cmbSellTimeOut1.SetCurSel(0);
 }
 
 void CABotDlg::LoadSystemFile()
@@ -794,51 +863,95 @@ void CABotDlg::LoadSystemFile()
 	AddMessage("     보유 대기 타임 아웃 [%s]분.", strBuf);
 
 	// 구매후 종목 현재가가, 이 퍼센트 보다 높아지면 판다.
-	ReadFromIniFile_String(m_strConfigFile, "SELL", "over_this_1", "1.0", strBuf);
+	ReadFromIniFile_String(m_strConfigFile, "SELL", "over_this_0", "3.0", strBuf);
 	d = atof((LPSTR)(LPCSTR)strBuf);
 	if (d > 30.0) { d = 30.0; }
 	strBuf.Format("%3.1f", d);
 	strBuf.TrimLeft();
 	strBuf.TrimRight();
-	for (i = 0; i<m_cmbSellOverThis.GetCount(); i++)
+	for (i = 0; i<m_cmbSellOverThis0.GetCount(); i++)
 	{
-		m_cmbSellOverThis.GetLBText(i, strCombo);
+		m_cmbSellOverThis0.GetLBText(i, strCombo);
 		if (strCombo == strBuf)
 		{
-			m_cmbSellOverThis.SetCurSel(i);
+			m_cmbSellOverThis0.SetCurSel(i);
 			break;
 		}
 	}
-	if (i >= m_cmbSellOverThis.GetCount())
+	if (i >= m_cmbSellOverThis0.GetCount())
 	{
-		m_cmbSellOverThis.SetWindowText(strBuf);
+		m_cmbSellOverThis0.SetWindowText(strBuf);
 	}
-	AddMessage("     매도 시점 #1. 현재가가 매수 금액의 [%s] 퍼센트 이상 상승시.", strBuf);
+	AddMessage("     매도 시점 #0. 매수 금액의 [%s] 퍼센트 이상 상승시.", strBuf);
 
 	// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다.
-	ReadFromIniFile_String(m_strConfigFile, "SELL", "under_this_1", "1.0", strBuf);
+	ReadFromIniFile_String(m_strConfigFile, "SELL", "under_this_0", "3.0", strBuf);
 	d = atof((LPSTR)(LPCSTR)strBuf);
 	if (d > 30.0) { d = 30.0; }
 	strBuf.Format("%.1f", d);
 	strBuf.TrimLeft();
 	strBuf.TrimRight();
-	for (i = 0; i<m_cmbSellUnderThis.GetCount(); i++)
+	for (i = 0; i<m_cmbSellUnderThis0.GetCount(); i++)
 	{
-		m_cmbSellUnderThis.GetLBText(i, strCombo);
+		m_cmbSellUnderThis0.GetLBText(i, strCombo);
 		if (strCombo == strBuf)
 		{
-			m_cmbSellUnderThis.SetCurSel(i);
+			m_cmbSellUnderThis0.SetCurSel(i);
 			break;
 		}
 	}
-	if (i >= m_cmbSellUnderThis.GetCount())
+	if (i >= m_cmbSellUnderThis0.GetCount())
 	{
-		m_cmbSellUnderThis.SetWindowText(strBuf);
+		m_cmbSellUnderThis0.SetWindowText(strBuf);
 	}
-	AddMessage("     매도 시점 #1. 현재가가 매수 금액의 [%s] 퍼센트 이상 하락시 시장가 매도.", strBuf);
+	AddMessage("     매도 시점 #0. 매수 금액의 [%s] 퍼센트 이상 하락시 시장가 매도.", strBuf);
 
 	// 구매후 종목 현재가가, 이 퍼센트 보다 높아지면 판다.
-	ReadFromIniFile_String(m_strConfigFile, "SELL", "over_this_2", "0.5", strBuf);
+	ReadFromIniFile_String(m_strConfigFile, "SELL", "over_this_1", "2.0", strBuf);
+	d = atof((LPSTR)(LPCSTR)strBuf);
+	if (d > 30.0) { d = 30.0; }
+	strBuf.Format("%3.1f", d);
+	strBuf.TrimLeft();
+	strBuf.TrimRight();
+	for (i = 0; i<m_cmbSellOverThis1.GetCount(); i++)
+	{
+		m_cmbSellOverThis1.GetLBText(i, strCombo);
+		if (strCombo == strBuf)
+		{
+			m_cmbSellOverThis1.SetCurSel(i);
+			break;
+		}
+	}
+	if (i >= m_cmbSellOverThis1.GetCount())
+	{
+		m_cmbSellOverThis1.SetWindowText(strBuf);
+	}
+	AddMessage("     매도 시점 #1. 매도 타임아웃0 후 매수 금액의 [%s] 퍼센트 이상 상승시  매도.", strBuf);
+
+	// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다.
+	ReadFromIniFile_String(m_strConfigFile, "SELL", "under_this_1", "2.0", strBuf);
+	d = atof((LPSTR)(LPCSTR)strBuf);
+	if (d > 30.0) { d = 30.0; }
+	strBuf.Format("%.1f", d);
+	strBuf.TrimLeft();
+	strBuf.TrimRight();
+	for (i = 0; i<m_cmbSellUnderThis1.GetCount(); i++)
+	{
+		m_cmbSellUnderThis1.GetLBText(i, strCombo);
+		if (strCombo == strBuf)
+		{
+			m_cmbSellUnderThis1.SetCurSel(i);
+			break;
+		}
+	}
+	if (i >= m_cmbSellUnderThis1.GetCount())
+	{
+		m_cmbSellUnderThis1.SetWindowText(strBuf);
+	}
+	AddMessage("     매도 시점 #1. 매도 타임아웃0 후 매수 금액의 [%s] 퍼센트 이상 하락시 시장가 매도.", strBuf);
+
+	// 구매후 종목 현재가가, 이 퍼센트 보다 높아지면 판다.
+	ReadFromIniFile_String(m_strConfigFile, "SELL", "over_this_2", "1.0", strBuf);
 	d = atof((LPSTR)(LPCSTR)strBuf);
 	if (d > 30.0) { d = 30.0; }
 	strBuf.Format("%3.1f", d);
@@ -857,10 +970,10 @@ void CABotDlg::LoadSystemFile()
 	{
 		m_cmbSellOverThis2.SetWindowText(strBuf);
 	}
-	AddMessage("     매도 시점 #2. 매도 타임아웃후 매수 금액의 [%s] 퍼센트 이상 상승시 매도.", strBuf);
+	AddMessage("     매도 시점 #2. 매도 타임아웃0+1 후 매수 금액의 [%s] 퍼센트 이상 상승시 매도.", strBuf);
 
 	// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다.
-	ReadFromIniFile_String(m_strConfigFile, "SELL", "under_this_2", "2.0", strBuf);
+	ReadFromIniFile_String(m_strConfigFile, "SELL", "under_this_2", "1.0", strBuf);
 	d = atof((LPSTR)(LPCSTR)strBuf);
 	if (d > 30.0) { d = 30.0; }
 	strBuf.Format("%.1f", d);
@@ -879,26 +992,49 @@ void CABotDlg::LoadSystemFile()
 	{
 		m_cmbSellUnderThis2.SetWindowText(strBuf);
 	}
-	AddMessage("     매도 시점 #2. 매도 타임아웃후 매수 금액의 [%s] 퍼센트 이하 도달시 시장가 매도.", strBuf);
+	AddMessage("     매도 시점 #2. 매도 타임아웃0+1 후 매수 금액의 [%s] 퍼센트 이하 도달시 시장가 매도.", strBuf);
 
 	// 매도 타임 아웃.
-	ReadFromIniFile_String(m_strConfigFile, "SELL", "timeout", "0", strBuf);
-	n = atol((LPSTR)(LPCSTR)strBuf);
-	strBuf.Format("%d", n);
-	for (i = 0; i<m_cmbSellTimeOut.GetCount(); i++)
+	ReadFromIniFile_String(m_strConfigFile, "SELL", "timeout_0", "5", strBuf);
+	d = atof((LPSTR)(LPCSTR)strBuf);
+	strBuf.Format("%.1f", d);
+	strBuf.TrimLeft();
+	strBuf.TrimRight();
+	for (i = 0; i<m_cmbSellTimeOut0.GetCount(); i++)
 	{
-		m_cmbSellTimeOut.GetLBText(i, strCombo);
+		m_cmbSellTimeOut0.GetLBText(i, strCombo);
 		if (strCombo == strBuf)
 		{
+			m_cmbSellTimeOut0.SetCurSel(i);
 			break;
 		}
 	}
-	if (i >= m_cmbSellTimeOut.GetCount())
+	if (i >= m_cmbSellTimeOut0.GetCount())
 	{
-		m_cmbSellTimeOut.InsertString(i, strBuf);
+		m_cmbSellTimeOut0.SetWindowText(strBuf);
 	}
-	m_cmbSellTimeOut.SetCurSel(i);
-	AddMessage("     매도 대기 타임 아웃 [%s]분.", strBuf);
+	AddMessage("     매도 대기 타임 아웃 #0 [%s]분.", strBuf);
+
+	// 매도 타임 아웃.
+	ReadFromIniFile_String(m_strConfigFile, "SELL", "timeout_1", "10", strBuf);
+	d = atof((LPSTR)(LPCSTR)strBuf);
+	strBuf.Format("%.1f", d);
+	strBuf.TrimLeft();
+	strBuf.TrimRight();
+	for (i = 0; i<m_cmbSellTimeOut1.GetCount(); i++)
+	{
+		m_cmbSellTimeOut1.GetLBText(i, strCombo);
+		if (strCombo == strBuf)
+		{
+			m_cmbSellTimeOut1.SetCurSel(i);
+			break;
+		}
+	}
+	if (i >= m_cmbSellTimeOut1.GetCount())
+	{
+		m_cmbSellTimeOut1.SetWindowText(strBuf);
+	}
+	AddMessage("     매도 대기 타임 아웃 #1 [%s]분.", strBuf);
 
 	// 매수 수수료
 	ReadFromIniFile_String(m_strConfigFile, "BUY", "tradefee", "0.015", strBuf);
@@ -979,23 +1115,31 @@ void CABotDlg::SaveSystemFile()
 	m_cmbHoldTimeOut.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "HOLD", "timeout", strBuf);
 
-	// 구매후 종목 현재가가, 이 퍼센트 보다 높아지면 판다.
-	m_cmbSellOverThis.GetWindowText(strBuf);
+	// 구매후 종목 현재가가, 이 퍼센트 보다 높아/낮지면 판다.
+	m_cmbSellOverThis0.GetWindowText(strBuf);
+	WriteToIniFile_String(m_strConfigFile, "SELL", "over_this_0", strBuf);
+
+	m_cmbSellUnderThis0.GetWindowText(strBuf);
+	WriteToIniFile_String(m_strConfigFile, "SELL", "under_this_0", strBuf);
+
+	m_cmbSellOverThis1.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "SELL", "over_this_1", strBuf);
+
+	m_cmbSellUnderThis1.GetWindowText(strBuf);
+	WriteToIniFile_String(m_strConfigFile, "SELL", "under_this_1", strBuf);
 
 	m_cmbSellOverThis2.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "SELL", "over_this_2", strBuf);
-
-	// 구매후 종목 현재가가, 이 퍼센트 보다 낮아지면 판다.
-	m_cmbSellUnderThis.GetWindowText(strBuf);
-	WriteToIniFile_String(m_strConfigFile, "SELL", "under_this_1", strBuf);
 
 	m_cmbSellUnderThis2.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "SELL", "under_this_2", strBuf);
 	
 	// 매도 타임 아웃.
-	m_cmbSellTimeOut.GetWindowText(strBuf);
-	WriteToIniFile_String(m_strConfigFile, "SELL", "timeout", strBuf);
+	m_cmbSellTimeOut0.GetWindowText(strBuf);
+	WriteToIniFile_String(m_strConfigFile, "SELL", "timeout_0", strBuf);
+
+	m_cmbSellTimeOut1.GetWindowText(strBuf);
+	WriteToIniFile_String(m_strConfigFile, "SELL", "timeout_1", strBuf);
 
 	m_bDoSellItemMarketValueAtRoundEnd = (m_checkDoSellItemMarketValueAtRoundEnd.GetCheck() == BST_CHECKED);
 	strBuf = (m_bDoSellItemMarketValueAtRoundEnd ? "1" : "0");
@@ -1054,26 +1198,37 @@ void CABotDlg::InitProcessCondition()
 	m_lItemHoldTimeout = atol((LPSTR)(LPCSTR)strBuf) * 1000 * 60;
 	AddMessage(_T("_____::종목당 보유 timeout은 %d[분] 입니다."), m_lItemHoldTimeout / (1000 * 60));
 
-	m_cmbSellOverThis.GetWindowText(strBuf);
-	m_dSellOverThis = atof((LPSTR)(LPCSTR)strBuf);
-	AddMessage(_T("_____::종목당 매도 Sell'OVER'This는 %f[퍼센트] 입니다."), m_dSellOverThis);
+	m_cmbSellOverThis0.GetWindowText(strBuf);
+	m_dSellOverThis0 = atof((LPSTR)(LPCSTR)strBuf);
+	AddMessage(_T("_____::종목당 매도 Sell'OVER'This0는 %f[퍼센트] 입니다."), m_dSellOverThis0);
 
-	m_cmbSellUnderThis.GetWindowText(strBuf);
-	m_dSellUnderThis = atof((LPSTR)(LPCSTR)strBuf);
-	AddMessage(_T("_____::종목당 매도 Sell'UNDER'This는 %f[퍼센트] 입니다."), m_dSellUnderThis);
+	m_cmbSellUnderThis0.GetWindowText(strBuf);
+	m_dSellUnderThis0 = atof((LPSTR)(LPCSTR)strBuf);
+	AddMessage(_T("_____::종목당 매도 Sell'UNDER'This0는 %f[퍼센트] 입니다."), m_dSellUnderThis0);
+
+	m_cmbSellOverThis1.GetWindowText(strBuf);
+	m_dSellOverThis1 = atof((LPSTR)(LPCSTR)strBuf);
+	AddMessage(_T("_____::종목당 타임아웃#0후 매도 Sell'OVER'This1는 %f[퍼센트] 입니다."), m_dSellOverThis1);
+
+	m_cmbSellUnderThis1.GetWindowText(strBuf);
+	m_dSellUnderThis1 = atof((LPSTR)(LPCSTR)strBuf);
+	AddMessage(_T("_____::종목당 타임아웃#0후 매도 Sell'UNDER'This1는 %f[퍼센트] 입니다."), m_dSellUnderThis1);
 
 	m_cmbSellOverThis2.GetWindowText(strBuf);
 	m_dSellOverThis2 = atof((LPSTR)(LPCSTR)strBuf);
-	AddMessage(_T("_____::종목당 타임아웃후 매도 Sell'OVER'This2는 %f[퍼센트] 입니다."), m_dSellOverThis2);
+	AddMessage(_T("_____::종목당 타임아웃#0+ #1후 매도 Sell'OVER'This2는 %f[퍼센트] 입니다."), m_dSellOverThis2);
 
 	m_cmbSellUnderThis2.GetWindowText(strBuf);
 	m_dSellUnderThis2 = atof((LPSTR)(LPCSTR)strBuf);
-	AddMessage(_T("_____::종목당 타임아웃후 매도 Sell'UNDER'This2는 %f[퍼센트] 입니다."), m_dSellUnderThis2);
+	AddMessage(_T("_____::종목당 타임아웃#0+ #1후 매도 Sell'UNDER'This2는 %f[퍼센트] 입니다."), m_dSellUnderThis2);
 
-	// 매도 타임 아웃.
-	m_cmbSellTimeOut.GetWindowText(strBuf);
-	m_lItemSellTimeout = atol((LPSTR)(LPCSTR)strBuf) * 1000 * 60;
-	AddMessage(_T("_____::종목당 매도 timeout은 %d[초] 입니다."), m_lItemSellTimeout / 1000);
+	m_cmbSellTimeOut0.GetWindowText(strBuf);
+	m_lItemSellTimeout0 = long(atof((LPSTR)(LPCSTR)strBuf) * 1000.0 * 60.0);
+	AddMessage(_T("_____::종목당 매도 타임아웃#0은 %s[분] 입니다."), strBuf);
+
+	m_cmbSellTimeOut1.GetWindowText(strBuf);
+	m_lItemSellTimeout1 = long(atof((LPSTR)(LPCSTR)strBuf) * 1000.0 * 60.0);
+	AddMessage(_T("_____::종목당 매도 타임아웃#1은 %s[분] 입니다."), strBuf);
 
 	m_bDoSellItemMarketValueAtRoundEnd = (m_checkDoSellItemMarketValueAtRoundEnd.GetCheck() == BST_CHECKED);
 	AddMessage(_T("_____::라운드 종료 후, 미채결 종목 시장가로 팔기 [%s]."), m_bDoSellItemMarketValueAtRoundEnd ? "함" : "안함");
@@ -1603,8 +1758,7 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 				}
 				else if (aItem.m_eitemState == eST_WAITSELL)
 				{
-					aItem.m_ltrySellTimeout = (m_lItemHoldTimeout > 0 ? GetTickCount() + m_lItemHoldTimeout : 0);
-
+				//	aItem.m_ltrySellTimeout = (m_lItemHoldTimeout > 0 ? GetTickCount() + m_lItemHoldTimeout : 0);
 					aItem.m_strSellOrder = strOrderCode;
 					AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매도 주문이 완료 되었습니다."),
 						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_strSellOrder);
@@ -1616,15 +1770,19 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 					{
 						AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매수 취소 주문이 완료 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity);
+						aItem.m_lholdTime = GetTickCount();
+						aItem.m_lholdTimeout = (m_lItemHoldTimeout > 0 ? aItem.m_lholdTime + m_lItemHoldTimeout : 0);
+						aItem.m_ltrySellTimeout0 = (m_lItemSellTimeout0 > 0 ? aItem.m_lholdTime + m_lItemSellTimeout0 : 0);
+						aItem.m_ltrySellTimeout1 = ((m_lItemSellTimeout0 > 0 && m_lItemSellTimeout1 > 0) ? aItem.m_lholdTime + m_lItemSellTimeout0 + m_lItemSellTimeout1 : 0);
 						aItem.m_eitemState = eST_HOLDING;
-						//	return;
+					//	return;
 					}
 					else
 					{
 						AddMessage(_T("__________::[%s][%s][%s] 거래 완료 처리 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
 						aItem.m_eitemState = eST_TRADECLOSING;
-						//	return;
+					//	return;
 					}
 				}
 				else if (aItem.m_eitemState == eST_WAITSELLCANCEL ||
@@ -1635,14 +1793,14 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 						AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d], 매도 취소 주문이 완료 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity);
 						aItem.m_eitemState = eST_HOLDING;
-						//	return;
+					//	return;
 					}
 					else
 					{
 						AddMessage(_T("__________::[%s][%s][%s] 매도 취소가 완료 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString());
 						aItem.m_eitemState = eST_HOLDING;
-						//	return;
+					//	return;
 					}
 				}
 			}
@@ -1672,7 +1830,8 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 					//	m_mapOrderCode.RemoveKey(strOrderCode);
 						aItem.m_lholdTime = GetTickCount();
 						aItem.m_lholdTimeout	= (m_lItemHoldTimeout > 0 ? aItem.m_lholdTime + m_lItemHoldTimeout : 0);
-						aItem.m_ltrySellTimeout	= (m_lItemSellTimeout > 0 ? aItem.m_lholdTime + m_lItemSellTimeout : 0);
+						aItem.m_ltrySellTimeout0 = (m_lItemSellTimeout0 > 0 ? aItem.m_lholdTime + m_lItemSellTimeout0 : 0);
+						aItem.m_ltrySellTimeout1 = ((m_lItemSellTimeout0 > 0 && m_lItemSellTimeout1 > 0) ? aItem.m_lholdTime + m_lItemSellTimeout0 + m_lItemSellTimeout1 : 0);
 						aItem.m_eitemState = eST_HOLDING;
 						AddMessage(_T("__________::[%s][%s][%s],평균단가[%d],수량[%d],재시도회수[%d], 매수 완료 되었습니다."),
 							aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.BuyPrice(), aItem.m_lQuantity, aItem.m_ltryBuyCount);
@@ -2590,11 +2749,14 @@ void CABotDlg::SetControls(BOOL bEnable)
 	m_cmbBuyTimeOut.EnableWindow(bEnable);
 	m_cmbBuyRetry.EnableWindow(bEnable);
 	m_cmbHoldTimeOut.EnableWindow(bEnable);
-	m_cmbSellOverThis.EnableWindow(bEnable);
+	m_cmbSellTimeOut0.EnableWindow(bEnable);
+	m_cmbSellTimeOut1.EnableWindow(bEnable);
+	m_cmbSellOverThis0.EnableWindow(bEnable);
+	m_cmbSellUnderThis0.EnableWindow(bEnable);
+	m_cmbSellOverThis1.EnableWindow(bEnable);
+	m_cmbSellUnderThis1.EnableWindow(bEnable);
 	m_cmbSellOverThis2.EnableWindow(bEnable);
-	m_cmbSellUnderThis.EnableWindow(bEnable);
 	m_cmbSellUnderThis2.EnableWindow(bEnable);
-	m_cmbSellTimeOut.EnableWindow(bEnable);
 	m_checkDoSellItemMarketValueAtRoundEnd.EnableWindow(bEnable);
 }
 
@@ -2662,6 +2824,7 @@ void CABotDlg::OnBnClickedButtonSellAllCurCost()
 void CABotDlg::OnBnClickedButtonEditInround()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	/*
 	if (IsInRound())
 	{
 		CString strBuf;
@@ -2695,6 +2858,7 @@ void CABotDlg::OnBnClickedButtonEditInround()
 			}
 		}
 	}
+	*/
 }
 
 
@@ -2976,7 +3140,6 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 	//		aItem.m_eitemState = eST_HOLDING;
 	//		break;
 	//	}
-
 		if (m_lProcessDR < m_lProcessItemDR)
 		{
 			//실시간 정보를 보여주는 그리드에서 지운다
@@ -3018,11 +3181,11 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		break;
 
 	case eST_WAITBUY:	//매수 체결 대기 상태.
-		if (aItem.m_lQuantity != 0 && aItem.m_lQuantity - aItem.m_lBuyQuantity <= 0)
-		{
-			aItem.m_eitemState = eST_HOLDING;
-			break;
-		}
+	//	if (aItem.m_lQuantity != 0 && aItem.m_lQuantity - aItem.m_lBuyQuantity <= 0)
+	//	{
+	//		aItem.m_eitemState = eST_HOLDING;
+	//		break;
+	//	}
 		if (aItem.m_ltryBuyTimeout > 0 && long(GetTickCount()) > aItem.m_ltryBuyTimeout)
 		{
 			aItem.m_ltryBuyCount++;
@@ -3055,8 +3218,8 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 	case eST_HOLDING:	//보유 상태.
 		if (true)//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		{
-			aItem.m_lsellPrice = CalcBuyAndSellPrice(aItem.BuyPrice(), m_dSellOverThis, TRUE);
-			aItem.m_lunderPrice = long(aItem.BuyPrice() - aItem.BuyPrice()*m_dSellUnderThis / 100.);
+			aItem.m_lsellPrice = CalcBuyAndSellPrice(aItem.BuyPrice(), m_dSellOverThis0, TRUE);
+			aItem.m_lunderPrice = long(aItem.BuyPrice() - aItem.BuyPrice()*m_dSellUnderThis0 / 100.);
 			AddMessage(_T("라운드::[%s][%s][%s],목표상가[%d],목표하가[%d],수량[%d], 매도에 도전합니다."),
 				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lunderPrice, aItem.m_lQuantity);
 			aItem.m_eitemState = eST_TRYSELL;
@@ -3108,7 +3271,7 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		}
 		if (REQ_ItemSellOrder(aItem, FALSE, bFromAllTrade))
 		{
-			aItem.m_ltrySellTimeout = 0;
+		//	aItem.m_ltrySellTimeout = 0;
 
 			AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d], 매도가 시도 되었습니다."),
 				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity - aItem.m_lSellQuantity);
@@ -3138,25 +3301,54 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 			aItem.m_eitemState = eST_SELLMARKETVALUE;
 			break;
 		}
-		else if (aItem.m_ltrySellTimeout > 0 && long(GetTickCount()) > aItem.m_ltrySellTimeout)
+		else if (aItem.m_ltrySellTimeout0 > 0 && long(GetTickCount()) > aItem.m_ltrySellTimeout0)
 		{
-			aItem.m_ltrySellTimeout = 0;
-			long aunderPrice = long(aItem.BuyPrice() - aItem.BuyPrice()*m_dSellUnderThis2 / 100.);
-			long asellPrice = CalcBuyAndSellPrice(aItem.BuyPrice(), m_dSellOverThis2, TRUE);
+			aItem.m_ltrySellTimeout0 = 0;
+			long aunderPrice = long(aItem.BuyPrice() - aItem.BuyPrice()*m_dSellUnderThis1 / 100.);
+			long asellPrice = CalcBuyAndSellPrice(aItem.BuyPrice(), m_dSellOverThis1, TRUE);
 			
 			//지금 가격이 손해가 아니면 현재가로 매도 시도한다.
 			long lestimatedSellprice = long(aItem.m_lcurPrice*(1 - m_dSellTradeFee / 100.) - long(aItem.BuyPrice()*(m_dBuyTradeFee / 100.)));
 			if (aItem.BuyPrice() >= lestimatedSellprice)
 			{
 				aItem.m_lsellPrice = aItem.m_lcurPrice;
-				AddMessage(_T("라운드::[%s][%s][%s],현재가[%d],수량[%d], 매도 시간 타임 아웃, 현재가로 매도 시도합니다."),
+				AddMessage(_T("라운드::[%s][%s][%s],현재가[%d],수량[%d], 매도 시간 타임 아웃#0, 현재가로 매도 시도합니다."),
 					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity);
 			}
 
 			if (aItem.m_lsellPrice != asellPrice || aItem.m_lunderPrice != aunderPrice)
 			{
 				aItem.m_lunderPrice = aunderPrice;
-				AddMessage(_T("라운드::[%s][%s][%s],목표상가[%d],목표하가[%d],수량[%d], 매도 시간 타임 아웃, 상가/하가 변경 되었습니다."),
+				AddMessage(_T("라운드::[%s][%s][%s],목표상가[%d],목표하가[%d],수량[%d], 매도 시간 타임 아웃#0, 상가/하가 변경 되었습니다."),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lunderPrice, aItem.m_lQuantity);
+
+				if (aItem.m_lsellPrice != asellPrice)
+				{
+					aItem.m_lsellPrice = asellPrice;
+					aItem.m_eitemState = eST_TRYSELL;
+				}
+			}
+			break;
+		}
+		else if (aItem.m_ltrySellTimeout1 > 0 && long(GetTickCount()) > aItem.m_ltrySellTimeout1)
+		{
+			aItem.m_ltrySellTimeout1 = 0;
+			long aunderPrice = long(aItem.BuyPrice() - aItem.BuyPrice()*m_dSellUnderThis2 / 100.);
+			long asellPrice = CalcBuyAndSellPrice(aItem.BuyPrice(), m_dSellOverThis2, TRUE);
+
+			//지금 가격이 손해가 아니면 현재가로 매도 시도한다.
+			long lestimatedSellprice = long(aItem.m_lcurPrice*(1 - m_dSellTradeFee / 100.) - long(aItem.BuyPrice()*(m_dBuyTradeFee / 100.)));
+			if (aItem.BuyPrice() >= lestimatedSellprice)
+			{
+				aItem.m_lsellPrice = aItem.m_lcurPrice;
+				AddMessage(_T("라운드::[%s][%s][%s],현재가[%d],수량[%d], 매도 시간 타임 아웃#1, 현재가로 매도 시도합니다."),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity);
+			}
+
+			if (aItem.m_lsellPrice != asellPrice || aItem.m_lunderPrice != aunderPrice)
+			{
+				aItem.m_lunderPrice = aunderPrice;
+				AddMessage(_T("라운드::[%s][%s][%s],목표상가[%d],목표하가[%d],수량[%d], 매도 시간 타임 아웃#1, 상가/하가 변경 되었습니다."),
 					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lunderPrice, aItem.m_lQuantity);
 
 				if (aItem.m_lsellPrice != asellPrice)
@@ -3261,6 +3453,10 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem)
 			}
 
 			aItem.m_strBuyOrder = "";
+			aItem.m_lholdTime = GetTickCount();
+			aItem.m_lholdTimeout = (m_lItemHoldTimeout > 0 ? aItem.m_lholdTime + m_lItemHoldTimeout : 0);
+			aItem.m_ltrySellTimeout0 = (m_lItemSellTimeout0 > 0 ? aItem.m_lholdTime + m_lItemSellTimeout0 : 0);
+			aItem.m_ltrySellTimeout1 = ((m_lItemSellTimeout0 > 0 && m_lItemSellTimeout1 > 0) ? aItem.m_lholdTime + m_lItemSellTimeout0 + m_lItemSellTimeout1 : 0);
 			aItem.m_eitemState = eST_HOLDING;
 		}
 		else
@@ -3350,7 +3546,8 @@ BOOL CABotDlg::REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale, BOOL bFromA
 
 		aItem.m_strSellOrder = "";		//원주문 번호 제거.
 		aItem.m_lsellPrice = 0;			//시장가는 가격이 0이다.
-		aItem.m_ltrySellTimeout = 0;	//타임 아웃 없앤다.
+		aItem.m_ltrySellTimeout0 = 0;	//타임 아웃 없앤다.
+		aItem.m_ltrySellTimeout1 = 0;	//타임 아웃 없앤다.
 	}
 	else
 	{

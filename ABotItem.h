@@ -49,7 +49,8 @@ public:
 	long			m_lholdTime;		//보유 시각. clock
 	long			m_lholdTimeout;		//보유후 매도까지 타임아웃. clock.
 
-	long			m_ltrySellTimeout;	//최종 매도 시도 포기 시각. clock.
+	long			m_ltrySellTimeout0;	//매도 시도 타임 아웃 0 시각. clock.
+	long			m_ltrySellTimeout1;	//매도 시도 타임 아웃 1 시각. clock.
 	CString			m_strSellOrder;		//최종 매도 시도 주문 번호.
 	long			m_lSellCost;		//실 매도한 누적 금액.
 	long			m_lSellQuantity;	//실 매도된 수량.

@@ -28,7 +28,9 @@ void CABotItem::Init()
 	m_lholdTime = 0;		//보유 시각. clock
 	m_lholdTimeout = 0;		//보유후 매도까지 타임아웃. clock.
 
-	m_ltrySellTimeout = 0;	//최종 매도 시도 포기 시각. clock.
+	m_ltrySellTimeout0 = 0;	//매도 시도 타임 아웃 0 시각. clock.
+	m_ltrySellTimeout1 = 0;	//매도 시도 타임 아웃 1 시각. clock.
+
 	m_strSellOrder = _T("");	//최종 매도 시도 주문 번호.
 	m_lSellCost = 0;			//실 매도한 누적 금액.
 	m_lSellQuantity = 0;		//실 매도된 수량.
