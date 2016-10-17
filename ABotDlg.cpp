@@ -1752,14 +1752,20 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 				{
 					aItem.m_ltryBuyTimeout = GetTickCount() + m_lItemBuyTimeout;
 
-					aItem.m_strBuyOrder = strOrderCode;
+					if (lRemainQuantity != 0)
+					{
+						aItem.m_strBuyOrder = strOrderCode;
+					}
 					AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매수 주문이 완료 되었습니다."),
 						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_strBuyOrder);
 				}
 				else if (aItem.m_eitemState == eST_WAITSELL)
 				{
 				//	aItem.m_ltrySellTimeout = (m_lItemHoldTimeout > 0 ? GetTickCount() + m_lItemHoldTimeout : 0);
-					aItem.m_strSellOrder = strOrderCode;
+					if (lRemainQuantity != 0)
+					{ 
+						aItem.m_strSellOrder = strOrderCode; 
+					}
 					AddMessage(_T("__________::[%s][%s][%s],단가[%d],수량[%d],잔량[%d],코드[%s] 매도 주문이 완료 되었습니다."),
 						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), lReqPrice, lReqQuantity, aItem.m_lQuantity - aItem.m_lSellQuantity, aItem.m_strSellOrder);
 				}
@@ -3562,6 +3568,10 @@ BOOL CABotDlg::REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale, BOOL bFromA
 	AddMessage(_T("SELL_ORDER::[%s],[%s][%s][%s],단가[%d],수량[%d],거래구분[%s],원주문번호[%s], 매도 요청[%s] %s!"),
 		GetOrderTypeString(lOrderType), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity - aItem.m_lSellQuantity, strHogaGb, aItem.m_strSellOrder, (bFromAllTrade ? "타이머" : "이벤트"), (lRet >= 0 ? "성공" : "실패"));
 
+	if (lRet >= 0)
+	{
+		aItem.m_strSellOrder = "";
+	}
 	return (lRet >= 0 ? TRUE : FALSE);
 }
 
