@@ -57,10 +57,10 @@ public:
 	BOOL REQ_DepositReceived();
 	BOOL REQ_ItemSearch();
 	BOOL REQ_ItemRealReg();
-	BOOL REQ_ItemBuyOrder(CABotItem &aItem);
-	BOOL REQ_ItemBuyCancel(CABotItem &aItem);
+	BOOL REQ_ItemBuyOrder(CABotItem &aItem, BOOL bFromAllTrade);
+	BOOL REQ_ItemBuyCancel(CABotItem &aItem, BOOL bFromAllTrade);
 	BOOL REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale, BOOL bFromAllTrade);
-	BOOL REQ_ItemSellCancel(CABotItem &aItem);
+	BOOL REQ_ItemSellCancel(CABotItem &aItem, BOOL bFromAllTrade);
 	BOOL REQ_BalanceInfo();
 	BOOL IsEndTrade();
 	void ReportAllTrade();

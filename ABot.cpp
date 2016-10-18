@@ -84,6 +84,41 @@ BOOL CABotApp::InitInstance()
 		return FALSE;
 	}
 	//////////////////////////////////////////////////////////////////////////
+	
+	{
+		SYSTEM_INFO    info;
+		::GetSystemInfo(&info);
+		HANDLE    handlethis;
+		handlethis = GetCurrentProcess();
+
+		if (info.dwNumberOfProcessors > 1)
+		{
+			DWORD ProcessAffinityMask = 0, SystemAffinityMask = 0;
+			//Preocess Affinity test¿ë
+			GetProcessAffinityMask(
+				handlethis,            // handle to the process of interest
+				&ProcessAffinityMask,    // pointer to structure to receive process affinity mask
+				&SystemAffinityMask        // pointer to structure to receive system affinity mask
+				);
+
+			ProcessAffinityMask = 0x1;
+
+			SetProcessAffinityMask(
+				handlethis,            // handle to the process of interest
+				ProcessAffinityMask        // pointer to structure to receive process affinity mask
+				);
+
+			GetProcessAffinityMask(
+				handlethis,            // handle to the process of interest
+				&ProcessAffinityMask,    // pointer to structure to receive process affinity mask
+				&SystemAffinityMask        // pointer to structure to receive system affinity mask
+				);
+
+			SetPriorityClass(handlethis, HIGH_PRIORITY_CLASS);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	CABotDlg dlg;
 	m_pMainWnd = &dlg;
 	INT_PTR nResponse = dlg.DoModal();
