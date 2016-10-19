@@ -139,8 +139,11 @@ public:
 	CComboBox			m_cmbSellOverThis2;	// 매도 타임 아웃 1 후, 상가를 이것으로 바꾼다. [%]
 	CComboBox			m_cmbSellUnderThis2;// 매도 타임 아웃 1 후, 하가를 이것으로 바꾼다. [%]
 
-	BOOL				m_bDoSellItemMarketValueAtRoundEnd;// 라운드 종료 시점에 미채결 종목을 시장가로 팔기.
-	CButton				m_checkDoSellItemMarketValueAtRoundEnd;// 라운드 종료 시점에 미채결 종목을 시장가로 팔기.
+	BOOL				m_bDoSellItemMarketValueAtRoundEnd;		// 라운드 종료 시점에 미채결 종목을 시장가로 팔기.
+	CButton				m_checkDoSellItemMarketValueAtRoundEnd;	// 라운드 종료 시점에 미채결 종목을 시장가로 팔기.
+
+	BOOL				m_bDoReuseItemAfterTradeDone;		// 거래했던 종목도 다시 검색되면 거래를 하기.
+	CButton				m_checkDoReuseItemAfterTradeDone;	// 거래했던 종목도 다시 검색되면 거래를 하기.
 
 public:
 	afx_msg void OnDestroy();
