@@ -39,16 +39,71 @@
 //567 상한가발생시간
 //568 하한가발생시간
 
+//[2016/10/20][09:46:08.294] : RealData::[006050][국영지앤엠][WAITSELL],현재가:+3410,전일대비기호:2,전일대비:+330,등락율:+10.71,누적거래량:5413587,,094613	+3410	+330	+10.71	+3410	+3405	+1	5413587	19131	+3625	+3785	+3365	2	+4864653	+17390263985	+986.20	16.02	12	80.45	1153	2	0	000000	000000
+//[2016/10/20][09:46:08.887] : RealData::[006050][국영지앤엠][WAITSELL],현재가:+3410,전일대비기호:2,전일대비:+330,등락율:+10.71,누적거래량:5413590,,094614	+3410	+330	+10.71	+3410	+3405	+3	5413590	19131	+3625	+3785	+3365	2	+4864656	+17390274215	+986.20	16.02	12	80.45	1153	2	0	000000	000000
+
+//[2016/10/20][09:36:59.039] : RealData::[006050][국영지앤엠][WAITSELL],현재가:+3450,전일대비기호:2,전일대비:+370,등락율:+12.01,누적거래량:5129234,,
+//093704	+3450	+370	+12.01	+3455	+3450	+5719	5129234	18154	+3625	+3785	+3365	2	+4580300	+16413507130	+934.40	15.18	12	82.32	1166	2	0	000000	000000
+
+//[2016/10/20][10:36:53.760] : RealData::[037070][파세코][WAITSELL],현재가:+6330,전일대비기호:2,전일대비:+550,등락율:+9.52,누적거래량:95969,,
+//103655	+6330	+550	+9.52	+6300	+6290	+322	95969	581	-5760	+6330	-5760	2	+65590	+405687390	+315.91	0.73	21	324.07	836	2	0	000000	000000
+
+//[2016/10/20][10:36:53.766] : RealData::[037070][파세코][WAITSELL],현재가:,전일대비기호:,전일대비:,등락율:,누적거래량:,,
+//6340	103655	1	5760	0	정적
+
 // {조회 키,		리얼 키,	행, 열, 타입,			색 변경, 정렬,		앞 문자, 뒷 문자}
 const stGRID lstOPTSBFID[] =
 {
-	{ "종목코드",		"9001",	-1, 0, DT_NONE,			FALSE,	DT_LEFT,		"", "" },
-//	{ "종목명",			"302",	-1, 1, DT_NONE,			FALSE,	DT_LEFT,		"", "" },
-	{ DEF_CUR_PRICE,	"10",	-1, 2, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "" },
-	{ "전일대비기호",	"25",	-1, 3, DT_SIGN,			TRUE,	DT_CENTER,		"", "" },
-	{ "전일대비",		"11",	-1, 4, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "" },
+	{ "종목코드",		"9001",	-1, 0, DT_NONE,			FALSE,	DT_LEFT,		"", ""  },
+//	{ "종목명",			"302",	-1, 1, DT_NONE,			FALSE,	DT_LEFT,		"", ""  },
+	{ DEF_CUR_PRICE,	"10",	-1, 2, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", ""  },
+	{ "전일대비기호",	"25",	-1, 3, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+	{ "전일대비",		"11",	-1, 4, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", ""  },
 	{ "등락율",			"12",	-1, 5, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "%" },
-	{ "누적거래량",		"13",	-1, 6, DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,		"", "" },
+	{ "누적거래량",		"13",	-1, 6, DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,		"", ""  },
+/*
+	//27 (최우선)매도 호가
+	{ "(최우선)매도 호가", "27", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//28 (최우선)매수 호가
+	{ "(최우선)매수 호가", "28", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//14 누적거래대금
+	{ "누적거래대금", "14", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//16 시가
+	{ "시가", "16", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//17 고가
+	{ "고가", "17", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//18 저가
+	{ "저가", "18", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//21 호가
+	{ "호가", "21", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//26 전일거래량대비(계약,주)
+	{ "전일거래량대비(계약,주)", "26", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//29 거래대금증감
+	{ "거래대금증감", "29", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//30 전일거래량대비(비율)
+	{ "전일거래량대비(비율)", "30", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//31 거래회전율
+	{ "거래회전율", "31", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//32 거래비용
+	{ "거래비용", "32", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//311 시가총액(억)
+	{ "시가총액(억)", "311", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//567 상한가발생시간
+	{ "상한가발생시간", "567", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+	//568 하한가발생시간
+	{ "하한가발생시간", "568", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
+
+	{ "15",				"15",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+	{ "19",				"19",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+	{ "20",				"20",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+	{ "22",				"22",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+	{ "23",				"23",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+	{ "24",				"24",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+	{ "33",				"33",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+	{ "34",				"34",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+	{ "35",				"35",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+	{ "36",				"36",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+*/
 };
 
 
@@ -1960,23 +2015,44 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 		}
 	}
 
-	AddMessage(_T("RealData::[%s][%s][%s],%s,%s"), sJongmokCode, strCodeName, (nItemIndex >= 0 ? m_Item[nItemIndex].GetStateString() : "NotInItem"), strReceivedData, sRealData);
-
-	if(true)
+	AddMessage(_T("RealData::[%s][%s][%s],%s,[%s],[%s]"), sJongmokCode, strCodeName, (nItemIndex >= 0 ? m_Item[nItemIndex].GetStateString() : "NotInItem"), strReceivedData, sRealType, sRealData);
+	
+	if (0 <= nItemIndex && nItemIndex < _countof(m_Item))
 	{
-		if (IsInRound() && 0 <= nItemIndex && nItemIndex < _countof(m_Item) &&
-			curPrice > 0 && m_Item[nItemIndex].m_lcurPrice != curPrice &&
-			eST_NONE < m_Item[nItemIndex].m_eitemState && m_Item[nItemIndex].m_eitemState < eST_TRADEDONE)
+		CABotItem &aItem = m_Item[nItemIndex];
+
+		if (IsInRound() &&
+			curPrice > 0 && aItem.m_lcurPrice != curPrice && 
+			eST_NONE < aItem.m_eitemState && aItem.m_eitemState < eST_TRADEDONE)
 		{
+			CString strRealData(sRealData);
+
+			if (strRealData.Find("정적") >= 0)
+			{
+				if (aItem.m_eitemState == eST_WAITSELL)
+				{
+					AddMessage(_T("RealData::[%s][%s][%s],서킷 브레이커 감지로 타임 아웃에 2분 추가 반영."), sJongmokCode, strCodeName, aItem.GetStateString());
+
+					if (aItem.m_ltrySellTimeout0 > 0)
+					{
+						aItem.m_ltrySellTimeout0 += 2 * 60 * 1000; //2분 추가.
+					}
+					if (aItem.m_ltrySellTimeout1 > 0)
+					{
+						aItem.m_ltrySellTimeout1 += 2 * 60 * 1000; //2분 추가.
+					}
+				}
+			}
+
 			CSingleLock	lock(&m_criticalItemProcess);
 			lock.Lock();
 			if (lock.IsLocked())
 			{
-				m_Item[nItemIndex].m_lcurPrice = curPrice;
+				aItem.m_lcurPrice = curPrice;
 				//	AddMessage(_T("OnReceiveRealData::종목[%s][%s][%s] 현재가[%s], grid index[%s], item index[%d]"),
 				//		sJongmokCode, strCodeName, m_Item[nItemIndex].GetStateString(), GetCurrencyString(m_Item[nItemIndex].m_lcurPrice), strIndex, nItemIndex);
 
-				ProcessTradeItem(nItemIndex);
+				ProcessTradeItem(aItem.m_index);
 				lock.Unlock();
 			}
 		}
