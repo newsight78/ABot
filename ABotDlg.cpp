@@ -21,6 +21,7 @@
 
 //예약어.
 #define DEF_CUR_PRICE	_T("현재가")
+#define DEF_YANG_TRADE	_T("양거래")
 
 //참고
 //27 (최우선)매도 호가
@@ -61,7 +62,8 @@ const stGRID lstOPTSBFID[] =
 	{ "전일대비",		"11",	-1, 4, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", ""  },
 	{ "등락율",			"12",	-1, 5, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "%" },
 	{ "누적거래량",		"13",	-1, 6, DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,		"", ""  },
-/*
+	{ DEF_YANG_TRADE,	"15",	-1, 7, DT_SIGN,			TRUE,	DT_RIGHT,		"", ""  },
+	/*
 	//27 (최우선)매도 호가
 	{ "(최우선)매도 호가", "27", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
 	//28 (최우선)매수 호가
@@ -93,7 +95,7 @@ const stGRID lstOPTSBFID[] =
 	//568 하한가발생시간
 	{ "하한가발생시간", "568", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
 
-	{ "15",				"15",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
+//	{ "15",				"15",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
 	{ "19",				"19",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
 	{ "20",				"20",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
 	{ "22",				"22",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
@@ -103,7 +105,7 @@ const stGRID lstOPTSBFID[] =
 	{ "34",				"34",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
 	{ "35",				"35",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
 	{ "36",				"36",	-1, 1, DT_SIGN,			TRUE,	DT_CENTER,		"", ""  },
-*/
+	*/
 };
 
 
@@ -199,6 +201,11 @@ CABotDlg::CABotDlg(CWnd* pParent /*=NULL*/)
 
 	m_lItemSellTimeout0 = 0;
 	m_lItemSellTimeout1 = 0;
+
+	m_lfilterBuyType = 0;
+	m_dfilterBuyAccumTime = 0;
+	m_dfilterBuyTickspeedLimit = 0;
+	m_dfilterBuyYangcostLimit = 0;
 
 	m_dBuyTradeFee = 0.;
 	m_dSellTradeFee = 0.;
@@ -906,6 +913,27 @@ void CABotDlg::LoadSystemFile()
 	m_cmbBuyRetry.SetCurSel(i);
 	AddMessage("     매수 실패시 재시도 회수 [%s]회.", strBuf);
 
+	//매수 필터.
+	ReadFromIniFile_String(m_strConfigFile, "BUY_FILTER", "type", "0", strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
+	m_lfilterBuyType = n;
+	AddMessage("     매수 필터. 종류 [%d].", m_lfilterBuyType);
+
+	ReadFromIniFile_String(m_strConfigFile, "BUY_FILTER", "accum_time", "1.5", strBuf);
+	d = atof((LPSTR)(LPCSTR)strBuf);
+	m_dfilterBuyAccumTime = d;
+	AddMessage("     매수 필터. 누적 시간 [%s]초.", strBuf);
+
+	ReadFromIniFile_String(m_strConfigFile, "BUY_FILTER", "tickspeed_limit", "5", strBuf);
+	d = atof((LPSTR)(LPCSTR)strBuf);
+	m_dfilterBuyTickspeedLimit = d;
+	AddMessage("     매수 필터. 틱속도 하한 [%s]틱/초.", strBuf);
+
+	ReadFromIniFile_String(m_strConfigFile, "BUY_FILTER", "yangcost_limit", "500", strBuf);
+	d = atof((LPSTR)(LPCSTR)strBuf);
+	m_dfilterBuyYangcostLimit = d;
+	AddMessage("     매수 필터. 양거래금액 하한 [%s]만원/초.", strBuf);
+
 	// 주식 보유 타임 아웃.
 	ReadFromIniFile_String(m_strConfigFile, "HOLD", "timeout", "0", strBuf);
 	n = atol((LPSTR)(LPCSTR)strBuf);
@@ -1314,9 +1342,9 @@ void CABotDlg::InitProcessCondition()
 void CABotDlg::InitRealAddGrid()
 {
 	COLORREF clr = RGB(215, 227, 241);
-	long i = 0, nWidth[] = { 50, 101, 56, 30, 56, 56, 80 };
+	long i = 0, nWidth[] = { 50, 101, 56, 30, 56, 56, 80, 80 };
 	long nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
-	CString strHeader[] = { "코드", "종목명", "현재가", "기호", "전일대비", "등락율", "거래량" };
+	CString strHeader[] = { "코드", "종목명", "현재가", "기호", "전일대비", "등락율", "거래량", "양거래" };
 
 	m_grdRealAdd.SetEditable(FALSE);				//cell을 에디트 못하게 함.
 //	m_grdRealAdd.EnableScrollBars(SB_BOTH, FALSE);
@@ -1992,6 +2020,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 	CString strData;
 	CStringArray arrData;
 	long curPrice = 0;
+	long yangtrade = 0;
 	arrData.Add(sJongmokCode);
 	long i=0, nFieldCnt = sizeof(lstOPTSBFID) / sizeof(*lstOPTSBFID);		// 전체크기 / 원소크기 = 원소개수
 	for (i = 1; i < nFieldCnt; i++)
@@ -2013,6 +2042,10 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 		{
 			curPrice = atol(strData);
 		}
+		else if (DEF_YANG_TRADE == lstOPTSBFID[i].strKey)
+		{
+			yangtrade = atol(strData);
+		}
 	}
 
 	AddMessage(_T("RealData::[%s][%s][%s],%s,[%s],[%s]"), sJongmokCode, strCodeName, (nItemIndex >= 0 ? m_Item[nItemIndex].GetStateString() : "NotInItem"), strReceivedData, sRealType, sRealData);
@@ -2020,16 +2053,13 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 	if (0 <= nItemIndex && nItemIndex < _countof(m_Item))
 	{
 		CABotItem &aItem = m_Item[nItemIndex];
-
-		if (IsInRound() &&
-			curPrice > 0 && aItem.m_lcurPrice != curPrice && 
-			eST_NONE < aItem.m_eitemState && aItem.m_eitemState < eST_TRADEDONE)
+		if (IsInRound() && eST_NONE < aItem.m_eitemState && aItem.m_eitemState < eST_TRADEDONE)
 		{
 			CString strRealData(sRealData);
 
 			if (strRealData.Find("정적") >= 0)
 			{
-				if (aItem.m_eitemState == eST_WAITSELL)
+				if (eST_WAITSELL == aItem.m_eitemState)
 				{
 					AddMessage(_T("RealData::[%s][%s][%s],서킷 브레이커 감지로 타임 아웃에 2분 추가 반영."), sJongmokCode, strCodeName, aItem.GetStateString());
 
@@ -2044,16 +2074,30 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 				}
 			}
 
-			CSingleLock	lock(&m_criticalItemProcess);
-			lock.Lock();
-			if (lock.IsLocked())
+			BOOL doProcess = FALSE;
+			if (curPrice > 0 && eST_WAITFILTERBUY == aItem.m_eitemState)
 			{
-				aItem.m_lcurPrice = curPrice;
+				aItem.m_lfilterBuyTickcount++;
+				aItem.m_lfilterBuyYangcost += yangtrade*curPrice;
+				doProcess = TRUE;
+			}
+			if (curPrice > 0 && aItem.m_lcurPrice != curPrice)
+			{
+				doProcess = TRUE;
+			}
+
+			if (doProcess)
+			{
+				CSingleLock	lock(&m_criticalItemProcess);
+				lock.Lock();
+				if (lock.IsLocked())
+				{
+					aItem.m_lcurPrice = curPrice;
 				//	AddMessage(_T("OnReceiveRealData::종목[%s][%s][%s] 현재가[%s], grid index[%s], item index[%d]"),
 				//		sJongmokCode, strCodeName, m_Item[nItemIndex].GetStateString(), GetCurrencyString(m_Item[nItemIndex].m_lcurPrice), strIndex, nItemIndex);
-
-				ProcessTradeItem(aItem.m_index);
-				lock.Unlock();
+					ProcessTradeItem(aItem.m_index);
+					lock.Unlock();
+				}
 			}
 		}
 	}
@@ -3255,11 +3299,69 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 	case eST_NONE:		//아무것도 아닌 상태.
 		break;
 
+	case eST_TONONE:	//아무것도 아닌 상태로 되돌리기
+		//실시간 정보를 보여주는 그리드에서 지운다
+		m_grdRealAdd.DeleteRow(aItem.m_index);
+
+		//실시간 정보를 보여주는 그리드의 순서에서 지운다
+		m_mapJongCode.RemoveKey(aItem.m_strCode);
+
+		//m_Item[MAX_ITEM_COUNT]에서의 item Index를 멥에서 지운다.
+		m_mapItemCode.RemoveKey(aItem.m_strCode);
+
+		//used map 에서도 지운다.
+		m_mapUsedItemCode.RemoveKey(aItem.m_strCode);
+
+		//종목의 시세를 받지 않는다.
+		theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
+
+		break;
+
 	case eST_ADDED:		//관심 종목에 추가 되었을때.
 		if (aItem.m_lcurPrice>0)
 		{
+			aItem.m_eitemState = eST_SETFILTERBUY;
+			break;
+		}
+		break;
+
+	case eST_SETFILTERBUY:
+		if (m_lfilterBuyType == 0)
+		{
 			aItem.m_eitemState = eST_TRYBUY;
 			break;
+		}
+		else if (m_lfilterBuyType == 1)
+		{
+			aItem.m_lfilterBuyAccumTime = long(m_dfilterBuyAccumTime*1000);
+			aItem.m_eitemState = eST_WAITFILTERBUY;
+			break;
+		}
+		aItem.m_eitemState = eST_TRYBUY;
+		break;
+
+	case eST_WAITFILTERBUY:
+		if (true)
+		{
+			long clock = long(GetTickCount());
+			if (clock >= aItem.m_lfilterBuyAccumTime)
+			{
+				double dacctime = (m_dfilterBuyAccumTime * 1000 + clock - aItem.m_lfilterBuyAccumTime)/1000.0;
+				double dtickspeed = aItem.m_lfilterBuyTickcount / dacctime;
+				double dyangcost = (aItem.m_lfilterBuyYangcost/ 10000.0) / dacctime;
+				if (dtickspeed >= m_dfilterBuyTickspeedLimit && dyangcost >= m_dfilterBuyYangcostLimit)
+				{
+					AddMessage(_T("라운드::[%s][%s][%s], 틱속도[%d]틱/초,양거래금액[%d]만원/초로 거래를 시작합니다."),
+						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), dtickspeed, dyangcost);
+					aItem.m_eitemState = eST_TRYBUY;
+					break;
+				}
+
+				AddMessage(_T("라운드::[%s][%s][%s], 틱속도[%d]틱/초,양거래금액[%d]만원/초로 다시 관심 종목에 진입할때까지 거래를 하지 않습니다."),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), dtickspeed, dyangcost);
+				aItem.m_eitemState = eST_TONONE;
+				break;
+			}
 		}
 		break;
 
@@ -3271,28 +3373,10 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 	//	}
 		if (aItem.m_ltryBuyCount == 0 && m_lProcessDR < m_lProcessItemDR)
 		{
-			//실시간 정보를 보여주는 그리드에서 지운다
-			CString strIndex;
-			if (strIndex.GetLength()>0)
-			{
-				m_grdRealAdd.DeleteRow(_ttoi(strIndex));
-			}
-			//실시간 정보를 보여주는 그리드의 순서에서 지운다
-			m_mapJongCode.RemoveKey(aItem.m_strCode);
-
-			//m_Item[MAX_ITEM_COUNT]에서의 item Index를 멥에서 지운다.
-			m_mapItemCode.RemoveKey(aItem.m_strCode);
-
-			//used map 에서도 지운다.
-			m_mapUsedItemCode.RemoveKey(aItem.m_strCode);
-
-			//종목의 시세를 받지 않는다.
-			theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
-
 			//다시 종목으로 검색될때 까지 안녕~
 			AddMessage(_T("라운드::[%s][%s][%s], 잔여 운용 금액 %s[원]이 종목 운용 금액(수수료 포함) %s[원]보다 작습니다. 다시 관심 종목에 진입할때까지 거래를 하지 않습니다."), 
 				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), GetCurrencyString(m_lProcessDR), GetCurrencyString(m_lProcessItemDR));
-			aItem.m_eitemState = eST_NONE;
+			aItem.m_eitemState = eST_TONONE;
 			break;
 		}
 

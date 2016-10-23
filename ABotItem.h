@@ -2,7 +2,10 @@
 enum eItemState
 {
 	eST_NONE,				//아무것도 아닌 상태.
+	eST_TONONE,				//아무것도 아닌 상태로 되돌리기.
 	eST_ADDED,				//관심 종목에 추가 되었을때.
+	eST_SETFILTERBUY,		//매수 필터 설정.
+	eST_WAITFILTERBUY,		//매수 필터 완료 대기.
 	eST_TRYBUY,				//매수 시도 상태.
 	eST_WAITBUY,			//매수 체결 대기 상태.
 	eST_BUYCANCEL,			//매수 중단 상태.
@@ -39,10 +42,14 @@ public:
 	long			m_lupperPrice;		//매각 상한가. 이가격 이상으로 오르면 판다.
 	long			m_lunderPrice;		//매각 하한가. 이가격 이하로 떨어지면 판다.
 
-	long			m_ltryBuyTimeout;	//최종 구매 시도 포기 시각. clock.
-	CString			m_strBuyOrder;		//최종 구매 시도 주문 번호.
-	long			m_lBuyCost;			//실 구매에 사용된 누적 금액.
-	long			m_lBuyQuantity;		//실 구매된 수량.
+	long			m_lfilterBuyAccumTime;	//매수 필터, 데이터 누적 목표 시간. clock.
+	long			m_lfilterBuyTickcount;	//매수 필터, 틱 수량. [개]
+	long			m_lfilterBuyYangcost;	//매수 필터, 양거래금액. [원]
+
+	long			m_ltryBuyTimeout;	//최종 매수 시도 포기 시각. clock.
+	CString			m_strBuyOrder;		//최종 매수 시도 주문 번호.
+	long			m_lBuyCost;			//실 매수에 사용된 누적 금액.
+	long			m_lBuyQuantity;		//실 매수된 수량.
 	long			BuyPrice()			{ return (m_lBuyQuantity > 0 ? m_lBuyCost / m_lBuyQuantity : 0); };
 	long			m_ltryBuyCount;		//구매 시도 회수.
 

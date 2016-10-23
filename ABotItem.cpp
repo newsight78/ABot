@@ -14,16 +14,20 @@ void CABotItem::Init()
 	m_strName = _T("");
 	m_lcurPrice = 0;		//현재가. 실시간으로 검색되고 있다면.
 	m_lbuyPrice = 0;		//매수가.
-	m_lsellPrice = 0;		//매도가
+	m_lsellPrice = 0;		//매도가.
 	m_lQuantity = 0;		//수량.
 	m_lupperPrice = 0;		//매각 상한가. 이가격 이상으로 오르면 판다.
 	m_lunderPrice = 0;		//매각 하한가. 이가격 이하로 떨어지면 판다.
 
-	m_ltryBuyTimeout = 0;	//최종 구매 시도 포기 시각. clock.
-	m_strBuyOrder = _T("");	//최종 구매 시도 주문 번호.
-	m_lBuyCost = 0;			//실 구매에 사용된 누적 금액.
-	m_lBuyQuantity = 0;		//실 구매된 수량.
-	m_ltryBuyCount = 0;		//구매 시도 회수.
+	m_lfilterBuyAccumTime = 0;	//매수 필터, 데이터 누적 시간. clock.
+	m_lfilterBuyTickcount = 0;	//매수 필터, 틱 수량.
+	m_lfilterBuyYangcost = 0;	//매수 필터, 양거래금액.
+
+	m_ltryBuyTimeout = 0;	//최종 매수 시도 포기 시각. clock.
+	m_strBuyOrder = _T("");	//최종 매수 시도 주문 번호.
+	m_lBuyCost = 0;			//실 매수에 사용된 누적 금액.
+	m_lBuyQuantity = 0;		//실 매수된 수량.
+	m_ltryBuyCount = 0;		//매수 시도 회수.
 
 	m_lholdTime = 0;		//보유 시각. clock
 	m_lholdTimeout = 0;		//보유후 매도까지 타임아웃. clock.
@@ -47,8 +51,14 @@ CString CABotItem::GetStateString()
 {
 	if (m_eitemState == eST_NONE)		//아무것도 아닌 상태.
 		return "NONE";
+	else if (m_eitemState == eST_TONONE)	//아무것도 아닌 상태로 되돌리기.
+		return "TONONE";
 	else if (m_eitemState == eST_ADDED)		//관심 종목에 추가 되었을때.
 		return "ADDED";
+	else if (m_eitemState == eST_SETFILTERBUY)	//매수 필터 설정.
+		return "SETFILTERBUY";
+	else if (m_eitemState == eST_WAITFILTERBUY)	//매수 필터 완료 대기.
+		return "WAITFILTERBUY";
 	else if (m_eitemState == eST_TRYBUY)		//매수 시도 상태.
 		return "TRYBUY";
 	else if (m_eitemState == eST_WAITBUY)	//매수 체결 대기 상태.
