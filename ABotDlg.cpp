@@ -3364,13 +3364,13 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 				double dyangcost = (aItem.m_lfilterBuyYangcost/ 10000.0) / dacctime;
 				if (dtickspeed >= m_dfilterBuyTickspeedLimit && dyangcost >= m_dfilterBuyYangcostLimit)
 				{
-					AddMessage(_T("라운드::[%s][%s][%s], 틱속도[%d]틱/초,양거래금액[%d]만원/초로 거래를 시작합니다."),
+					AddMessage(_T("라운드::[%s][%s][%s], 틱속도[%.2f]틱/초,양거래금액[%.2f]만원/초로 거래를 시작합니다."),
 						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), dtickspeed, dyangcost);
 					aItem.m_eitemState = eST_TRYBUY;
 					break;
 				}
 
-				AddMessage(_T("라운드::[%s][%s][%s], 틱속도[%d]틱/초,양거래금액[%d]만원/초로 다시 관심 종목에 진입할때까지 거래를 하지 않습니다."),
+				AddMessage(_T("라운드::[%s][%s][%s], 틱속도[%.2f]틱/초,양거래금액[%.2f]만원/초로 다시 관심 종목에 진입할때까지 거래를 하지 않습니다."),
 					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), dtickspeed, dyangcost);
 				aItem.m_eitemState = eST_TONONE;
 				break;
