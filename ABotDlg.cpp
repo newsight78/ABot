@@ -2048,16 +2048,22 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 		}
 	}
 
-	AddMessage(_T("RealData::[%s][%s][%s],%s,[%s],[%s]"), sJongmokCode, strCodeName, (nItemIndex >= 0 ? m_Item[nItemIndex].GetStateString() : "NotInItem"), strReceivedData, sRealType, sRealData);
-	
+	BOOL bcbfound = FALSE;
+	CString strRealData(sRealData);
+	if (strRealData.Find("정적") >= 0)
+	{
+		bcbfound = TRUE;
+	}
+
+//	AddMessage(_T("RealData::[%s][%s][%s],%s%s,[%s],[%s]"), sJongmokCode, strCodeName, (nItemIndex >= 0 ? m_Item[nItemIndex].GetStateString() : "NotInItem"), bcbfound?"[서킷브레이커감지]":"", strReceivedData, sRealType, sRealData);
+	AddMessage(_T("RealData::[%s][%s][%s],%s%s"), sJongmokCode, strCodeName, (nItemIndex >= 0 ? m_Item[nItemIndex].GetStateString() : "NotInItem"), bcbfound ? "[서킷브레이커감지]" : "", strReceivedData);
+
 	if (0 <= nItemIndex && nItemIndex < _countof(m_Item))
 	{
 		CABotItem &aItem = m_Item[nItemIndex];
 		if (IsInRound() && eST_NONE < aItem.m_eitemState && aItem.m_eitemState < eST_TRADEDONE)
 		{
-			CString strRealData(sRealData);
-
-			if (strRealData.Find("정적") >= 0)
+			if (bcbfound)
 			{
 				if (eST_WAITSELL == aItem.m_eitemState)
 				{
@@ -2075,7 +2081,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 			}
 
 			BOOL doProcess = FALSE;
-			if (curPrice > 0 && eST_WAITFILTERBUY == aItem.m_eitemState)
+			if (curPrice > 0 && yangtrade != 0 && eST_WAITFILTERBUY == aItem.m_eitemState)
 			{
 				aItem.m_lfilterBuyTickcount++;
 				aItem.m_lfilterBuyYangcost += yangtrade*curPrice;
