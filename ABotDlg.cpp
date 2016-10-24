@@ -2795,17 +2795,33 @@ void CABotDlg::OnReceiveRealCondition(LPCTSTR sTrCode, LPCTSTR strType, LPCTSTR 
 			{
 				if (!m_bDoReuseItemAfterTradeDone)
 				{
-					return;
+					if (0 <= aIndex && aIndex < _countof(m_Item))
+					{
+						if (m_Item[aIndex].m_eitemState != eST_NONE)
+						{
+							return;
+						}
+					}
+					else
+					{
+						return;
+					}
 				}
-
+				
 				if (0 <= aIndex && aIndex < _countof(m_Item))
 				{
-					if (m_Item[aIndex].m_eitemState != eST_TRADEDONE)
+					if (m_Item[aIndex].m_eitemState == eST_NONE)
+					{
+						strMsg.Format(_T("______________________::[%s][%s]종목이 다시 사용 됩니다."), sCode, strCodeName);
+					}
+					else if (m_Item[aIndex].m_eitemState != eST_TRADEDONE)
 					{
 						return;	//이미 거래 중이고,
 					}
-
-					strMsg.Format(_T("______________________::[%s][%s]종목이 재사용 됩니다."), sCode, strCodeName);
+					else
+					{
+						strMsg.Format(_T("______________________::[%s][%s]종목이 재사용 됩니다."), sCode, strCodeName);
+					}
 					m_Item[aIndex].Init();
 				}
 				else
@@ -3301,20 +3317,17 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 
 	case eST_TONONE:	//아무것도 아닌 상태로 되돌리기
 		//실시간 정보를 보여주는 그리드에서 지운다
-		m_grdRealAdd.DeleteRow(aItem.m_index);
-
+	//	m_grdRealAdd.DeleteRow(aItem.m_index);
 		//실시간 정보를 보여주는 그리드의 순서에서 지운다
-		m_mapJongCode.RemoveKey(aItem.m_strCode);
-
+	//	m_mapJongCode.RemoveKey(aItem.m_strCode);
 		//m_Item[MAX_ITEM_COUNT]에서의 item Index를 멥에서 지운다.
-		m_mapItemCode.RemoveKey(aItem.m_strCode);
-
+	//	m_mapItemCode.RemoveKey(aItem.m_strCode);
 		//used map 에서도 지운다.
-		m_mapUsedItemCode.RemoveKey(aItem.m_strCode);
+	//	m_mapUsedItemCode.RemoveKey(aItem.m_strCode);
 
 		//종목의 시세를 받지 않는다.
 		theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
-
+		aItem.m_eitemState = eST_NONE;
 		break;
 
 	case eST_ADDED:		//관심 종목에 추가 되었을때.
@@ -3333,7 +3346,7 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		}
 		else if (m_lfilterBuyType == 1)
 		{
-			aItem.m_lfilterBuyAccumTime = long(m_dfilterBuyAccumTime*1000);
+			aItem.m_lfilterBuyAccumTime = long(GetTickCount()+m_dfilterBuyAccumTime * 1000);
 			aItem.m_eitemState = eST_WAITFILTERBUY;
 			break;
 		}
