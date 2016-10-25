@@ -103,6 +103,8 @@ public:
 
 	CABotItem			m_Item[MAX_ITEM_COUNT];	//종목.
 	long				m_ItemCount;			//종목수.
+	CABotItem			m_TradeDoneItem[MAX_ITEM_COUNT];	//거래 완료된 종목.
+	long				m_TradeDoneItemCount;				//거래 완료된 종목수.
 	CMap<CString, LPCSTR, long, long>	m_mapItemCode;			// CodeString => m_Item's index;
 	CMap<CString, LPCSTR, long, long>	m_mapOrderCode;			// CodeString => m_Item's index;
 	CMap<CString, LPCSTR, long, long>	m_mapUsedItemCode;		// CodeString => m_Item's index;

@@ -51,7 +51,8 @@ public:
 	long			m_lBuyCost;			//실 매수에 사용된 누적 금액.
 	long			m_lBuyQuantity;		//실 매수된 수량.
 	long			BuyPrice()			{ return (m_lBuyQuantity > 0 ? m_lBuyCost / m_lBuyQuantity : 0); };
-	long			m_ltryBuyCount;		//구매 시도 회수.
+	long			m_ltryBuyCount;		//매도 시도 회수.
+	CString			m_strBuyTime;		//최초 매수 시각.
 
 	long			m_lholdTime;		//보유 시각. clock
 	long			m_lholdTimeout;		//보유후 매도까지 타임아웃. clock.
@@ -63,5 +64,6 @@ public:
 	long			m_lSellQuantity;	//실 매도된 수량.
 	long			SellPrice()			{ return (m_lSellQuantity > 0 ? m_lSellCost / m_lSellQuantity : 0); };
 	long			m_ltrySellCount;	//매도 시도 회수.
+	CString			m_strSellTime;		//최초 매도 시각.
 };
 

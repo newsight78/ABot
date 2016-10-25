@@ -28,6 +28,7 @@ void CABotItem::Init()
 	m_lBuyCost = 0;			//실 매수에 사용된 누적 금액.
 	m_lBuyQuantity = 0;		//실 매수된 수량.
 	m_ltryBuyCount = 0;		//매수 시도 회수.
+	m_strBuyTime = _T("");	//최초 매수 시각.
 
 	m_lholdTime = 0;		//보유 시각. clock
 	m_lholdTimeout = 0;		//보유후 매도까지 타임아웃. clock.
@@ -39,6 +40,7 @@ void CABotItem::Init()
 	m_lSellCost = 0;			//실 매도한 누적 금액.
 	m_lSellQuantity = 0;		//실 매도된 수량.
 	m_ltrySellCount = 0;		//매도 시도 회수.
+	m_strSellTime = _T("");		//최초 매도 시각.
 }
 
 

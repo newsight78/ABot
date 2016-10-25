@@ -185,6 +185,7 @@ CABotDlg::CABotDlg(CWnd* pParent /*=NULL*/)
 	m_lProcessDR = 0;
 	m_lDepositReceived = 0;
 	m_ItemCount = 0;
+	m_TradeDoneItemCount = 0;
 	m_nConditionIndex = 0;
 	m_nProcessItemCount = 0;
 
@@ -1261,6 +1262,13 @@ void CABotDlg::InitProcessCondition()
 		m_Item[i].Init();
 	}
 
+	m_TradeDoneItemCount = 0;
+	for (i = 0; i<_countof(m_TradeDoneItem); i++)
+	{
+		m_TradeDoneItem[i].m_index = i;
+		m_TradeDoneItem[i].Init();
+	}
+
 	SetDlgItemText(IDC_BUTTON_EDIT_INROUND, "비율 수정");
 
 	CString strBuf;
@@ -1920,7 +1928,11 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 					aItem.m_eitemState == eST_WAITBUYCANCEL)
 				{
 					ASSERT(bBUYDone);
-
+					if (aItem.m_strBuyTime.GetLength() == 0)
+					{
+						CTime time = CTime::GetCurrentTime();
+						aItem.m_strBuyTime.Format("%s", time.Format("%H:%M:%S"));
+					}					
 					aItem.m_lBuyCost = lTradePrice*lTradeQuantity;
 					aItem.m_lBuyQuantity = lTradeQuantity;
 					if (lRemainQuantity == 0 && aItem.m_lQuantity != aItem.m_lBuyQuantity)
@@ -1952,7 +1964,11 @@ void CABotDlg::OnReceiveChejanData(LPCTSTR sGubun, long nItemCnt, LPCTSTR sFIdLi
 					aItem.m_eitemState == eST_WAITSELLCANCEL)
 				{
 					ASSERT(bSELLDone);
-
+					if (aItem.m_strSellTime.GetLength() == 0)
+					{
+						CTime time = CTime::GetCurrentTime();
+						aItem.m_strSellTime.Format("%s", time.Format("%H:%M:%S"));
+					}
 					aItem.m_lSellCost = lTradePrice*lTradeQuantity;
 					aItem.m_lSellQuantity = lTradeQuantity;
 					if (lRemainQuantity == 0 && aItem.m_lQuantity != aItem.m_lSellQuantity)
@@ -3618,23 +3634,25 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		break;
 
 	case eST_TRADECLOSING:
+		theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
+		if (aItem.m_lBuyCost != 0 && aItem.m_lSellCost != 0)
 		{
-			theApp.m_khOpenApi.SetRealRemove(m_strScrNo, aItem.m_strCode);
-
 			long lactBuyCost = aItem.m_lBuyCost;
 			long lactSellCost = long(aItem.m_lSellCost*(1 - m_dSellTradeFee / 100.) - long(aItem.m_lBuyCost*(m_dBuyTradeFee / 100.)));
-			if (lactBuyCost == 0) {	lactBuyCost = 1; }
+			if (lactBuyCost == 0) { lactBuyCost = 1; }
 			AddMessage(_T("결산 =================================================================================================================="));
 			AddMessage(_T("      [%s][%s],실 매입금[%s], 실 매도금[%s], 실현 이익[%s], 실 이익율[%4.2f]퍼센트 입니다."),
 				aItem.m_strCode, aItem.m_strName, GetCurrencyString(lactBuyCost), GetCurrencyString(lactSellCost), GetCurrencyString(lactSellCost - lactBuyCost), double(lactSellCost - lactBuyCost) / double(lactBuyCost)*100.0);
 			AddMessage(_T("결산 =================================================================================================================="));
-
-			m_lProcessDR += m_lProcessItemDR;
-
 			m_lProcessDR -= lactBuyCost;
 			m_lProcessDR += lactSellCost;
-			AddMessage(_T("운용 금액 총합은 %s[원]이 되었습니다."), GetCurrencyString(m_lProcessDR));
+
+			m_TradeDoneItem[m_TradeDoneItemCount] = aItem;
+			m_TradeDoneItemCount++;
 		}
+		m_lProcessDR += m_lProcessItemDR;
+
+		AddMessage(_T("운용 금액 총합은 %s[원]이 되었습니다."), GetCurrencyString(m_lProcessDR));
 		aItem.m_eitemState = eST_TRADEDONE;
 		break;
 
@@ -3906,15 +3924,16 @@ void CABotDlg::ReportAllTrade()
 	long i = 0;
 	long laccBuyCost = 0;
 	long laccSellCost = 0;
-	AddMessage(_T("총결산 ==============================================================================================================="));
-	ASSERT(MAX_ITEM_COUNT >= m_ItemCount);
-	for (i = 0; i < m_ItemCount; i++)
+	AddMessage(_T("총결산 ========================================================================================================================================"));
+	ASSERT(MAX_ITEM_COUNT >= m_TradeDoneItemCount);
+	for (i = 0; i < m_TradeDoneItemCount; i++)
 	{
-		if (m_Item[i].m_eitemState == eST_TRADEDONE && m_Item[i].m_lBuyCost!=0)
+		CABotItem &aItem = m_TradeDoneItem[i];
+		if (aItem.m_lBuyCost != 0)
 		{
 			CString strMark("----");
-			long lactBuyCost = m_Item[i].m_lBuyCost;
-			long lactSellCost = long(m_Item[i].m_lSellCost*(1 - m_dSellTradeFee / 100.)) - long(m_Item[i].m_lBuyCost*(m_dBuyTradeFee / 100.));
+			long lactBuyCost = aItem.m_lBuyCost;
+			long lactSellCost = long(aItem.m_lSellCost*(1 - m_dSellTradeFee / 100.)) - long(aItem.m_lBuyCost*(m_dBuyTradeFee / 100.));
 			if (lactSellCost>lactBuyCost)
 			{
 				strMark = "▲__";
@@ -3925,17 +3944,17 @@ void CABotDlg::ReportAllTrade()
 			}
 
 			if (lactBuyCost == 0) {	lactBuyCost = 1; }
-			AddMessage(_T("       ,[%s][%3d],[%s][%s],실매입금[%d],실매도금[%d],실이익율[%4.2f]퍼센트 입니다."),
-				strMark, i + 1, m_Item[i].m_strCode, m_Item[i].m_strName, lactBuyCost, lactSellCost, double(lactSellCost - lactBuyCost) / double(lactBuyCost)*100.0);
+			AddMessage(_T("       ,[%s][%3d],[%s]~[%s],[%s][%s],실매입금[%d],실매도금[%d],실이익율[%4.2f]퍼센트 입니다."),
+				strMark, i + 1, aItem.m_strBuyTime, aItem.m_strSellTime, aItem.m_strCode, aItem.m_strName, lactBuyCost, lactSellCost, double(lactSellCost - lactBuyCost) / double(lactBuyCost)*100.0);
 			laccBuyCost += lactBuyCost;
 			laccSellCost += lactSellCost;
 		}
 	}
-	AddMessage(_T("총결산 ==============================================================================================================="));
+	AddMessage(_T("총결산 ========================================================================================================================================"));
 
 	AddMessage(_T("총결산   총매입금[%s],총매도금[%s],총이익금[%s],총이익율[%4.2f]퍼센트"),
 		GetCurrencyString(laccBuyCost), GetCurrencyString(laccSellCost), GetCurrencyString(laccSellCost - laccBuyCost), double(laccSellCost - laccBuyCost) / double(laccBuyCost)*100.0);
 
-	AddMessage(_T("총결산 ==============================================================================================================="));
+	AddMessage(_T("총결산 ========================================================================================================================================"));
 }
 
