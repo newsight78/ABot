@@ -39,7 +39,8 @@
 //311 시가총액(억)
 //567 상한가발생시간
 //568 하한가발생시간
-
+//Call SetStData(m_lstOPT10004(1), "총매도잔량", "121", 2, 12)
+//Call SetStData(m_lstOPT10004(2), "총매수잔량", "125", 2, 13)
 //[2016/10/20][09:46:08.294] : RealData::[006050][국영지앤엠][WAITSELL],현재가:+3410,전일대비기호:2,전일대비:+330,등락율:+10.71,누적거래량:5413587,,094613	+3410	+330	+10.71	+3410	+3405	+1	5413587	19131	+3625	+3785	+3365	2	+4864653	+17390263985	+986.20	16.02	12	80.45	1153	2	0	000000	000000
 //[2016/10/20][09:46:08.887] : RealData::[006050][국영지앤엠][WAITSELL],현재가:+3410,전일대비기호:2,전일대비:+330,등락율:+10.71,누적거래량:5413590,,094614	+3410	+330	+10.71	+3410	+3405	+3	5413590	19131	+3625	+3785	+3365	2	+4864656	+17390274215	+986.20	16.02	12	80.45	1153	2	0	000000	000000
 
@@ -62,7 +63,9 @@ const stGRID lstOPTSBFID[] =
 	{ "전일대비",		"11",	-1, 4, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", ""  },
 	{ "등락율",			"12",	-1, 5, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", "%" },
 	{ "누적거래량",		"13",	-1, 6, DT_ZERO_NUMBER,	FALSE,	DT_RIGHT,		"", ""  },
-	{ DEF_YANG_TRADE,	"15",	-1, 7, DT_SIGN,			TRUE,	DT_RIGHT,		"", ""  },
+	{ DEF_YANG_TRADE,	"15",	-1, 7, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", ""  },
+	{ "총매도잔량",		"121",	-1, 8, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", ""  },
+	{ "총매수잔량",		"125",	-1, 9, DT_ZERO_NUMBER,	TRUE,	DT_RIGHT,		"", ""  },
 	/*
 	//27 (최우선)매도 호가
 	{ "(최우선)매도 호가", "27", -1, 1, DT_SIGN, TRUE, DT_CENTER, "", "" },
@@ -1350,9 +1353,9 @@ void CABotDlg::InitProcessCondition()
 void CABotDlg::InitRealAddGrid()
 {
 	COLORREF clr = RGB(215, 227, 241);
-	long i = 0, nWidth[] = { 50, 101, 56, 30, 56, 56, 80, 80 };
+	long i = 0, nWidth[] = { 50, 101, 56, 30, 56, 56, 60, 60, 60, 60 };
 	long nCnt = sizeof(nWidth) / sizeof(*nWidth);		// 전체크기 / 원소크기 = 원소개수
-	CString strHeader[] = { "코드", "종목명", "현재가", "기호", "전일대비", "등락율", "거래량", "양거래" };
+	CString strHeader[] = { "코드", "종목명", "현재가", "기호", "전일대비", "등락율", "거래량", "양거래", "총매도잔량", "총매수잔량" };
 
 	m_grdRealAdd.SetEditable(FALSE);				//cell을 에디트 못하게 함.
 //	m_grdRealAdd.EnableScrollBars(SB_BOTH, FALSE);
