@@ -3639,10 +3639,9 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		{
 			long lactBuyCost = aItem.m_lBuyCost;
 			long lactSellCost = long(aItem.m_lSellCost*(1 - m_dSellTradeFee / 100.) - long(aItem.m_lBuyCost*(m_dBuyTradeFee / 100.)));
-			if (lactBuyCost == 0) { lactBuyCost = 1; }
 			AddMessage(_T("결산 =================================================================================================================="));
-			AddMessage(_T("      [%s][%s],실 매입금[%s], 실 매도금[%s], 실현 이익[%s], 실 이익율[%4.2f]퍼센트 입니다."),
-				aItem.m_strCode, aItem.m_strName, GetCurrencyString(lactBuyCost), GetCurrencyString(lactSellCost), GetCurrencyString(lactSellCost - lactBuyCost), double(lactSellCost - lactBuyCost) / double(lactBuyCost)*100.0);
+			AddMessage(_T("      [%s][%s],단가[%s]>[%s],실거래금액[%s]>[%s],실현이익[%s],이익율[%4.2f]퍼센트 입니다."),
+				aItem.m_strCode, aItem.m_strName, GetCurrencyString(aItem.BuyPrice()), GetCurrencyString(aItem.SellPrice()), GetCurrencyString(lactBuyCost), GetCurrencyString(lactSellCost), GetCurrencyString(lactSellCost - lactBuyCost), (lactBuyCost>0 ? double(lactSellCost - lactBuyCost) / double(lactBuyCost)*100.0 : 0));
 			AddMessage(_T("결산 =================================================================================================================="));
 			m_lProcessDR -= lactBuyCost;
 			m_lProcessDR += lactSellCost;
@@ -3924,7 +3923,7 @@ void CABotDlg::ReportAllTrade()
 	long i = 0;
 	long laccBuyCost = 0;
 	long laccSellCost = 0;
-	AddMessage(_T("총결산 ========================================================================================================================================"));
+	AddMessage(_T("총결산 ==================================================================================================================================="));
 	ASSERT(MAX_ITEM_COUNT >= m_TradeDoneItemCount);
 	for (i = 0; i < m_TradeDoneItemCount; i++)
 	{
@@ -3943,18 +3942,17 @@ void CABotDlg::ReportAllTrade()
 				strMark = "__▼";
 			}
 
-			if (lactBuyCost == 0) {	lactBuyCost = 1; }
-			AddMessage(_T("       ,[%s][%3d],[%s]~[%s],[%s][%s],실매입금[%d],실매도금[%d],실이익율[%4.2f]퍼센트 입니다."),
-				strMark, i + 1, aItem.m_strBuyTime, aItem.m_strSellTime, aItem.m_strCode, aItem.m_strName, lactBuyCost, lactSellCost, double(lactSellCost - lactBuyCost) / double(lactBuyCost)*100.0);
+			AddMessage(_T("       ,[%s][%3d],[%s]~[%s],[%s][%s],단가[%s]>[%s],실거래금액[%s]>[%s],실이익율[%4.2f]퍼센트 입니다."),
+				strMark, i + 1, aItem.m_strBuyTime, aItem.m_strSellTime, aItem.m_strCode, aItem.m_strName, GetCurrencyString(aItem.BuyPrice()), GetCurrencyString(aItem.SellPrice()), GetCurrencyString(lactBuyCost), GetCurrencyString(lactSellCost), (lactBuyCost>0 ? double(lactSellCost - lactBuyCost) / double(lactBuyCost)*100.0 : 0));
 			laccBuyCost += lactBuyCost;
 			laccSellCost += lactSellCost;
 		}
 	}
-	AddMessage(_T("총결산 ========================================================================================================================================"));
+	AddMessage(_T("총결산 ==================================================================================================================================="));
 
 	AddMessage(_T("총결산   총매입금[%s],총매도금[%s],총이익금[%s],총이익율[%4.2f]퍼센트"),
-		GetCurrencyString(laccBuyCost), GetCurrencyString(laccSellCost), GetCurrencyString(laccSellCost - laccBuyCost), double(laccSellCost - laccBuyCost) / double(laccBuyCost)*100.0);
+		GetCurrencyString(laccBuyCost), GetCurrencyString(laccSellCost), GetCurrencyString(laccSellCost - laccBuyCost), (laccBuyCost>0?double(laccSellCost - laccBuyCost) / double(laccBuyCost)*100.0:0));
 
-	AddMessage(_T("총결산 ========================================================================================================================================"));
+	AddMessage(_T("총결산 ==================================================================================================================================="));
 }
 
