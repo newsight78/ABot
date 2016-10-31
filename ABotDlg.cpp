@@ -17,7 +17,7 @@
 
 
 //#define FIDLIST	_T("9001;302;10;11;25;12;13")
-#define FIDLIST	_T("9001;10;11;25;12;13")
+#define FIDLIST	_T("9001;10;25;11;12;13;15;121;125")
 
 //예약어.
 #define DEF_CUR_PRICE	_T("현재가")
