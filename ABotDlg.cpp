@@ -2052,18 +2052,21 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 		strData = theApp.m_khOpenApi.GetCommRealData(sJongmokCode, atol(lstOPTSBFID[i].strRealKey));
 		strData.Trim();
 		arrData.Add(strData);
-		strReceivedData += lstOPTSBFID[i].strKey;
-		strReceivedData += _T(":");
-		strReceivedData += strData;
-		strReceivedData += _T(",");
+		if (strData.GetLength()>0)
+		{
+			strReceivedData += lstOPTSBFID[i].strKey;
+			strReceivedData += _T(":");
+			strReceivedData += strData;
+			strReceivedData += _T(",");
 
-		if ( DEF_CUR_PRICE == lstOPTSBFID[i].strKey)
-		{
-			curPrice = atol(strData);
-		}
-		else if (DEF_YANG_TRADE == lstOPTSBFID[i].strKey)
-		{
-			yangtrade = atol(strData);
+			if (DEF_CUR_PRICE == lstOPTSBFID[i].strKey)
+			{
+				curPrice = atol(strData);
+			}
+			else if (DEF_YANG_TRADE == lstOPTSBFID[i].strKey)
+			{
+				yangtrade = atol(strData);
+			}
 		}
 	}
 
@@ -3316,11 +3319,13 @@ void CABotDlg::ProcessTradeAll()
 	lock.Lock();
 	if (lock.IsLocked())
 	{
+		AddMessage(_T("ProcessTradeAll::시작.>>>>>>>>>>>>>>>>>>>>>"));
 		long i = 0;
 		for (i = 0; i < m_ItemCount; i++)
 		{
 			ProcessTradeItem(i, TRUE);
 		}
+		AddMessage(_T("ProcessTradeAll::완료.<<<<<<<<<<<<<<<<<<<<<"));
 		lock.Unlock();
 	}
 }
@@ -3389,14 +3394,14 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 				double dyangcost = (aItem.m_lfilterBuyYangcost/ 10000.0) / dacctime;
 				if (dtickspeed >= m_dfilterBuyTickspeedLimit && dyangcost >= m_dfilterBuyYangcostLimit)
 				{
-					AddMessage(_T("라운드::[%s][%s][%s], 틱속도[%.2f]틱/초,양거래금액[%.2f]만원/초로 거래를 시작합니다."),
-						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), dtickspeed, dyangcost);
+					AddMessage(_T("라운드::[%s][%s][%s], 틱속도[%.2f]틱/초,양거래금액[%.2f]만원/초로 거래를 시작합니다,%s"),
+						aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), dtickspeed, dyangcost, bFromAllTrade?"[타이머]":"[이벤트]");
 					aItem.m_eitemState = eST_TRYBUY;
 					break;
 				}
 
-				AddMessage(_T("라운드::[%s][%s][%s], 틱속도[%.2f]틱/초,양거래금액[%.2f]만원/초로 다시 관심 종목에 진입할때까지 거래를 하지 않습니다."),
-					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), dtickspeed, dyangcost);
+				AddMessage(_T("라운드::[%s][%s][%s], 틱속도[%.2f]틱/초,양거래금액[%.2f]만원/초로 다시 관심 종목에 진입할때까지 거래를 하지 않습니다.%s"),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), dtickspeed, dyangcost, bFromAllTrade ? "[타이머]" : "[이벤트]");
 				aItem.m_eitemState = eST_TONONE;
 				break;
 			}
@@ -3412,22 +3417,22 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		if (aItem.m_ltryBuyCount == 0 && m_lProcessDR < m_lProcessItemDR)
 		{
 			//다시 종목으로 검색될때 까지 안녕~
-			AddMessage(_T("라운드::[%s][%s][%s], 잔여 운용 금액 %s[원]이 종목 운용 금액(수수료 포함) %s[원]보다 작습니다. 다시 관심 종목에 진입할때까지 거래를 하지 않습니다."), 
-				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), GetCurrencyString(m_lProcessDR), GetCurrencyString(m_lProcessItemDR));
+			AddMessage(_T("라운드::[%s][%s][%s], 잔여 운용 금액 %s[원]이 종목 운용 금액(수수료 포함) %s[원]보다 작습니다. 다시 관심 종목에 진입할때까지 거래를 하지 않습니다.%s"), 
+				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), GetCurrencyString(m_lProcessDR), GetCurrencyString(m_lProcessItemDR), bFromAllTrade ? "[타이머]" : "[이벤트]");
 			aItem.m_eitemState = eST_TONONE;
 			break;
 		}
 
 		if (REQ_ItemBuyOrder(aItem, bFromAllTrade))
 		{
-			AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d], 매수가 시도 되었습니다."), 
-				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity);
+			AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d], 매수가 시도 되었습니다.%s"), 
+				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 			aItem.m_eitemState = eST_WAITBUY;
 
 			if (aItem.m_ltryBuyCount == 0)
 			{
 				m_lProcessDR -= m_lProcessItemDR;
-				AddMessage(_T("라운드::운용 금액 총합은 %s[원]이 되었습니다."), GetCurrencyString(m_lProcessDR));
+				AddMessage(_T("라운드::운용 금액 총합은 %s[원]이 되었습니다.%s"), GetCurrencyString(m_lProcessDR), bFromAllTrade ? "[타이머]" : "[이벤트]");
 			}
 			break;
 		}
@@ -3444,14 +3449,14 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 			aItem.m_ltryBuyCount++;
 			if (aItem.m_ltryBuyCount > m_lItemBuyTryCount)
 			{
-				AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d],재시도[%d], 거래를 포기 합니다."),
-					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_ltryBuyCount);
+				AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d],재시도[%d], 거래를 포기 합니다.%s"),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_ltryBuyCount, bFromAllTrade ? "[타이머]" : "[이벤트]");
 				aItem.m_eitemState = eST_BUYCANCEL;
 				break;
 			}
 
-			AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d], 매수가 재시도[%d] 되었습니다."),
-				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_ltryBuyCount);
+			AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d], 매수가 재시도[%d] 되었습니다.%s"),
+				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity - aItem.m_lBuyQuantity, aItem.m_ltryBuyCount, bFromAllTrade ? "[타이머]" : "[이벤트]");
 			aItem.m_eitemState = eST_TRYBUY;
 			break;
 		}
@@ -3473,8 +3478,8 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		{
 			aItem.m_lsellPrice = CalcBuyAndSellPrice(aItem.BuyPrice(), m_dSellOverThis0, TRUE);
 			aItem.m_lunderPrice = long(aItem.BuyPrice() - aItem.BuyPrice()*m_dSellUnderThis0 / 100.);
-			AddMessage(_T("라운드::[%s][%s][%s],목표상가[%d],목표하가[%d],수량[%d], 매도에 도전합니다."),
-				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lunderPrice, aItem.m_lQuantity);
+			AddMessage(_T("라운드::[%s][%s][%s],목표상가[%d],목표하가[%d],수량[%d], 매도에 도전합니다.%s"),
+				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lunderPrice, aItem.m_lQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 			aItem.m_eitemState = eST_TRYSELL;
 		//	break;
 		}
@@ -3506,8 +3511,8 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		*/
 		if (aItem.m_eitemState == eST_TRYSELL && aItem.m_lBuyQuantity != aItem.m_lQuantity)
 		{
-			AddMessage(_T("라운드::[%s][%s][%s],매도 수량 정정, 최초수량[%d]<==매수수량[%d]."),
-				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lQuantity, aItem.m_lBuyQuantity);
+			AddMessage(_T("라운드::[%s][%s][%s],매도 수량 정정, 최초수량[%d]<==매수수량[%d].%s"),
+				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lQuantity, aItem.m_lBuyQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 			aItem.m_lQuantity = aItem.m_lBuyQuantity;
 		}
 
@@ -3526,8 +3531,8 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		{
 		//	aItem.m_ltrySellTimeout = 0;
 
-			AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d], 매도가 시도 되었습니다."),
-				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity - aItem.m_lSellQuantity);
+			AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d], 매도가 시도 되었습니다.%s"),
+				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity - aItem.m_lSellQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 			aItem.m_eitemState = eST_WAITSELL;
 			break;
 		}
@@ -3542,15 +3547,15 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 
 		if (m_bDoSellItemMarketValueAtRoundEnd && !IsInRoundTime())
 		{
-			AddMessage(_T("라운드::[%s][%s][%s],현재가[%d],수량[%d], 라운드 시간 후 시장가 매도 옵션에 의해, 매도가 시장가로 시도합니다."),
-				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity);
+			AddMessage(_T("라운드::[%s][%s][%s],현재가[%d],수량[%d], 라운드 시간 후 시장가 매도 옵션에 의해, 매도가 시장가로 시도합니다.%s"),
+				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 			aItem.m_eitemState = eST_SELLMARKETVALUE;
 			break;
 		}
 		else if (aItem.m_lcurPrice <= aItem.m_lunderPrice)
 		{
-			AddMessage(_T("라운드::[%s][%s][%s],현재가▼[%d],수량[%d], 매도가 시장가로 시도합니다. 하락."),
-				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity);
+			AddMessage(_T("라운드::[%s][%s][%s],현재가▼[%d],수량[%d], 매도가 시장가로 시도합니다. 하락.%s"),
+				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lsellPrice, aItem.m_lQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 			aItem.m_eitemState = eST_SELLMARKETVALUE;
 			break;
 		}
@@ -3565,15 +3570,15 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 			if (aItem.BuyPrice() <= lestimatedSellprice)
 			{
 				asellPrice = aItem.m_lcurPrice;
-				AddMessage(_T("라운드::[%s][%s][%s],현재가[%d][%d],수량[%d], 매도 시간 타임 아웃#0, 현재가로 매도 시도합니다."),
-					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), asellPrice, lestimatedSellprice, aItem.m_lQuantity);
+				AddMessage(_T("라운드::[%s][%s][%s],현재가[%d][%d],수량[%d], 매도 시간 타임 아웃#0, 현재가로 매도 시도합니다.%s"),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), asellPrice, lestimatedSellprice, aItem.m_lQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 			}
 
 			if (aItem.m_lsellPrice != asellPrice || aItem.m_lunderPrice != aunderPrice)
 			{
 				aItem.m_lunderPrice = aunderPrice;
-				AddMessage(_T("라운드::[%s][%s][%s],목표상가[%d],목표하가[%d],수량[%d], 매도 시간 타임 아웃#0, 상가/하가 변경 되었습니다."),
-					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), asellPrice, aItem.m_lunderPrice, aItem.m_lQuantity);
+				AddMessage(_T("라운드::[%s][%s][%s],목표상가[%d],목표하가[%d],수량[%d], 매도 시간 타임 아웃#0, 상가/하가 변경 되었습니다.%s"),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), asellPrice, aItem.m_lunderPrice, aItem.m_lQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 
 				if (aItem.m_lsellPrice != asellPrice)
 				{
@@ -3594,15 +3599,15 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 			if (aItem.BuyPrice() <= lestimatedSellprice)
 			{
 				asellPrice = aItem.m_lcurPrice;
-				AddMessage(_T("라운드::[%s][%s][%s],현재가[%d][%d],수량[%d], 매도 시간 타임 아웃#1, 현재가로 매도 시도합니다."),
-					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), asellPrice, lestimatedSellprice, aItem.m_lQuantity);
+				AddMessage(_T("라운드::[%s][%s][%s],현재가[%d][%d],수량[%d], 매도 시간 타임 아웃#1, 현재가로 매도 시도합니다.%s"),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), asellPrice, lestimatedSellprice, aItem.m_lQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 			}
 
 			if (aItem.m_lsellPrice != asellPrice || aItem.m_lunderPrice != aunderPrice)
 			{
 				aItem.m_lunderPrice = aunderPrice;
-				AddMessage(_T("라운드::[%s][%s][%s],목표상가[%d],목표하가[%d],수량[%d], 매도 시간 타임 아웃#1, 상가/하가 변경 되었습니다."),
-					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), asellPrice, aItem.m_lunderPrice, aItem.m_lQuantity);
+				AddMessage(_T("라운드::[%s][%s][%s],목표상가[%d],목표하가[%d],수량[%d], 매도 시간 타임 아웃#1, 상가/하가 변경 되었습니다.%s"),
+					aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), asellPrice, aItem.m_lunderPrice, aItem.m_lQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 
 				if (aItem.m_lsellPrice != asellPrice)
 				{
@@ -3654,7 +3659,7 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		}
 		m_lProcessDR += m_lProcessItemDR;
 
-		AddMessage(_T("운용 금액 총합은 %s[원]이 되었습니다."), GetCurrencyString(m_lProcessDR));
+		AddMessage(_T("운용 금액 총합은 %s[원]이 되었습니다.%s"), GetCurrencyString(m_lProcessDR), bFromAllTrade ? "[타이머]" : "[이벤트]");
 		aItem.m_eitemState = eST_TRADEDONE;
 		break;
 
@@ -3696,8 +3701,8 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem, BOOL bFromAllTrade)
 
 	if (nextQuantity <= 0)	//구매 가능 수량이 0일 경우 예외 처리.
 	{
-		AddMessage(_T("BUY_ORDER::[%s],[%s][%s][%s],단가[%d],수량[%d], 거래를 포기 합니다."),
-			GetOrderTypeString(lOrderType), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity - aItem.m_lBuyQuantity);
+		AddMessage(_T("BUY_ORDER::[%s],[%s][%s][%s],단가[%d],수량[%d], 거래를 포기 합니다.%s"),
+			GetOrderTypeString(lOrderType), aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity - aItem.m_lBuyQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
 		if (aItem.m_lBuyQuantity > 0)
 		{
 			//매수 취소.
