@@ -88,11 +88,13 @@
 
 #include "Util.h"
 #include "CDKHOpenAPI.h"
-#include "ABotItem.h"
-#include "CsMsgDisp.h"
-#include "ALog.h"
 
+#include "ABotItem.h"
 extern CABotItem	g_ABotItem[100];
+
+#include "CsMsgDisp.h"
 extern CsMsgDisp *	g_pMsgDisp;
+
+#include "ALog.h"
 extern CALog		g_logger;
 

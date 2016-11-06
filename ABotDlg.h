@@ -7,10 +7,10 @@
 #include "ABotItem.h"
 #include "GridCtrl\GridCtrl.h"
 #include "AbotDefine.h"
-#include "SysRes.h"
+#include "AflThread.h"
 
 // CABotDlg 대화 상자
-class CABotDlg : public CDialogEx
+class CABotDlg : public CDialogEx, public CAflThread
 {
 // 생성입니다.
 public:
@@ -24,7 +24,9 @@ protected:
 
 // 구현입니다.
 protected:
-	CSysRes m_criticalItemProcess;
+	volatile BOOL bDoThreadRun;
+
+	CCriticalSection m_criticalItemProcess;
 	HICON m_hIcon;
 
 	// 생성된 메시지 맵 함수
@@ -63,6 +65,7 @@ public:
 	BOOL REQ_ItemSellOrder(CABotItem &aItem, BOOL bMarketVale, BOOL bFromAllTrade);
 	BOOL REQ_ItemSellCancel(CABotItem &aItem, BOOL bFromAllTrade);
 	BOOL REQ_BalanceInfo();
+	BOOL REQ_DateInfo();
 	BOOL IsEndTrade();
 	void ReportAllTrade();
 
@@ -74,7 +77,14 @@ public:
 	BOOL getAccountData();
 	CString GetOrderTypeString(long lOrderType);
 
+	virtual void ThreadEntry(void);
+	virtual void ThreadExit(void);
+	virtual void ThreadRun(void);
+
+	void ThreadEnd(void);
+
 public:
+	BOOL				m_bTradeAllowed;		//트레이드가 허락되어 있는가?
 	eProcessState		m_eProcessState;		//프로세스 상태.
 	BOOL				m_bDoFinishProcess;		//프로세스 종료 요청.
 	long				m_nProcessItemCount;	//라운드에서 사용할 최대 종목수.

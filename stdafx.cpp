@@ -6,6 +6,10 @@
 #include "stdafx.h"
 
 CABotItem	g_ABotItem[100];
-CsMsgDisp * g_pMsgDisp;
+
+CsMsgDisp *	g_pMsgDisp;
+
 CALog		g_logger;
+
+
 
