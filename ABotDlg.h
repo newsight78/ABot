@@ -3,14 +3,25 @@
 //
 
 #pragma once
+
+//#define USE_THREAD	//쓰레드를 쓸건가(아니면 타이머를 쓴다.)
+
+#define CRITICAL_LOG	//Critical section 관련 로그 남기나?
+
 #include "afxwin.h"
 #include "ABotItem.h"
 #include "GridCtrl\GridCtrl.h"
 #include "AbotDefine.h"
+
+#ifdef USE_THREAD
 #include "AflThread.h"
+#endif//USE_THREAD
 
 // CABotDlg 대화 상자
-class CABotDlg : public CDialogEx, public CAflThread
+class CABotDlg : public CDialogEx
+#ifdef USE_THREAD 
+				, public CAflThread
+#endif//USE_THREAD
 {
 // 생성입니다.
 public:
@@ -24,9 +35,7 @@ protected:
 
 // 구현입니다.
 protected:
-	volatile BOOL bDoThreadRun;
-
-	CCriticalSection m_criticalItemProcess;
+	CRITICAL_SECTION m_criticalItemProcess;
 	HICON m_hIcon;
 
 	// 생성된 메시지 맵 함수
@@ -77,11 +86,17 @@ public:
 	BOOL getAccountData();
 	CString GetOrderTypeString(long lOrderType);
 
+#ifdef USE_THREAD
+protected:
+	volatile BOOL bDoThreadRun;
+
+public:
 	virtual void ThreadEntry(void);
 	virtual void ThreadExit(void);
 	virtual void ThreadRun(void);
 
 	void ThreadEnd(void);
+#endif//USE_THREAD
 
 public:
 	BOOL				m_bTradeAllowed;		//트레이드가 허락되어 있는가?
