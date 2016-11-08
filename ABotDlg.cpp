@@ -13,13 +13,13 @@
 
 //#define TARGET_DATE (TARGET_A TARGET_B TARGET_C)
 
-#define TARGET_C "02"
+#define TARGET_C "31"
 
 #define START_TIMER		(1001)
 #define CONDITION_TIMER	(1002)
 #define ROUND_TIMER		(1003)
 
-#define TARGET_B "701"
+#define TARGET_B "612"
 
 //#define FIDLIST	_T("9001;302;10;11;25;12;13")
 #define FIDLIST	_T("9001;10;25;11;12;13;15;121;125")
@@ -226,9 +226,9 @@ CABotDlg::CABotDlg(CWnd* pParent /*=NULL*/)
 	InitializeCriticalSection(&m_criticalItemProcess);
 
 	m_bTradeAllowed = TRUE;
-#ifdef USE_THREAD
+	#ifdef USE_THREAD
 	bDoThreadRun = TRUE;
-#endif//USE_THREAD	
+	#endif//USE_THREAD	
 }
 
 void CABotDlg::DoDataExchange(CDataExchange* pDX)
@@ -450,9 +450,9 @@ BOOL CABotDlg::OnInitDialog()
 
 	m_nConditionIndex = -1;
 
-#ifdef CRITICAL_LOG //>>>>>>>>>>>>>>>>>>>>>
+	#ifdef CRITICAL_LOG //>>>>>>>>>>>>>>>>>>>>>
 	AddMessage(_T("CRITICAL_SECTION 로그 엄청 남을것입니다."), __LINE__);
-#endif//CRITICAL_LOG//<<<<<<<<<<<<<<<<<<<<<
+	#endif//CRITICAL_LOG//<<<<<<<<<<<<<<<<<<<<<
 
 	SetTimer(START_TIMER, 1000, NULL);
 
@@ -1442,9 +1442,9 @@ void CABotDlg::OnTimer(UINT_PTR nIDEvent)
 			strBuf.Format(_T("ABot [%s]"), GetRoundText(m_eProcessState));
 			SetWindowText(strBuf);
 		}
-#ifndef USE_THREAD
+		#ifndef USE_THREAD
 		ProcessSequence();
-#endif//USE_THREAD	
+		#endif//USE_THREAD	
 	}
 	else if (START_TIMER == nIDEvent)
 	{
@@ -1551,9 +1551,9 @@ void CABotDlg::OnDestroy()
 {
 	CDialogEx::OnDestroy();
 
-#ifdef USE_THREAD
+	#ifdef USE_THREAD
 	ThreadEnd();
-#endif//USE_THREAD
+	#endif//USE_THREAD
 
 	DeleteCriticalSection(&m_criticalItemProcess);
 
@@ -2545,15 +2545,39 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 			m_grdBuyItem.Invalidate();
 		}
 	}
-	else if (strRQName == _T("일별주가요청"))
+	else if (strRQName == _T("주식시분요청"))
 	{
-		CString strBuf;
+		CString strTgtDate = (TARGET_A TARGET_B TARGET_C);
 
-		strBuf = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("거래량"));
-	//	AddMessage("거래량" + strBuf + " [주]");
-		if (strBuf.GetLength() > 1)
+		CString strToday;
+
+		strToday = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("날짜")); strToday.Trim();
+		
+		theApp.m_khOpenApi.SetRealRemove(m_strScrNo, "015760");
+
+		#ifdef	LICENSE_LOG
+		AddMessage("받은 날짜:[" + strToday + "]");
+		#endif//LICENSE_LOG
+
+		if (atoi(strTgtDate.Left(4)) < atoi(strToday.Left(4)))
 		{
+			#ifdef	LICENSE_LOG
+			AddMessage("라이센스 상실 1");
+			#endif//LICENSE_LOG
 			m_bTradeAllowed = FALSE;
+		}
+		else if (atoi(strTgtDate.Left(4)) == atoi(strToday.Left(4)) && atoi(strTgtDate.Right(4)) < atoi(strToday.Right(4)))
+		{
+			#ifdef	LICENSE_LOG
+			AddMessage("라이센스 상실 2");
+			#endif//LICENSE_LOG
+			m_bTradeAllowed = FALSE;
+		}
+		else
+		{
+			#ifdef	LICENSE_LOG
+			AddMessage("라이센스 획득");
+			#endif//LICENSE_LOG
 		}
 	}
 	else if (strRQName == _T("일자별실현손익요청"))
@@ -3035,16 +3059,16 @@ void CABotDlg::OnBnClickedButtonStartRound()
 	{
 		if (REQ_DepositReceived())
 		{
-		//	REQ_DateInfo();
+			REQ_DateInfo();
 			SetDisableControls();
 			m_bDoFinishProcess = FALSE;
 			m_eProcessState = ePST_ROUND_START;
 			SetTimer(ROUND_TIMER, 1000, NULL);
-		#ifdef USE_THREAD
+			#ifdef USE_THREAD
 			bDoThreadRun = TRUE;
 			CAflThread::Create();
 			CAflThread::Resume();
-		#endif//USE_THREAD	
+			#endif//USE_THREAD	
 			AddMessage(_T("라운드 시작 요청."));
 		}
 	}
@@ -3055,9 +3079,9 @@ void CABotDlg::OnBnClickedButtonFinishRound()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	if (m_eProcessState <= ePST_ITEM_WAIT)
 	{
-#ifdef USE_THREAD
+		#ifdef USE_THREAD
 		ThreadEnd();
-#endif//USE_THREAD	
+		#endif//USE_THREAD	
 		SetEnableControls();
 		KillTimer(ROUND_TIMER);
 		m_eProcessState = ePST_IDLE;
@@ -3077,9 +3101,9 @@ void CABotDlg::OnBnClickedButtonStopRound()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	if (TRUE)//m_eProcessState <= ePST_ITEM_WAIT)
 	{
-#ifdef USE_THREAD
+		#ifdef USE_THREAD
 		ThreadEnd();
-#endif//USE_THREAD	
+		#endif//USE_THREAD	
 		SetEnableControls();
 		KillTimer(ROUND_TIMER);
 		m_eProcessState = ePST_IDLE;
@@ -3394,9 +3418,9 @@ void CABotDlg::ProcessSequence()
 	case ePST_KILL_PROC:
 		m_nProcessRetryCount = 0;
 		SetEnableControls();
-#ifdef USE_THREAD
+		#ifdef USE_THREAD
 		bDoThreadRun = FALSE;
-#endif//USE_THREAD	
+		#endif//USE_THREAD	
 		KillTimer(ROUND_TIMER);
 		SetWindowText(_T("ABot"));
 		m_eProcessState = ePST_IDLE;
@@ -3427,9 +3451,9 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 	}
 
 	EnterCriticalSection(&m_criticalItemProcess);
-#ifdef CRITICAL_LOG //>>>>>>>>>>>>>>>>>>>>>
+	#ifdef CRITICAL_LOG //>>>>>>>>>>>>>>>>>>>>>
 	AddMessage(_T("ProcessTradeItem%s[%d]::시작.>>>>>>>>>>>>LOCK_%d"), bFromAllTrade ? "[타이머]" : "[이벤트]", nItemId, __LINE__);
-#endif//CRITICAL_LOG//<<<<<<<<<<<<<<<<<<<<<
+	#endif//CRITICAL_LOG//<<<<<<<<<<<<<<<<<<<<<
 
 	CABotItem &aItem = m_Item[nItemId];
 
@@ -3761,9 +3785,9 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		break;
 	}
 
-#ifdef CRITICAL_LOG //>>>>>>>>>>>>>>>>>>>>>
-	AddMessage(_T("ProcessTradeItem%s[%d]::종료.>>>>>>>>>>>>UNLOCK_%d"), bFromAllTrade ? "[타이머]" : "[이벤트]", nItemId, __LINE__);
-#endif//CRITICAL_LOG//<<<<<<<<<<<<<<<<<<<<<
+	#ifdef CRITICAL_LOG //>>>>>>>>>>>>>>>>>>>>>
+	AddMessage(_T("ProcessTradeItem%s[%d]::종료.<<<<<<<<<<<<UNLOCK_%d"), bFromAllTrade ? "[타이머]" : "[이벤트]", nItemId, __LINE__);
+	#endif//CRITICAL_LOG//<<<<<<<<<<<<<<<<<<<<<
 
 
 	LeaveCriticalSection(&m_criticalItemProcess);
@@ -3989,19 +4013,22 @@ CString CABotDlg::GetOrderTypeString(long lOrderType)
 BOOL CABotDlg::REQ_DateInfo()
 {
 	long lRet = 0;
-	CString strBuf = (TARGET_A TARGET_B TARGET_C);
 
 //	종목코드 = 전문 조회할 종목코드
 	theApp.m_khOpenApi.SetInputValue("종목코드", "015760");	//한국 전력
 
 //	조회일자 = YYYYMMDD(20160101 연도4자리, 월 2자리, 일 2자리 형식)
-	theApp.m_khOpenApi.SetInputValue("조회일자", strBuf);
+//	theApp.m_khOpenApi.SetInputValue("조회일자", strBuf);
 
 //	표시구분 = 0:수량, 1 : 금액(백만원)
-	theApp.m_khOpenApi.SetInputValue("표시구분", "0");
+//	theApp.m_khOpenApi.SetInputValue("표시구분", "0");
+	
+	lRet = theApp.m_khOpenApi.CommRqData(_T("주식시분요청"), _T("OPT10006"), 0, m_strScrNo);
 
-	lRet = theApp.m_khOpenApi.CommRqData(_T("일별주가요청"), _T("opt10086"), 0, m_strScrNo);
-	AddMessage("일별주가요청 %s, %s. [%d]", strBuf, (lRet >= 0 ? "성공" : "실패"), lRet);
+//	lRet = theApp.m_khOpenApi.CommRqData(_T("일별주가요청"), _T("opt10086"), 0, m_strScrNo);
+	#ifdef	LICENSE_LOG
+	AddMessage("라이센스 확인 요청 [%s], %s. [%d]", (TARGET_A TARGET_B TARGET_C), (lRet >= 0 ? "성공" : "실패"), lRet);
+	#endif//LICENSE_LOG
 	if (lRet < 0) {
 		return FALSE;
 	}

@@ -5,8 +5,8 @@
 #pragma once
 
 //#define USE_THREAD	//쓰레드를 쓸건가(아니면 타이머를 쓴다.)
-
-#define CRITICAL_LOG	//Critical section 관련 로그 남기나?
+//#define CRITICAL_LOG	//Critical section 관련 로그 남기나?
+//#define LICENSE_LOG		//라이센스 로그 남기나?
 
 #include "afxwin.h"
 #include "ABotItem.h"
