@@ -22,7 +22,8 @@
 #define TARGET_B "612"
 
 //#define FIDLIST	_T("9001;302;10;11;25;12;13")
-#define FIDLIST	_T("9001;10;25;11;12;13;15;121;125")
+#define FIDLIST	_T("9001;10;25;11;12;13;15")
+//#define FIDLIST	_T("9001;10;25;11;12;13;15;121;125")
 
 //예약어.
 #define DEF_CUR_PRICE	_T("현재가")
@@ -2070,7 +2071,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 
 	if (!m_mapJongCode.Lookup(sJongmokCode, strIndex))
 	{
-		AddMessage(_T("RealData::[%s][%s], grid index[%s], not in m_mapJongCode"), sJongmokCode, strCodeName, strIndex);
+		AddMessage(_T("RealData::[%s][%s], grid index[%s], not in m_mapJongCode, [%s][%s]"), sJongmokCode, strCodeName, strIndex, sRealType, sRealData);
 		return;
 	}
 
@@ -2078,7 +2079,7 @@ void CABotDlg::OnReceiveRealData(LPCTSTR sJongmokCode, LPCTSTR sRealType, LPCTST
 	if (!m_mapItemCode.Lookup(sJongmokCode, nItemIndex))
 	{
 		nItemIndex = -1;
-		AddMessage(_T("RealData::[%s][%s], grid index[%s], not in m_mapItemCode"), sJongmokCode, strCodeName, strIndex);
+		AddMessage(_T("RealData::[%s][%s], grid index[%s], not in m_mapItemCode, [%s][%s]"), sJongmokCode, strCodeName, strIndex, sRealType, sRealData);
 	}
 
 //	AddMessage(_T("OnReceiveRealData::"));
@@ -3450,11 +3451,6 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 		return;
 	}
 
-	EnterCriticalSection(&m_criticalItemProcess);
-	#ifdef CRITICAL_LOG //>>>>>>>>>>>>>>>>>>>>>
-	AddMessage(_T("ProcessTradeItem%s[%d]::시작.>>>>>>>>>>>>LOCK_%d"), bFromAllTrade ? "[타이머]" : "[이벤트]", nItemId, __LINE__);
-	#endif//CRITICAL_LOG//<<<<<<<<<<<<<<<<<<<<<
-
 	CABotItem &aItem = m_Item[nItemId];
 
 	switch (aItem.m_eitemState)
@@ -3541,7 +3537,13 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 			break;
 		}
 
-		if (REQ_ItemBuyOrder(aItem, bFromAllTrade))
+		EnterCriticalSection(&m_criticalItemProcess);
+#ifdef CRITICAL_LOG //>>>>>>>>>>>>>>>>>>>>>
+		AddMessage(_T("ProcessTradeItem%s[%d]::시작.>>>>>>>>>>>>LOCK_%d"), bFromAllTrade ? "[타이머]" : "[이벤트]", nItemId, __LINE__);
+#endif//CRITICAL_LOG//<<<<<<<<<<<<<<<<<<<<<
+
+		if (aItem.m_eitemState == eST_TRYBUY && 
+			REQ_ItemBuyOrder(aItem, bFromAllTrade))
 		{
 			AddMessage(_T("라운드::[%s][%s][%s],단가[%d],수량[%d], 매수가 시도 되었습니다.%s"), 
 				aItem.m_strCode, aItem.m_strName, aItem.GetStateString(), aItem.m_lbuyPrice, aItem.m_lQuantity, bFromAllTrade ? "[타이머]" : "[이벤트]");
@@ -3552,8 +3554,13 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 				m_lProcessDR -= m_lProcessItemDR;
 				AddMessage(_T("라운드::운용 금액 총합은 %s[원]이 되었습니다.%s"), GetCurrencyString(m_lProcessDR), bFromAllTrade ? "[타이머]" : "[이벤트]");
 			}
-			break;
 		}
+
+#ifdef CRITICAL_LOG //>>>>>>>>>>>>>>>>>>>>>
+		AddMessage(_T("ProcessTradeItem%s[%d]::종료.<<<<<<<<<<<<UNLOCK_%d"), bFromAllTrade ? "[타이머]" : "[이벤트]", nItemId, __LINE__);
+#endif//CRITICAL_LOG//<<<<<<<<<<<<<<<<<<<<<
+		LeaveCriticalSection(&m_criticalItemProcess);
+
 		break;
 
 	case eST_WAITBUY:	//매수 체결 대기 상태.
@@ -3784,13 +3791,6 @@ void CABotDlg::ProcessTradeItem(int nItemId, BOOL bFromAllTrade/*=FALSE*/)
 	case eST_TRADEDONE:	//거래 완료 상태.
 		break;
 	}
-
-	#ifdef CRITICAL_LOG //>>>>>>>>>>>>>>>>>>>>>
-	AddMessage(_T("ProcessTradeItem%s[%d]::종료.<<<<<<<<<<<<UNLOCK_%d"), bFromAllTrade ? "[타이머]" : "[이벤트]", nItemId, __LINE__);
-	#endif//CRITICAL_LOG//<<<<<<<<<<<<<<<<<<<<<
-
-
-	LeaveCriticalSection(&m_criticalItemProcess);
 }
 
 BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem, BOOL bFromAllTrade)
