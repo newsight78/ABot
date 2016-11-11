@@ -200,6 +200,8 @@ CABotDlg::CABotDlg(CWnd* pParent /*=NULL*/)
 	m_nConditionIndex = 0;
 	m_nProcessItemCount = 0;
 
+	m_lBuyMaxQuantity = 0;
+
 	m_lItemBuyTimeout = 0;
 	m_lItemBuyTryCount = 0;
 	m_lItemHoldTimeout = 0;
@@ -879,6 +881,20 @@ void CABotDlg::LoadSystemFile()
 	}
 	AddMessage("     종목당 운용 금액 [%s]만원.", strBuf);
 
+	// 종목별 최대 매수 수량
+	ReadFromIniFile_String(m_strConfigFile, "BUY", "max_quantity", "0", strBuf);
+	n = atol((LPSTR)(LPCSTR)strBuf);
+	if (n > 0)
+	{
+		m_lBuyMaxQuantity = n;
+		AddMessage("     종목별 최대 매수 수량 [%s]개.", strBuf);
+	}
+	else
+	{
+		m_lBuyMaxQuantity = 0;
+		AddMessage("     종목별 최대 매수 수량 제한 없음.");
+	}
+
 	// 매수 방법, 현재가, 시장가. 향후..퍼센트 지정.
 	ReadFromIniFile_String(m_strConfigFile, "BUY", "method", "현재가", strBuf);
 	for (i = 0; i<m_cmbBuyMethod.GetCount(); i++)
@@ -1219,6 +1235,10 @@ void CABotDlg::SaveSystemFile()
 	// 종목당 최대 투자 허용 금액
 	m_cmbMaxAmount.GetWindowText(strBuf);
 	WriteToIniFile_String(m_strConfigFile, "BUY", "max_amount", strBuf);
+
+	// 종목별 최대 매수 수량
+	strBuf.Format("%d", m_lBuyMaxQuantity);
+	WriteToIniFile_String(m_strConfigFile, "BUY", "max_quantity", strBuf);
 
 	// 매수 방법, 현재가, 시장가. 향후..퍼센트 지정.
 	m_cmbBuyMethod.GetWindowText(strBuf);
@@ -2546,15 +2566,14 @@ void CABotDlg::OnReceiveTrData(LPCTSTR sScrNo, LPCTSTR sRQName, LPCTSTR sTrCode,
 			m_grdBuyItem.Invalidate();
 		}
 	}
-	else if (strRQName == _T("주식시분요청"))
+	else if (strRQName == _T("날짜요청"))
 	{
 		CString strTgtDate = (TARGET_A TARGET_B TARGET_C);
 
 		CString strToday;
-
 		strToday = theApp.m_khOpenApi.GetCommData(sTrCode, sRQName, 0, _T("날짜")); strToday.Trim();
-		
-		theApp.m_khOpenApi.SetRealRemove(m_strScrNo, "015760");
+
+//		theApp.m_khOpenApi.SetRealRemove(m_strScrNo, "015760");
 
 		#ifdef	LICENSE_LOG
 		AddMessage("받은 날짜:[" + strToday + "]");
@@ -3824,6 +3843,11 @@ BOOL CABotDlg::REQ_ItemBuyOrder(CABotItem &aItem, BOOL bFromAllTrade)
 	long lcurPrice = aItem.m_lcurPrice;
 	long nextQuantity = long((m_lProcessItemDR - aItem.m_lBuyCost) / lcurPrice);
 
+	if (m_lBuyMaxQuantity > 0 && nextQuantity > m_lBuyMaxQuantity)
+	{
+		nextQuantity = m_lBuyMaxQuantity;
+	}
+
 	if (nextQuantity <= 0)	//구매 가능 수량이 0일 경우 예외 처리.
 	{
 		AddMessage(_T("BUY_ORDER::[%s],[%s][%s][%s],단가[%d],수량[%d], 거래를 포기 합니다.%s"),
@@ -4022,10 +4046,9 @@ BOOL CABotDlg::REQ_DateInfo()
 
 //	표시구분 = 0:수량, 1 : 금액(백만원)
 //	theApp.m_khOpenApi.SetInputValue("표시구분", "0");
-	
-	lRet = theApp.m_khOpenApi.CommRqData(_T("주식시분요청"), _T("OPT10006"), 0, m_strScrNo);
+	//OPT10005, OPT10006, OPT10007 전부 날짜를 얻을 수 있음.
+	lRet = theApp.m_khOpenApi.CommRqData(_T("날짜요청"), _T("OPT10005"), 0, m_strScrNo);
 
-//	lRet = theApp.m_khOpenApi.CommRqData(_T("일별주가요청"), _T("opt10086"), 0, m_strScrNo);
 	#ifdef	LICENSE_LOG
 	AddMessage("라이센스 확인 요청 [%s], %s. [%d]", (TARGET_A TARGET_B TARGET_C), (lRet >= 0 ? "성공" : "실패"), lRet);
 	#endif//LICENSE_LOG

@@ -145,6 +145,7 @@ public:
 	CMapStringToString	m_mapJongCode;			// 리얼 등록 종목
 	CMapStringToString	m_mapNameList;			// 조건검색명리스트
 	long				m_lDepositReceived;		// 예수금 [원]
+	long				m_lBuyMaxQuantity;		// 최대 구매 수량.
 
 	CCellID				m_cellSelect;		// 종목 그리드 선택 행
 	CGridCtrl			m_grdRealAdd;		// 종목 그리드
