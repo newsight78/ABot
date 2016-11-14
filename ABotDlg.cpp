@@ -4036,6 +4036,8 @@ CString CABotDlg::GetOrderTypeString(long lOrderType)
 
 BOOL CABotDlg::REQ_DateInfo()
 {
+	return TRUE;
+
 	long lRet = 0;
 
 //	종목코드 = 전문 조회할 종목코드
@@ -4047,7 +4049,7 @@ BOOL CABotDlg::REQ_DateInfo()
 //	표시구분 = 0:수량, 1 : 금액(백만원)
 //	theApp.m_khOpenApi.SetInputValue("표시구분", "0");
 	//OPT10005, OPT10006, OPT10007 전부 날짜를 얻을 수 있음.
-	lRet = theApp.m_khOpenApi.CommRqData(_T("날짜요청"), _T("OPT10005"), 0, m_strScrNo);
+	lRet = theApp.m_khOpenApi.CommRqData(_T("날짜요청"), _T("OPT10007"), 0, m_strScrNo);
 
 	#ifdef	LICENSE_LOG
 	AddMessage("라이센스 확인 요청 [%s], %s. [%d]", (TARGET_A TARGET_B TARGET_C), (lRet >= 0 ? "성공" : "실패"), lRet);
